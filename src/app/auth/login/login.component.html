@@ -1,1 +1,79 @@
-<p>login works!</p>
+<div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="w-100" style="max-width: 400px;">
+      <div class="text-center mb-4">
+        <h3 class="fw-bold">Đăng Nhập</h3>
+        <p class="text-muted">Chào mừng bạn quay trở lại!</p>
+      </div>
+  
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <!-- Username Field -->
+        <div class="form-floating mb-3">
+          <input 
+            type="text" 
+            class="form-control" 
+            id="username"
+            formControlName="username"
+            placeholder="Tên Tài Khoản"
+            [ngClass]="{'is-invalid': submitted && f['username'].errors}"
+          />
+          <label for="username">Tên Tài Khoản</label>
+          <div class="invalid-feedback" *ngIf="submitted && f['username'].errors">
+            <div *ngIf="f['username'].errors['required']">Vui lòng nhập tên tài khoản</div>
+          </div>
+        </div>
+  
+        <!-- Password Field -->
+        <div class="form-floating mb-3">
+          <input 
+            [type]="showPassword ? 'text' : 'password'" 
+            class="form-control" 
+            id="password"
+            formControlName="password"
+            placeholder="Mật Khẩu"
+            [ngClass]="{'is-invalid': submitted && f['password'].errors}"
+          />
+          <label for="password">Mật Khẩu</label>
+          <span class="password-toggle" (click)="togglePasswordVisibility()">
+            <i class="fa" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+          </span>
+          <div class="invalid-feedback" *ngIf="submitted && f['password'].errors">
+            <div *ngIf="f['password'].errors['required']">Vui lòng nhập mật khẩu</div>
+            <div *ngIf="f['password'].errors['minlength']">Mật khẩu phải có ít nhất 6 ký tự</div>
+          </div>
+        </div>
+  
+        <!-- Remember Me & Forgot Password -->
+        <div class="d-flex justify-content-between mb-3">
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="rememberMe" formControlName="rememberMe">
+            <label class="form-check-label" for="rememberMe">Ghi nhớ đăng nhập</label>
+          </div>
+          <a routerLink="/auth/forgot-password" class="text-primary text-decoration-none">Quên mật khẩu?</a>
+        </div>
+  
+        <!-- Login Button -->
+        <div class="d-grid mb-4">
+          <button 
+            class="btn btn-primary py-2" 
+            type="submit"
+            [disabled]="loading">
+            <span class="spinner-border spinner-border-sm me-1" *ngIf="loading"></span>
+            {{ loading ? 'Đang xử lý...' : 'Đăng Nhập' }}
+          </button>
+        </div>
+  
+        <!-- Error Message -->
+        <div class="alert alert-danger" *ngIf="error">
+          {{ error }}
+        </div>
+  
+        <!-- Register Link -->
+        <div class="text-center">
+          <p class="mb-0">Chưa có tài khoản? 
+            <a routerLink="/auth/register" class="text-primary fw-bold text-decoration-none">Đăng ký ngay</a>
+          </p>
+        </div>
+      </form>
+    </div>
+  </div>
+  

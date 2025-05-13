@@ -1,1 +1,72 @@
-<p>footer works!</p>
+<footer class="bg-dark text-white py-5">
+    <div class="container">
+      <div class="row">
+        <!-- VỀ CHÚNG TÔI -->
+        <div class="col-md-4 mb-4">
+          <h5 class="fw-bold">VỀ CHÚNG TÔI</h5>
+          <p class="small">
+            Vuong-Group - Khoác lên niềm vui gia đình Việt Nam 2022, Công ty Cổ phần Thương mại và Dịch vụ Vuong-Group được thành lập với mục đích chính ban đầu là hoạt động trong lĩnh vực sản xuất hàng thời trang xuất khẩu với các sản phẩm chủ yếu làm từ len và sợi.
+            Năm 2023 thương hiệu thời trang VPS ra đời, tự hào trở thành một cột mốc đáng nhớ của doanh nghiệp Việt trong ngành thời trang...
+          </p>
+        </div>
+  
+        <!-- ĐƯỜNG DẪN -->
+        <div class="col-md-4 mb-4">
+          <h5 class="fw-bold">ĐƯỜNG DẪN</h5>
+          <ul class="list-unstyled">
+            <li><a [routerLink]="['/']" class="text-white text-decoration-none d-block mb-2 nav-link">Trang chủ</a></li>
+            <li><a [routerLink]="['/about']" class="text-white text-decoration-none d-block mb-2 nav-link">Về chúng tôi</a></li>
+            <li><a [routerLink]="['/contact']" class="text-white text-decoration-none d-block mb-2 nav-link">Thông tin liên hệ</a></li>
+          </ul>
+        </div>
+  
+        <!-- THÔNG TIN LIÊN HỆ -->
+        <div class="col-md-4 mb-4">
+          <h5 class="fw-bold">THÔNG TIN LIÊN HỆ</h5>
+          <ul class="list-unstyled small">
+            <li class="mb-2"><i class="fa fa-map-marker me-2"></i>Địa chỉ: 125A6 Trần Huy Liệu, Ba Đình, Hà Nội</li>
+            <li class="mb-2"><i class="fa fa-phone me-2"></i>+84 363652758</li>
+            <li class="mb-2"><i class="fa fa-envelope me-2"></i>nguyenquocvuong27042002&#64;gmail.com</li>
+          </ul>
+
+          <!-- Social Media Links -->
+          <div class="social-links mt-3 mb-3">
+            <a href="https://facebook.com" target="_blank" class="text-white me-3 social-link">
+              <i class="fa fa-facebook fa-lg"></i>
+            </a>
+            <a href="https://instagram.com" target="_blank" class="text-white me-3 social-link">
+              <i class="fa fa-instagram fa-lg"></i>
+            </a>
+            <a href="https://twitter.com" target="_blank" class="text-white me-3 social-link">
+              <i class="fa fa-twitter fa-lg"></i>
+            </a>
+            <a href="https://youtube.com" target="_blank" class="text-white social-link">
+              <i class="fa fa-youtube fa-lg"></i>
+            </a>
+          </div>
+
+          <!-- Newsletter Subscription -->
+          <h6 class="fw-bold mt-4">ĐĂNG KÝ NHẬN TIN</h6>
+          <form class="d-flex mt-2" (ngSubmit)="onSubscribe()">
+            <input type="email" class="form-control me-2" placeholder="Nhập địa chỉ email" [(ngModel)]="emailSubscription" name="email">
+            <button type="submit" class="btn btn-outline-light">Gửi</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Copyright Section -->
+      <div class="row mt-4">
+        <div class="col-12">
+          <hr class="border-light">
+          <div class="d-flex justify-content-between align-items-center small">
+            <p class="mb-0">&copy; {{currentYear}} Vuong-Group. Tất cả các quyền được bảo lưu.</p>
+            <div>
+              <a [routerLink]="['/privacy']" class="text-white text-decoration-none me-3 nav-link">Chính sách bảo mật</a>
+              <a [routerLink]="['/terms']" class="text-white text-decoration-none nav-link">Điều khoản sử dụng</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+  
