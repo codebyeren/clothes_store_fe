@@ -42,12 +42,12 @@ export const routes: Routes = [
   {
     path: 'about',
     loadComponent: () => import('./about/about.component').then(m => m.AboutComponent),
-    canActivate: [AuthGuard]
+
   },
   {
     path: 'contact',
     loadComponent: () => import('./contact/contact.component').then(m => m.ContactComponent),
-    canActivate: [AuthGuard]
+
   },
   {
     path: '**',
