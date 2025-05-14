@@ -1,29 +1,40 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { delay, Observable, of, throwError } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { catchError, map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  constructor(private router: Router) {}
+  private readonly API_URL = 'http://localhost:8080/api'; // Replace with your actual backend URL
+
+  constructor(
+    private router: Router,
+    private http: HttpClient
+  ) {}
 
   login(username: string, password: string): Observable<boolean> {
-    if (username === 'admin' && password === 'admin123') {
-      this.saveTokens({
-        // Có BE  thay dòng dưới  bằng url từ BE nhé cu nam :
-
-        accessToken: 'mock-access-token',
-        refreshToken: 'mock-refresh-token',
-        accessTokenExp: Date.now() + 5 * 60 * 1000,
-        refreshTokenExp: Date.now() + 7 * 24 * 60 * 60 * 1000,
-      });
-
-      localStorage.setItem('currentUser', JSON.stringify({ username }));
-      return of(true);
-    }
-
-    return throwError(() => new Error('Tên đăng nhập hoặc mật khẩu không đúng'));
+    return this.http.post<any>(`${this.API_URL}/auth/login`, { username, password })
+      .pipe(
+        map(response => {
+          if (response && response.accessToken) {
+            this.saveTokens({
+              accessToken: response.accessToken,
+              refreshToken: response.refreshToken,
+              accessTokenExp: response.accessTokenExp || (Date.now() + 5 * 60 * 1000),
+              refreshTokenExp: response.refreshTokenExp || (Date.now() + 7 * 24 * 60 * 60 * 1000),
+            });
+            localStorage.setItem('currentUser', JSON.stringify({ username }));
+            return true;
+          }
+          return false;
+        }),
+        catchError(error => {
+          return throwError(() => new Error(error.error?.message || 'Tên đăng nhập hoặc mật khẩu không đúng'));
+        })
+      );
   }
 
   logout(): void {
@@ -54,19 +65,27 @@ export class AuthService {
       return of(null);
     }
 
-    const newAccessToken = 'refreshed-access-token';
-    const newRefreshToken = 'refreshed-refresh-token';
-    const newAccessExp = Date.now() + 5 * 60 * 1000;
-    const newRefreshExp = Date.now() + 7 * 24 * 60 * 60 * 1000;
-
-    this.saveTokens({
-      accessToken: newAccessToken,
-      refreshToken: newRefreshToken,
-      accessTokenExp: newAccessExp,
-      refreshTokenExp: newRefreshExp,
-    });
-
-    return of(newAccessToken);
+    const currentRefreshToken = localStorage.getItem('refreshToken');
+    
+    return this.http.post<any>(`${this.API_URL}/auth/refresh-token`, { refreshToken: currentRefreshToken })
+      .pipe(
+        map(response => {
+          if (response && response.accessToken) {
+            this.saveTokens({
+              accessToken: response.accessToken,
+              refreshToken: response.refreshToken,
+              accessTokenExp: response.accessTokenExp || (Date.now() + 5 * 60 * 1000),
+              refreshTokenExp: response.refreshTokenExp || (Date.now() + 7 * 24 * 60 * 60 * 1000),
+            });
+            return response.accessToken;
+          }
+          return null;
+        }),
+        catchError(() => {
+          this.logout();
+          return of(null);
+        })
+      );
   }
 
   getAccessToken(): string | null {
@@ -101,13 +120,18 @@ export class AuthService {
     localStorage.setItem('accessTokenExp', data.accessTokenExp.toString());
     localStorage.setItem('refreshTokenExp', data.refreshTokenExp.toString());
   }
+
   register(data: any): Observable<any> {
-    console.log('Gửi dữ liệu đăng ký:', data);
-
-    // Có BE  thay dòng dưới  bằng hehe:
-    // return this.http.post('/api/auth/register', data);
-    // cái pipe để map nếu Be có gửi lên cả data , status , v.v 
-
-    return of({ message: 'Register success' }).pipe(delay(1000)); 
+    return this.http.post<any>(`${this.API_URL}/auth/register`, data)
+      .pipe(
+        map(response => {
+          console.log('Registration response:', response);
+          return response;
+        }),
+        catchError(error => {
+          console.error('Registration error:', error);
+          return throwError(() => new Error(error.error?.message || 'Registration failed. Please try again.'));
+        })
+      );
   }
 }
