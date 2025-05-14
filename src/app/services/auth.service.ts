@@ -23,7 +23,7 @@ export class AuthService {
             this.saveTokens({
               accessToken: response.accessToken,
               refreshToken: response.refreshToken,
-              accessTokenExp: response.accessTokenExp || (Date.now() + 5 * 60 * 1000),
+              accessTokenExp: response.accessTokenExp || (Date.now() + 15 * 60 * 1000),
               refreshTokenExp: response.refreshTokenExp || (Date.now() + 7 * 24 * 60 * 60 * 1000),
             });
             localStorage.setItem('currentUser', JSON.stringify({ username }));
@@ -38,13 +38,32 @@ export class AuthService {
   }
 
   logout(): void {
+    const refreshToken = localStorage.getItem('refreshToken');
+    
+    if (refreshToken) {
+      this.http.post<any>(`${this.API_URL}/auth/logout`, { refreshToken })
+        .pipe(
+          catchError(error => {
+            console.error('Logout error:', error);
+            return of(null);
+          })
+        )
+        .subscribe(() => {
+          this.clearLocalStorage();
+          this.router.navigate(['/auth/login']);
+        });
+    } else {
+      this.clearLocalStorage();
+      this.router.navigate(['/auth/login']);
+    }
+  }
+
+  private clearLocalStorage(): void {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('accessTokenExp');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('refreshTokenExp');
     localStorage.removeItem('currentUser');
-
-    this.router.navigate(['/auth/login']);
   }
 
   isAccessTokenValid(): boolean {
@@ -74,7 +93,7 @@ export class AuthService {
             this.saveTokens({
               accessToken: response.accessToken,
               refreshToken: response.refreshToken,
-              accessTokenExp: response.accessTokenExp || (Date.now() + 5 * 60 * 1000),
+              accessTokenExp: response.accessTokenExp || (Date.now() + 15 * 60 * 1000),
               refreshTokenExp: response.refreshTokenExp || (Date.now() + 7 * 24 * 60 * 60 * 1000),
             });
             return response.accessToken;
