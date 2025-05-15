@@ -1,0 +1,78 @@
+.vps-container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding: 16px;
+}
+
+.banner {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.caption {
+  font-size: 14px;
+  color: #777;
+  margin: 10px 0;
+}
+
+.content-section {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 20px;
+  gap: 20px;
+  flex-wrap: wrap;
+  text-align: left;
+}
+
+.logo {
+  width: 80px;
+  height: auto;
+  margin-top: 8px;
+}
+
+.text-content {
+  flex: 1;
+  min-width: 250px;
+}
+
+.side-image {
+  width: 150px;
+  height: auto;
+  display: block;
+  margin-left: auto;
+}
+
+.bottom-text {
+  margin-top: 20px;
+  padding: 0 12px;
+  text-align: left;
+}
+
+.extra-content {
+  margin-top: 20px;
+  padding: 16px;
+  background-color: #f9f9f9;
+  border-left: 4px solid #000;
+  border-radius: 6px;
+  text-align: left;
+}
+
+.see-more {
+  margin-top: 20px;
+  padding: 10px 24px;
+  border: none;
+  background-color: #000;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.see-more:hover {
+  background-color: #333;
+}

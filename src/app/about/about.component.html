@@ -1,1 +1,39 @@
-<p>about works!</p>
+<div class="vps-container">
+  <img src="https://img3.thuthuatphanmem.vn/uploads/2019/10/14/banner-thoi-trang-dep_113856538.jpg" alt="banner" class="banner" />
+
+  <p class="caption">VPS_Fashion - Khoác Lên Mình Niềm Vui Gia Đình Việt</p>
+
+  <div class="content-section">
+    <img src="https://th.bing.com/th/id/OIP.c5b4BO0urIWlzEcJ95-6CwHaFo?w=232&h=180&c=7&r=0&o=7&cb=iwp2&dpr=1.1&pid=1.7&rm=3" alt="VPS Fashion logo" class="logo" />
+
+    <div class="text-content">
+      <h2><strong>VPS_Fashion</strong> 2 năm</h2>
+      <p>
+        Khoác lên niềm vui gia đình Việt. Năm 2021, Công ty Cổ phần Thương mại và Dịch vụ Hoàng Dương được thành lập với mục đích chính ban đầu là hoạt động trong lĩnh vực sản xuất hàng thời trang xuất khẩu với các sản phẩm chủ yếu làm từ len và sợi. Năm 2022, thương hiệu thời trang VPS-Fashion ra đời, tự hào trở thành một cột mốc đáng nhớ của doanh nghiệp Việt trong ngành thời trang.
+      </p>
+    </div>
+  </div>
+  <div class="side-image">
+    <img src="https://laforce.vn/wp-content/uploads/2022/07/phoi-do-voi-quan-jean-trang-nam.jpg" alt="img" class="side-image" />
+  </div>
+
+
+
+  <div class="bottom-text">
+    <p>
+      <strong>VPS-Fashion</strong> hướng đến mục tiêu mang lại niềm vui mặc mới mỗi ngày cho hàng triệu người tiêu dùng Việt. Chúng tôi tin rằng người dân Việt Nam cũng đang hướng đến một cuộc sống năng động, tích cực hơn.
+    </p>
+  </div>
+
+  <div *ngIf="showMore" class="extra-content">
+    <h3>Khơi nguồn cảm hứng sống tích cực</h3>
+    <p>
+      Không chỉ đơn thuần là trang phục, mỗi sản phẩm của VPS-Fashion mang trong mình thông điệp về sự kết nối, yêu thương và trân trọng giá trị gia đình Việt. Chúng tôi tin rằng thời trang có thể trở thành chất xúc tác để mỗi người tự tin, sống tích cực và lan tỏa năng lượng tích cực đến cộng đồng.
+    </p>
+  </div>
+
+  <button (click)="toggleMore()" class="see-more">
+    {{ showMore ? 'THU GỌN' : 'XEM THÊM' }}
+  </button>
+
+</div>
