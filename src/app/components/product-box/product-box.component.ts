@@ -1,11 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { Product } from '../../services/product.service';
 
 @Component({
   selector: 'app-product-box',
-  imports: [],
   templateUrl: './product-box.component.html',
-  styleUrl: './product-box.component.css'
+  styleUrls: ['./product-box.component.css']
 })
 export class ProductBoxComponent {
-
+  @Input() product!: Product;
 }
