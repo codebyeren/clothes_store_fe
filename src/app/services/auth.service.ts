@@ -154,12 +154,14 @@ export class AuthService {
       );
   }
   resetPassword(data: { username: string; info: string; newPassword: string }): Observable<string> {
-    return this.http.post(`${this.API_URL}/auth/forgot-password`, data, {
-      responseType: 'text'
-    }).pipe(
+    return this.http.post<any>(`${this.API_URL}/auth/forgot-password`, data).pipe(
+      map(response => {
+        console.log('Registration response:', response);
+        return response.message;
+      }),
       catchError(error => {
         console.error('Reset password error:', error);
-        const errorMessage = error.error || 'Không thể đặt lại mật khẩu. Vui lòng thử lại!';
+        const errorMessage = error.error.message || 'Không thể đặt lại mật khẩu. Vui lòng thử lại!';
         return throwError(() => new Error(errorMessage));
       })
     );

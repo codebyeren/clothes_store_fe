@@ -20,6 +20,8 @@ export class RegisterComponent {
   successMessage = '';
   errorMessage = '';
   submitted = false;
+  showPassword = false;
+  showConfirmPassword = false;
 
   constructor(
     private fb: FormBuilder,
@@ -226,5 +228,13 @@ export class RegisterComponent {
         this.loading = false;
       }
     });
+  }
+
+  togglePasswordVisibility(field: 'password' | 'confirm'): void {
+    if (field === 'password') {
+      this.showPassword = !this.showPassword;
+    } else {
+      this.showConfirmPassword = !this.showConfirmPassword;
+    }
   }
 }
