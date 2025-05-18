@@ -104,27 +104,37 @@
 
       <div class="form-group">
         <label>Mật Khẩu</label>
-        <input 
-          formControlName="password" 
-          type="password" 
-          class="form-control"
-          [class.is-invalid]="isFieldInvalid('password')"
-        />
-        <div class="invalid-feedback" *ngIf="isFieldInvalid('password')">
-          {{ getErrorMessage('password') }}
+        <div class="password-field position-relative">
+          <input 
+            formControlName="password" 
+            [type]="showPassword ? 'text' : 'password'"
+            class="form-control"
+            [class.is-invalid]="isFieldInvalid('password')"
+          />
+          <span class="password-toggle" (click)="togglePasswordVisibility('password')" *ngIf="!isFieldInvalid('password')">
+            <i class="fa" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+          </span>
+          <div class="invalid-feedback" *ngIf="isFieldInvalid('password')">
+            {{ getErrorMessage('password') }}
+          </div>
         </div>
       </div>
 
       <div class="form-group">
         <label>Xác Nhận Mật Khẩu</label>
-        <input 
-          formControlName="confirmPassword" 
-          type="password" 
-          class="form-control"
-          [class.is-invalid]="isFieldInvalid('confirmPassword')"
-        />
-        <div class="invalid-feedback" *ngIf="isFieldInvalid('confirmPassword')">
-          {{ getErrorMessage('confirmPassword') }}
+        <div class="password-field position-relative">
+          <input 
+            formControlName="confirmPassword" 
+            [type]="showConfirmPassword ? 'text' : 'password'"
+            class="form-control"
+            [class.is-invalid]="isFieldInvalid('confirmPassword')"
+          />
+          <span class="password-toggle" (click)="togglePasswordVisibility('confirm')" *ngIf="!isFieldInvalid('confirmPassword')">
+            <i class="fa" [ngClass]="showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+          </span>
+          <div class="invalid-feedback" *ngIf="isFieldInvalid('confirmPassword')">
+            {{ getErrorMessage('confirmPassword') }}
+          </div>
         </div>
       </div>
 

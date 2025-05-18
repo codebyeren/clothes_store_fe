@@ -20,6 +20,8 @@ export class RegisterComponent {
   successMessage = '';
   errorMessage = '';
   submitted = false;
+  showPassword = false;
+  showConfirmPassword = false;
 
   constructor(
     private fb: FormBuilder,
@@ -42,7 +44,10 @@ export class RegisterComponent {
         Validators.email
       ]],
       address: ['', [Validators.required]],
-      dob: ['', [Validators.required]],
+      dob: ['', [
+        Validators.required,
+        this.dateValidator()
+      ]],
       username: ['', [
         Validators.required, 
         Validators.minLength(3),
@@ -71,26 +76,40 @@ export class RegisterComponent {
     });
   }
 
-  private dateValidator(control: AbstractControl): ValidationErrors | null {
-    if (!control.value) {
+  private dateValidator(): ValidationErrors | null {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) {
+        return null;
+      }
+
+      const dob = new Date(control.value);
+      const today = new Date();
+      
+      // Check if it's a valid date
+      if (isNaN(dob.getTime())) {
+        return { invalidDate: true };
+      }
+
+      // Calculate age
+      let age = today.getFullYear() - dob.getFullYear();
+      const monthDiff = today.getMonth() - dob.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+        age--;
+      }
+
+      // Validation rules
+      if (age < 10) {
+        return { tooYoung: true };
+      }
+      if (age > 100) {
+        return { tooOld: true };
+      }
+      if (dob > today) {
+        return { futureDate: true };
+      }
+
       return null;
-    }
-
-    const date = new Date(control.value);
-    const today = new Date();
-    const minDate = new Date();
-    minDate.setFullYear(today.getFullYear() - 100); // Minimum age 100 years
-    const maxDate = new Date();
-    maxDate.setFullYear(today.getFullYear() - 10); // Minimum age 10 years
-
-    if (date > today || date < minDate) {
-      return { dateInvalid: true };
-    }
-    if (date > maxDate) {
-      return { tooYoung: true };
-    }
-
-    return null;
+    };
   }
 
   private passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
@@ -156,11 +175,11 @@ export class RegisterComponent {
       const requiredLength = errors['maxlength'].requiredLength;
       return `${fieldName} không được vượt quá ${requiredLength} ký tự`;
     }
-    if (errors['dateInvalid']) {
-      return 'Ngày sinh không hợp lệ';
-    }
-    if (errors['tooYoung']) {
-      return 'Bạn phải đủ 10 tuổi để đăng ký';
+    if (controlName === 'dob') {
+      if (errors['invalidDate']) return 'Ngày sinh không hợp lệ';
+      if (errors['tooYoung']) return 'Bạn phải đủ 10 tuổi để đăng ký';
+      if (errors['tooOld']) return 'Ngày sinh không hợp lệ (tuổi tối đa là 100)';
+      if (errors['futureDate']) return 'Ngày sinh không thể là ngày trong tương lai';
     }
     if (controlName === 'confirmPassword' && 
         (errors['passwordMismatch'] || this.registerForm.errors?.['passwordMismatch'])) {
@@ -209,5 +228,13 @@ export class RegisterComponent {
         this.loading = false;
       }
     });
+  }
+
+  togglePasswordVisibility(field: 'password' | 'confirm'): void {
+    if (field === 'password') {
+      this.showPassword = !this.showPassword;
+    } else {
+      this.showConfirmPassword = !this.showConfirmPassword;
+    }
   }
 }

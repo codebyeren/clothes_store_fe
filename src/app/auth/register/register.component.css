@@ -195,4 +195,28 @@ a:hover {
     font-size: 1.5rem;
   }
 }
+
+/* Password field styles */
+.password-field {
+  position: relative;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #6c757d;
+  z-index: 10;
+}
+
+.password-toggle:hover {
+  color: #495057;
+}
+
+.form-control[type="password"],
+.form-control[type="text"] {
+  padding-right: 40px;
+}
   

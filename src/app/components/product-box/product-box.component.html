@@ -1,19 +1,50 @@
-<div class="product-card position-relative">
-<div class="image-wrapper">
-  <button class="favorite-btn">
-    ♥
-  </button>
 
-  <img
-   [src]="product.image_url"
-    alt="{{ product.productName }}"
-    class="product-image"
-
-  />
-</div>
-
-  <div class="product-info text-center">
-    <p class="product-name">{{ product.productName }}</p>
-    <p class="product-price">Giá: {{ product.price }}₫</p>
+<div class="box-product" (click)="onViewProduct()">
+  <div class="img-wrapper">
+    <a>
+      <img [src]="product.image_url" [alt]="product.productName" class="img-fluid">
+    </a>
+    <div class="tags">
+      <span class="label-tags" *ngIf="product.discount > 0">
+        <span class="label label-danger">-{{product.discount}}%</span>
+      </span>
+      <span class="label-tags">
+        <span class="label label-info">{{product.status}}</span>
+      </span>
+    </div>
+    <div class="option">
+      <a (click)="onViewProduct(); $event.stopPropagation()" title="Xem chi tiết">
+        <i class="fa fa-eye"></i>
+      </a>
+      <a (click)="onAddToCart($event)" title="Thêm vào giỏ hàng">
+        <i class="fa fa-shopping-cart"></i>
+      </a>
+      <a (click)="onToggleFavorite($event)" title="Yêu thích">
+        <i class="fa fa-heart"></i>
+      </a>
+    </div>
+  </div>
+  <h6><a (click)="onViewProduct(); $event.stopPropagation()">{{ product.productName }}</a></h6>
+  <div class="price">
+    <div>
+      {{ product.price | number:'1.0-0' }}₫
+      <span class="original-price" *ngIf="product.discount > 0">
+        {{ (product.price / (1 - product.discount/100)) | number:'1.0-0' }}₫
+      </span>
+    </div>
+  </div>
+  <div class="product-stats">
+    <div class="rating">
+      <i class="fa fa-star"></i>
+      <i class="fa fa-star"></i>
+      <i class="fa fa-star"></i>
+      <i class="fa fa-star"></i>
+      <i class="fa fa-star"></i>
+    </div>
+    <div class="stats-icons">
+      <span><i class="fa fa-heart text-danger"></i> 19</span>
+      <span><i class="fa fa-comment text-primary"></i> 8</span>
+      <span><i class="fa fa-eye text-info"></i> 156</span>
+    </div>
   </div>
 </div>
