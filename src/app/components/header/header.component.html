@@ -1,6 +1,6 @@
 <header class="header">
     <div class="logo">
-      <img src="assets/images/logo.png" alt="Logo" />
+      <a routerLink="/"><img src="assets/images/logo.png" alt="Logo" /></a>
     </div>
   
     <nav class="menu">
@@ -11,21 +11,28 @@
       <a routerLink="/girls">Đồ Bé Gái</a>
     </nav>
   
-    <div class="search">
-      <input type="text" placeholder="Bạn Muốn Tìm gì..." />
-      <button>Tìm Kiếm</button>
-    </div>
-  
-    <div class="icons">
-      <button title="Tài khoản" (click)="onAccountClick()">
-        <i class="fa fa-user"></i>
-      </button>
-      <button title="Đăng xuất" (click)="logout()">
-        <i class="fa fa-sign-out"></i>
-      </button>
-      <button title="Giỏ hàng">
-        <i class="fa fa-shopping-cart"></i>
-      </button>
-    </div>
+    <ng-container *ngIf="!isLoggedIn">
+      <div class="auth-buttons">
+        <button class="btn btn-primary me-2" routerLink="/auth/login">Đăng nhập/Đăng ký</button>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="isLoggedIn">
+      <div class="search">
+        <input type="text" placeholder="Bạn Muốn Tìm gì..." />
+        <button>Tìm Kiếm</button>
+      </div>
+    
+      <div class="icons">
+        <button title="Tài khoản" (click)="onAccountClick()">
+          <i class="fa fa-user"></i>
+        </button>
+        <button title="Đăng xuất" (click)="logout()">
+          <i class="fa fa-sign-out"></i>
+        </button>
+        <button title="Giỏ hàng">
+          <i class="fa fa-shopping-cart"></i>
+        </button>
+      </div>
+    </ng-container>
   </header>
   

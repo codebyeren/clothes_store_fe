@@ -1,47 +1,61 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { delay, Observable, of, throwError } from 'rxjs';
+import { Observable, of, throwError, BehaviorSubject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { catchError, map } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly API_URL = 'http://localhost:8080/api'; // Replace with your actual backend URL
+  private apiUrl = environment.apiUrl;
+  private loggedIn$ = new BehaviorSubject<boolean>(this.isAccessTokenValid());
+  get isLoggedIn$() {
+    return this.loggedIn$.asObservable();
+  }
+  setLoggedIn(value: boolean) {
+    this.loggedIn$.next(value);
+  }
 
   constructor(
     private router: Router,
     private http: HttpClient
   ) {}
 
-  login(username: string, password: string): Observable<boolean> {
-    return this.http.post<any>(`${this.API_URL}/auth/login`, { username, password })
+  getTokenExp(token: string): number {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.exp * 1000;
+    } catch {
+      return Date.now() + 15 * 60 * 1000;
+    }
+  }
+
+  login(username: string, password: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/auth/login`, { username, password })
       .pipe(
         map(response => {
-          if (response && response.accessToken) {
+          if (response && response.data && response.data.accessToken) {
             this.saveTokens({
-              accessToken: response.accessToken,
-              refreshToken: response.refreshToken,
-              accessTokenExp: response.accessTokenExp || (Date.now() + 15 * 60 * 1000),
-              refreshTokenExp: response.refreshTokenExp || (Date.now() + 7 * 24 * 60 * 60 * 1000),
+              accessToken: response.data.accessToken,
+              refreshToken: response.data.refreshToken,
+              accessTokenExp: this.getTokenExp(response.data.accessToken),
+              refreshTokenExp: this.getTokenExp(response.data.refreshToken),
             });
             localStorage.setItem('currentUser', JSON.stringify({ username }));
-            return true;
+            this.setLoggedIn(true);
           }
-          return false;
+          return response;
         }),
-        catchError(error => {
-          return throwError(() => new Error(error.error?.message || 'Tên đăng nhập hoặc mật khẩu không đúng'));
-        })
+        catchError(error => throwError(() => error.error))
       );
   }
 
   logout(): void {
     const refreshToken = localStorage.getItem('refreshToken');
-    
     if (refreshToken) {
-      this.http.post<any>(`${this.API_URL}/auth/logout`, { refreshToken })
+      this.http.post<any>(`${this.apiUrl}/auth/logout`, { refreshToken })
         .pipe(
           catchError(error => {
             console.error('Logout error:', error);
@@ -50,10 +64,12 @@ export class AuthService {
         )
         .subscribe(() => {
           this.clearLocalStorage();
+          this.setLoggedIn(false);
           this.router.navigate(['/auth/login']);
         });
     } else {
       this.clearLocalStorage();
+      this.setLoggedIn(false);
       this.router.navigate(['/auth/login']);
     }
   }
@@ -83,10 +99,8 @@ export class AuthService {
       this.logout();
       return of(null);
     }
-
     const currentRefreshToken = localStorage.getItem('refreshToken');
-    
-    return this.http.post<any>(`${this.API_URL}/auth/refresh-token`, { refreshToken: currentRefreshToken })
+    return this.http.post<any>(`${this.apiUrl}/auth/refresh-token`, { refreshToken: currentRefreshToken })
       .pipe(
         map(response => {
           if (response && response.accessToken) {
@@ -115,7 +129,6 @@ export class AuthService {
     if (this.isAccessTokenValid()) {
       return of(true);
     }
-
     return new Observable<boolean>((observer) => {
       this.refreshToken().subscribe((newToken) => {
         if (newToken) {
@@ -141,29 +154,39 @@ export class AuthService {
   }
 
   register(data: any): Observable<any> {
-    return this.http.post<any>(`${this.API_URL}/auth/register`, data)
+    return this.http.post<any>(`${this.apiUrl}/auth/register`, data)
       .pipe(
-        map(response => {
-          console.log('Registration response:', response);
-          return response;
-        }),
-        catchError(error => {
-          console.error('Registration error:', error);
-          return throwError(() => new Error(error.error?.message || 'Registration failed. Please try again.'));
-        })
+        map(response => response),
+        catchError(error => throwError(() => error.error))
       );
   }
-  resetPassword(data: { username: string; info: string; newPassword: string }): Observable<string> {
-    return this.http.post<any>(`${this.API_URL}/auth/forgot-password`, data).pipe(
-      map(response => {
-        console.log('Registration response:', response);
-        return response.message;
-      }),
-      catchError(error => {
-        console.error('Reset password error:', error);
-        const errorMessage = error.error.message || 'Không thể đặt lại mật khẩu. Vui lòng thử lại!';
-        return throwError(() => new Error(errorMessage));
-      })
-    );
+
+  // Forgot password flow mới chỉ dùng email
+  sendResetCode(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/forgot-password`, null, { params: { email } })
+      .pipe(
+        map(response => response),
+        catchError(error => throwError(() => error.error))
+      );
+  }
+
+  verifyCode(email: string, code: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/verify-code`, null, { params: { email, code } })
+      .pipe(
+        map(response => response),
+        catchError(error => throwError(() => error.error))
+      );
+  }
+
+  resetPassword(email: string, newPassword: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/reset-password`, null, { params: { email, newPassword } })
+      .pipe(
+        map(response => response),
+        catchError(error => throwError(() => error.error))
+      );
+  }
+
+  isLoggedIn(): boolean {
+    return this.isAccessTokenValid();
   }
 }
