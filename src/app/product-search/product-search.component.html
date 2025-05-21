@@ -1,0 +1,23 @@
+<div class="container">
+
+
+<!--chưa viết hàm search ở service vẫn gọi hàm getall để ấy data-->
+  <div class=" mb-4">
+    <h5 class="fw-bold">Kết quả tìm kiếm :</h5>
+  </div>
+
+  <div *ngFor="let category of visibleCategories" class="mb-5">
+
+
+    <div class="row g-4">
+      <div class="col-12 col-sm-6 col-md-4 col-lg-3" *ngFor="let product of category.products">
+        <app-product-box [product]="product"></app-product-box>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="text-center mt-4" *ngIf="hasMore()">
+    <button class="btn btn-outline-primary px-4 py-2" (click)="loadMore()">Xem thêm</button>
+  </div>
+</div>

@@ -8,6 +8,8 @@ export interface Product {
   status: string;
   image_url : string;
   discount: number;
+  img_list? : string[];
+
 }
 
 export interface ProductCategory {
@@ -40,7 +42,12 @@ export class ProductService {
               image_url: 'https://dongphuchaianh.vn/wp-content/uploads/2021/07/thoi-trang-nam-mua-he-1-1.jpg',
               price: 199000,
               status: 'hàng mới',
-              discount: 0
+              discount: 0,
+              img_list : [
+                'https://dongphuchaianh.vn/wp-content/uploads/2021/07/thoi-trang-nam-mua-he-1-1.jpg',
+                'https://dongphuchaianh.vn/wp-content/uploads/2021/07/thoi-trang-nam-mua-he-1-1.jpg',
+                'https://dongphuchaianh.vn/wp-content/uploads/2021/07/thoi-trang-nam-mua-he-1-1.jpg'
+              ]
             },
             {
               id: 1,
@@ -248,4 +255,27 @@ export class ProductService {
 
     return of(mockData);
   }
+  getProductById(id: number): Observable<Product | undefined> {
+    const allCategories = this.getProducts(); // Gọi lại mock data
+    let foundProduct: Product | undefined;
+
+    // Lưu ý: getProducts() trả về Observable nên ta cần xử lý bất đồng bộ
+    // Nếu muốn trả về observable trực tiếp:
+    return new Observable<Product | undefined>(observer => {
+      this.getProducts().subscribe(response => {
+        for (const category of response.data) {
+          const product = category.products.find(p => p.id === id);
+          if (product) {
+            observer.next(product);
+            observer.complete();
+            return;
+          }
+        }
+        observer.next(undefined); // Không tìm thấy
+        observer.complete();
+      });
+    });
+  }
+
+
 }

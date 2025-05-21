@@ -1,1 +1,58 @@
-<p>product-detail works!</p>
+
+<section class="container py-5 bg-white">
+  <div class="row">
+
+    <div class="col-md-4 text-center mb-4 mb-md-0">
+      <img [src]="product?.image_url" alt="Ảnh sản phẩm" class="img-fluid rounded">
+    </div>
+
+    <div class="col-md-6">
+      <h1 class="h4 mb-3">{{ product?.productName }}</h1>
+      <p class="text-danger fw-bold h5 mb-4">Giá: {{ product?.price  }}</p>
+
+      <!-- viê thêm hàm để chọn size size  -->
+<!--      <div class="mb-3">-->
+<!--        <label class="form-label fw-semibold">SIZE:</label>-->
+<!--        <div class="d-flex flex-wrap gap-2">-->
+<!--          <button *ngFor="let size of product"-->
+<!--                  type="button"-->
+<!--                  class="btn btn-outline-secondary"-->
+<!--                  [ngClass]="{ 'btn-dark text-white': selectedSize === size }"-->
+<!--                  (click)="selectSize(size)">-->
+<!--            {{ size }}-->
+<!--          </button>-->
+<!--        </div>-->
+<!--      </div>-->
+
+<!--  viết thêm hàm add to cart-->
+<!--      <button class="btn btn-dark px-4 mt-3">-->
+<!--        Mua Ngay-->
+<!--      </button>-->
+
+
+      <p class="text-muted small mt-2">Giao hàng từ </p>
+    </div>
+  </div>
+
+</section>
+
+<!-- SẢN PHẨM LIÊN QUAN -->
+<section class="container py-5">
+  <h5 class="pb-3 mb-3 text-dark">Sản Phẩm Liên Quan</h5>
+
+  <div *ngFor="let category of visibleCategories" class="mb-5">
+
+
+
+    <div class="row g-4">
+      <div class="col-12 col-sm-6 col-md-4 col-lg-3" *ngFor="let product of category.products">
+        <app-product-box [product]="product"></app-product-box>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="text-center mt-4" *ngIf="hasMore()">
+    <button class="btn btn-outline-primary px-4 py-2" (click)="loadMore()">Xem thêm</button>
+  </div>
+</section>
