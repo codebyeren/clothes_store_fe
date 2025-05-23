@@ -1,115 +1,108 @@
 <div class="register-container">
     <h2>Đăng Ký</h2>
     
-    <div *ngIf="successMessage" class="alert alert-success">
-      {{ successMessage }}
-    </div>
     
-    <div *ngIf="errorMessage" class="alert alert-danger">
-      {{ errorMessage }}
-    </div>
-
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
       <div class="form-group">
         <label>Họ</label>
         <input 
-          formControlName="firstName" 
-          type="text" 
-          class="form-control"
-          [class.is-invalid]="isFieldInvalid('firstName')"
+        formControlName="firstName" 
+        type="text" 
+        class="form-control"
+        [class.is-invalid]="isFieldInvalid('firstName')"
         />
         <div class="invalid-feedback" *ngIf="isFieldInvalid('firstName')">
           {{ getErrorMessage('firstName') }}
         </div>
       </div>
-
+      
       <div class="form-group">
         <label>Tên</label>
         <input 
-          formControlName="lastName" 
-          type="text" 
-          class="form-control"
-          [class.is-invalid]="isFieldInvalid('lastName')"
+        formControlName="lastName" 
+        type="text" 
+        class="form-control"
+        [class.is-invalid]="isFieldInvalid('lastName')"
         />
         <div class="invalid-feedback" *ngIf="isFieldInvalid('lastName')">
           {{ getErrorMessage('lastName') }}
         </div>
       </div>
-
+      
       <div class="form-group">
         <label>Số Điện Thoại</label>
         <input 
-          formControlName="phoneNumber" 
-          type="tel" 
-          class="form-control"
-          [class.is-invalid]="isFieldInvalid('phoneNumber')"
-          placeholder="0123456789"
+        formControlName="phoneNumber" 
+        type="tel" 
+        class="form-control"
+        [class.is-invalid]="isFieldInvalid('phoneNumber')"
+        placeholder="0123456789"
         />
         <div class="invalid-feedback" *ngIf="isFieldInvalid('phoneNumber')">
           {{ getErrorMessage('phoneNumber') }}
         </div>
       </div>
-
+      
       <div class="form-group">
         <label>Email</label>
         <input 
-          formControlName="email" 
-          type="email" 
-          class="form-control"
-          [class.is-invalid]="isFieldInvalid('email')"
+        formControlName="email" 
+        type="email" 
+        class="form-control"
+        [class.is-invalid]="isFieldInvalid('email')"
         />
         <div class="invalid-feedback" *ngIf="isFieldInvalid('email')">
           {{ getErrorMessage('email') }}
         </div>
       </div>
-
+      
       <div class="form-group">
         <label>Địa Chỉ</label>
         <input 
-          formControlName="address" 
-          type="text" 
-          class="form-control"
-          [class.is-invalid]="isFieldInvalid('address')"
+        formControlName="address" 
+        type="text" 
+        class="form-control"
+        [class.is-invalid]="isFieldInvalid('address')"
         />
         <div class="invalid-feedback" *ngIf="isFieldInvalid('address')">
           {{ getErrorMessage('address') }}
         </div>
       </div>
-
+      
       <div class="form-group">
         <label>Ngày Sinh</label>
         <input 
-          formControlName="dob" 
-          type="date" 
-          class="form-control"
-          [class.is-invalid]="isFieldInvalid('dob')"
+        formControlName="dob" 
+        type="date" 
+        class="form-control"
+        [class.is-invalid]="isFieldInvalid('dob')"
         />
         <div class="invalid-feedback" *ngIf="isFieldInvalid('dob')">
           {{ getErrorMessage('dob') }}
         </div>
       </div>
-
+      
       <div class="form-group">
         <label>Tên Đăng Nhập</label>
         <input 
-          formControlName="username" 
-          type="text" 
-          class="form-control"
-          [class.is-invalid]="isFieldInvalid('username')"
+        formControlName="username" 
+        type="text" 
+        class="form-control"
+        [class.is-invalid]="isFieldInvalid('username')"
         />
         <div class="invalid-feedback" *ngIf="isFieldInvalid('username')">
           {{ getErrorMessage('username') }}
         </div>
       </div>
-
+      
       <div class="form-group">
         <label>Mật Khẩu</label>
         <div class="password-field position-relative">
           <input 
-            formControlName="password" 
-            [type]="showPassword ? 'text' : 'password'"
-            class="form-control"
-            [class.is-invalid]="isFieldInvalid('password')"
+          formControlName="password" 
+          [type]="showPassword ? 'text' : 'password'"
+          class="form-control"
+          [class.is-invalid]="isFieldInvalid('password')"
           />
           <span class="password-toggle" (click)="togglePasswordVisibility('password')" *ngIf="!isFieldInvalid('password')">
             <i class="fa" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
@@ -119,15 +112,15 @@
           </div>
         </div>
       </div>
-
+      
       <div class="form-group">
         <label>Xác Nhận Mật Khẩu</label>
         <div class="password-field position-relative">
           <input 
-            formControlName="confirmPassword" 
-            [type]="showConfirmPassword ? 'text' : 'password'"
-            class="form-control"
-            [class.is-invalid]="isFieldInvalid('confirmPassword')"
+          formControlName="confirmPassword" 
+          [type]="showConfirmPassword ? 'text' : 'password'"
+          class="form-control"
+          [class.is-invalid]="isFieldInvalid('confirmPassword')"
           />
           <span class="password-toggle" (click)="togglePasswordVisibility('confirm')" *ngIf="!isFieldInvalid('confirmPassword')">
             <i class="fa" [ngClass]="showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
@@ -137,9 +130,16 @@
           </div>
         </div>
       </div>
-
+      
+      <div *ngIf="successMessage" class="alert alert-success">
+        {{ successMessage }}
+      </div>
+      
+      <div *ngIf="errorMessage" class="alert alert-danger">
+        {{ errorMessage }}
+      </div>
       <button 
-        type="submit" 
+      type="submit" 
         class="btn btn-primary w-100" 
         [disabled]="loading"
       >

@@ -32,7 +32,7 @@ export class AuthService {
     }
   }
 
-  login(username: string, password: string): Observable<any> {
+  login(username: string, password: string, remember: boolean = false): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/auth/login`, { username, password })
       .pipe(
         map(response => {
@@ -42,8 +42,10 @@ export class AuthService {
               refreshToken: response.data.refreshToken,
               accessTokenExp: this.getTokenExp(response.data.accessToken),
               refreshTokenExp: this.getTokenExp(response.data.refreshToken),
+              remember: remember
             });
-            localStorage.setItem('currentUser', JSON.stringify({ username }));
+            const storage = remember ? localStorage : sessionStorage;
+            storage.setItem('currentUser', JSON.stringify({ username }));
             this.setLoggedIn(true);
           }
           return response;
@@ -74,23 +76,28 @@ export class AuthService {
     }
   }
 
+  private clearStorage(storage: Storage): void {
+    storage.removeItem('accessToken');
+    storage.removeItem('accessTokenExp');
+    storage.removeItem('refreshToken');
+    storage.removeItem('refreshTokenExp');
+    storage.removeItem('currentUser');
+  }
+
   private clearLocalStorage(): void {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('accessTokenExp');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('refreshTokenExp');
-    localStorage.removeItem('currentUser');
+    this.clearStorage(localStorage);
+    this.clearStorage(sessionStorage);
   }
 
   isAccessTokenValid(): boolean {
-    const token = localStorage.getItem('accessToken');
-    const exp = parseInt(localStorage.getItem('accessTokenExp') || '0', 10);
+    const token = sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken');
+    const exp = parseInt(sessionStorage.getItem('accessTokenExp') || localStorage.getItem('accessTokenExp') || '0', 10);
     return !!token && Date.now() < exp;
   }
 
   isRefreshTokenValid(): boolean {
-    const token = localStorage.getItem('refreshToken');
-    const exp = parseInt(localStorage.getItem('refreshTokenExp') || '0', 10);
+    const token = sessionStorage.getItem('refreshToken') || localStorage.getItem('refreshToken');
+    const exp = parseInt(sessionStorage.getItem('refreshTokenExp') || localStorage.getItem('refreshTokenExp') || '0', 10);
     return !!token && Date.now() < exp;
   }
 
@@ -122,35 +129,37 @@ export class AuthService {
   }
 
   getAccessToken(): string | null {
-    return localStorage.getItem('accessToken');
+    return sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken');
   }
 
-  refreshTokenIfNeeded(): Observable<boolean> {
-    if (this.isAccessTokenValid()) {
-      return of(true);
-    }
-    return new Observable<boolean>((observer) => {
-      this.refreshToken().subscribe((newToken) => {
-        if (newToken) {
-          observer.next(true);
-        } else {
-          observer.next(false);
-        }
-        observer.complete();
-      });
-    });
-  }
+  // refreshTokenIfNeeded(): Observable<boolean> {
+  //   if (this.isAccessTokenValid()) {
+  //     return of(true);
+  //   }
+  //   return new Observable<boolean>((observer) => {
+  //     this.refreshToken().subscribe((newToken) => {
+  //       if (newToken) {
+  //         observer.next(true);
+  //       } else {
+  //         observer.next(false);
+  //       }
+  //       observer.complete();
+  //     });
+  //   });
+  // }
 
   private saveTokens(data: {
     accessToken: string;
     refreshToken: string;
     accessTokenExp: number;
     refreshTokenExp: number;
+    remember?: boolean;
   }): void {
-    localStorage.setItem('accessToken', data.accessToken);
-    localStorage.setItem('refreshToken', data.refreshToken);
-    localStorage.setItem('accessTokenExp', data.accessTokenExp.toString());
-    localStorage.setItem('refreshTokenExp', data.refreshTokenExp.toString());
+    const storage = data.remember ? localStorage : sessionStorage;
+    storage.setItem('accessToken', data.accessToken);
+    storage.setItem('refreshToken', data.refreshToken);
+    storage.setItem('accessTokenExp', data.accessTokenExp.toString());
+    storage.setItem('refreshTokenExp', data.refreshTokenExp.toString());
   }
 
   register(data: any): Observable<any> {

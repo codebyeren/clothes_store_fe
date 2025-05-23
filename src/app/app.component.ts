@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
-import { AuthService } from './services/auth.service';
 import { routes } from './app.routes';
 
 @Component({
@@ -13,11 +12,9 @@ import { routes } from './app.routes';
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit {
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor( private router: Router) {}
 
   ngOnInit(): void {
-    this.authService.refreshTokenIfNeeded().subscribe((success) => {
-    
-    });
+    this.router.navigate(['/']);
   }
 }

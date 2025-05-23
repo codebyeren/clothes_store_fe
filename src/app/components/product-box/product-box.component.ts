@@ -7,54 +7,17 @@ import { Product, getColorValue } from '../../shared/models/product.model';
   selector: 'app-product-box',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  template: `
-    <div class="product-box">
-      <a [routerLink]="['/product', product.id]" class="product-link">
-        <div class="product-image-container">
-          <!-- Top left badges -->
-          <div class="badges-top-left">
-            <span *ngIf="product.status" class="badge status-badge">{{ product.status }}</span>
-            <span *ngIf="product.discount" class="badge discount-badge">-{{ product.discount }}%</span>
-          </div>
-          <!-- Top right favorite button -->
-          <button class="favorite-btn" type="button" tabindex="-1"
-            (click)="$event.preventDefault(); $event.stopPropagation(); onToggleFavorite()">
-            <svg *ngIf="product.isFavorite; else heartOutline" width="22" height="22" viewBox="0 0 24 24" fill="#dc3545" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 21C12 21 4 13.36 4 8.5C4 5.42 6.42 3 9.5 3C11.24 3 12.91 3.81 14 5.08C15.09 3.81 16.76 3 18.5 3C21.58 3 24 5.42 24 8.5C24 13.36 16 21 16 21H12Z"/>
-            </svg>
-            <ng-template #heartOutline>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 21C12 21 4 13.36 4 8.5C4 5.42 6.42 3 9.5 3C11.24 3 12.91 3.81 14 5.08C15.09 3.81 16.76 3 18.5 3C21.58 3 24 5.42 24 8.5C24 13.36 16 21 16 21H12Z"/>
-              </svg>
-            </ng-template>
-          </button>
-          <img [src]="getDisplayImage()" [alt]="product.productName" class="product-image">
-          <div class="product-colors" *ngIf="product.stockDetails?.length">
-            <div *ngFor="let detail of product.stockDetails; let i = index" 
-                 class="color-dot"
-                 [style.--color-value]="getColorValue(detail.color)"
-                 [title]="detail.color"
-                 (mouseenter)="onColorHover(i)"
-                 (mouseleave)="onColorLeave()">
-            </div>
-          </div>
-        </div>
-        <div class="product-info">
-          <h3 class="product-name">{{ product.productName }}</h3>
-          <div class="product-price">
-            {{ product.price | currency:'VND' }}
-            <span *ngIf="product.discount" class="discount">-{{product.discount}}%</span>
-          </div>
-        </div>
-      </a>
-    </div>
-  `,
+  templateUrl: './product-box.component.html',
   styleUrls: ['./product-box.component.css']
 })
 export class ProductBoxComponent {
   @Input() product!: Product;
   getColorValue = getColorValue;
   hoveredColorIndex: number | null = null;
+
+  getImageUrl(img: string): string {
+    return `/img/${img}.webp`;
+  }
 
   onColorHover(index: number) {
     this.hoveredColorIndex = index;
@@ -71,9 +34,9 @@ export class ProductBoxComponent {
       this.product.stockDetails[this.hoveredColorIndex] &&
       this.product.stockDetails[this.hoveredColorIndex].img
     ) {
-      return this.product.stockDetails[this.hoveredColorIndex].img;
+      return this.getImageUrl(this.product.stockDetails[this.hoveredColorIndex].img);
     }
-    return this.product.img;
+    return this.getImageUrl(this.product.img);
   }
 
   onToggleFavorite() {

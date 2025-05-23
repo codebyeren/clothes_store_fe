@@ -106,4 +106,8 @@ export class ProductDetailComponent implements OnInit {
     // TODO: Implement cart service
     console.log('Adding to cart:', cartItem);
   }
+
+  getImageUrl(img: string): string {
+    return `/img/${img}.webp`;
+  }
 }

@@ -3,9 +3,7 @@
     <div class="row">
       <div class="col-md-4">
         <div class="product-image-container">
-          <img [src]="product?.stockDetails?.[selectedColorIndex]?.img || product?.img" 
-               [alt]="product?.productName" 
-               class="product-image">
+          <img class="product-image" [src]="getImageUrl((getSelectedStockDetail()?.img || product?.img) || '')" [alt]="product?.productName">
         </div>
       </div>
 
