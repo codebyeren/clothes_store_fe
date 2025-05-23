@@ -2,7 +2,7 @@
 .product-detail-container {
   background-color: #fff;
   border-radius: 12px;
-  box-shadow: 0 8px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   padding: 2rem;
   margin-bottom: 2rem;
 }
@@ -64,7 +64,7 @@
   width: 40px;
   height: 40px;
   padding: 0;
-  border: 8px solid #dee2e6;
+  border: 2px solid #dee2e6;
   border-radius: 50%;
   background-color: white;
   position: relative;
@@ -101,7 +101,7 @@
   left: -4px;
   right: -4px;
   bottom: -4px;
-  border: 8px solid #212529;
+  border: 2px solid #212529;
   border-radius: 50%;
 }
 
@@ -113,7 +113,7 @@
 .size-btn {
   min-width: 60px;
   padding: 0.5rem 1rem;
-  border: 8px solid #dee2e6;
+  border: 2px solid #dee2e6;
   background-color: white;
   color: #495057;
   font-weight: 500;
@@ -178,7 +178,7 @@
   color: #212529;
   margin-bottom: 1.5rem;
   padding-bottom: 0.5rem;
-  border-bottom: 8px solid #dee2e6;
+  border-bottom: 2px solid #dee2e6;
 }
 
 /* Responsive Adjustments */
