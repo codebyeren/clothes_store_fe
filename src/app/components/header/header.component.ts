@@ -29,6 +29,12 @@ export class HeaderComponent implements OnDestroy {
     this.router.navigate(['/auth/login']);
   }
 
+  onSearch(productName: string) {
+    if (productName && productName.trim()) {
+      this.router.navigate(['search'], { queryParams: { productName } });
+    }
+  }
+
   ngOnDestroy() {
     this.sub.unsubscribe();
   }

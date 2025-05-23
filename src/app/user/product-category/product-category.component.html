@@ -1,0 +1,28 @@
+<div class="container">
+
+    <img
+      src="https://img3.thuthuatphanmem.vn/uploads/2019/10/14/banner-thoi-trang-dep_113856538.jpg"
+      alt="banner"
+      class="img-fluid w-100 mb-4 rounded"
+    />
+  
+  
+    <div class="text-center mb-4">
+      <h1 class="fw-bold">Danh Mục Sản Phẩm</h1>
+    </div>
+  
+    <div *ngFor="let category of visibleCategories" class="mb-5">
+      <h5 class="ps-3 mb-3 ">{{ category.category }}</h5>
+      <div class="row g-4">
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3" *ngFor="let product of category.products">
+          <app-product-box [product]="product"></app-product-box>
+        </div>
+      </div>
+    </div>
+  
+  
+    <div class="text-center mt-4" *ngIf="hasMore()">
+      <button class="btn btn-outline-primary px-4 py-2" (click)="loadMore()">Xem thêm</button>
+    </div>
+  </div>
+  

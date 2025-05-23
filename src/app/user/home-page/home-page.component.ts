@@ -1,19 +1,18 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { ProductService, ProductCategory } from '../services/product.service';
-import { ProductBoxComponent } from '../components/product-box/product-box.component';
-import { NgFor, NgIf } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { ProductService } from '../../services/product.service';
+import { ProductBoxComponent } from '../../components/product-box/product-box.component';
+import { CommonModule } from '@angular/common';
+import { ProductCategory } from '../../shared/models/product.model';
 
 @Component({
   selector: 'app-home-page',
   standalone: true,
   imports: [
     ProductBoxComponent,
-    NgFor,
-    NgIf
+    CommonModule
   ],
   templateUrl: './home-page.component.html',
-  styleUrls: ['./home-page.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrls: ['./home-page.component.css']
 })
 export class HomePageComponent implements OnInit {
   allCategories: ProductCategory[] = [];
@@ -24,8 +23,8 @@ export class HomePageComponent implements OnInit {
   constructor(private productService: ProductService) {}
 
   ngOnInit(): void {
-    this.productService.getProducts().subscribe(response => {
-      this.allCategories = response.data;
+    this.productService.getHomeProducts().subscribe((categories: ProductCategory[]) => {
+      this.allCategories = categories;
       this.updateVisibleCategories();
     });
   }

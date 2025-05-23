@@ -4,24 +4,24 @@
     </div>
   
     <nav class="menu">
-      <a routerLink="/">Home</a>
-      <a routerLink="/men">Đồ Nam</a>
-      <a routerLink="/women">Đồ Nữ</a>
-      <a routerLink="/boys">Đồ Bé Trai</a>
-      <a routerLink="/girls">Đồ Bé Gái</a>
+      <a routerLink="">Home</a>
+      <a routerLink="products/category/1">Đồ Nam</a>
+      <a routerLink="products/category/2">Đồ Nữ</a>
+      <a routerLink="products/category/3">Đồ Bé Trai</a>
+      <a routerLink="products/category/4">Đồ Bé Gái</a>
     </nav>
   
+    <div class="search">
+      <input #searchInput type="text" placeholder="Bạn Muốn Tìm gì..." (keydown.enter)="onSearch(searchInput.value)" />
+      <button (click)="onSearch(searchInput.value)">Tìm Kiếm</button>
+    </div>
+
     <ng-container *ngIf="!isLoggedIn">
       <div class="auth-buttons">
         <button class="btn btn-primary me-2" routerLink="/auth/login">Đăng nhập/Đăng ký</button>
       </div>
     </ng-container>
     <ng-container *ngIf="isLoggedIn">
-      <div class="search">
-        <input type="text" placeholder="Bạn Muốn Tìm gì..." />
-        <button>Tìm Kiếm</button>
-      </div>
-    
       <div class="icons">
         <button title="Tài khoản" (click)="onAccountClick()">
           <i class="fa fa-user"></i>

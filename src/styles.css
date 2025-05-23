@@ -1,5 +1,19 @@
 /* You can add global styles to this file, and also import other style files */
 
+:root {
+  --primary-color: #fff;
+  --secondary-color: #f5f5f5;
+  --text-color: #212529;
+  --text-color-light: #6c757d;
+  --border-color: #e0e0e0;
+  --border-radius: 8px;
+  --box-shadow: 0 2px 8px rgba(33, 37, 41, 0.06);
+  --button-bg: var(--primary-color);
+  --button-bg-hover: #f0f0f0;
+  --button-border: var(--border-color);
+  --button-text: var(--text-color);
+}
+
 .password-toggle {
   position: absolute;
   right: 1rem;

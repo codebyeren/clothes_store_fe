@@ -1,0 +1,70 @@
+<section class="container py-5">
+  <div class="product-detail-container">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="product-image-container">
+          <img [src]="product?.stockDetails?.[selectedColorIndex]?.img || product?.img" 
+               [alt]="product?.productName" 
+               class="product-image">
+        </div>
+      </div>
+
+      <div class="col-md-6 product-info">
+        <h1 class="product-title">{{ product?.productName }}</h1>
+        
+        <div class="product-price">
+          {{ product?.price | currency:'VND' }}
+          <span *ngIf="product?.discount" class="discount">-{{product?.discount}}%</span>
+        </div>
+
+        <div *ngIf="product?.stockDetails" class="color-selection">
+          <label class="form-label fw-semibold">Chọn màu:</label>
+          <div class="d-flex flex-wrap gap-2">
+            <button *ngFor="let detail of product?.stockDetails; let i = index"
+                    type="button"
+                    class="color-btn"
+                    [ngClass]="{ 'active': selectedColorIndex === i }"
+                    [style.--color-value]="getColorValue(detail.color)"
+                    (click)="onColorSelect(i)"
+                    [title]="detail.color">
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="getSelectedStockDetail()?.sizes?.length" class="size-selection">
+          <label class="form-label fw-semibold">Chọn size:</label>
+          <div class="d-flex flex-wrap gap-2">
+            <button *ngFor="let size of getSelectedStockDetail()?.sizes"
+                    type="button"
+                    class="size-btn"
+                    [ngClass]="{ 'active': selectedSize === size.size }"
+                    (click)="onSizeSelect(size.size)">
+              {{ size.size }}
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="selectedSize" class="stock-info">
+          <span class="fw-bold">Tồn kho:</span> 
+          <span class="stock-value">{{ getSelectedSizeStock() }} sản phẩm</span>
+        </div>
+
+        <button class="add-to-cart-btn" 
+                [disabled]="!selectedSize || getSelectedSizeStock() === 0"
+                (click)="addToCart()">
+          Thêm vào giỏ hàng
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SẢN PHẨM LIÊN QUAN -->
+<section class="container related-products" *ngIf="relatedProducts.length > 0">
+  <h5 class="related-products-title">Sản Phẩm Liên Quan</h5>
+  <div class="row g-4">
+    <div class="col-12 col-sm-6 col-md-4 col-lg-3" *ngFor="let product of relatedProducts">
+      <app-product-box [product]="product"></app-product-box>
+    </div>
+  </div>
+</section>

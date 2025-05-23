@@ -1,7 +1,8 @@
 <div class="box-product" (click)="onViewProduct()">
   <div class="img-wrapper">
     <a>
-      <img [src]="product.image_url" [alt]="product.productName" class="img-fluid">
+      <img [src]="previewColorUrl || (product.stockDetails && product.stockDetails[selectedColorIndex].img) || product.img"
+           [alt]="product.productName" class="img-fluid product-img-animate">
     </a>
     <div class="tags">
       <span class="label-tags" *ngIf="product.discount > 0">
@@ -19,17 +20,33 @@
         <i class="fa fa-shopping-cart"></i>
       </a>
       <a (click)="onToggleFavorite($event)" title="Yêu thích">
-        <i class="fa fa-heart"></i>
+        <i class="fa fa-heart" [class.text-danger]="product.isFavorite"></i>
       </a>
     </div>
   </div>
   <h6><a (click)="onViewProduct(); $event.stopPropagation()">{{ product.productName }}</a></h6>
   <div class="price">
     <div>
-      {{ product.price | number:'1.0-0' }}₫
+      {{ product.price | number:'1.0-0' }}$
       <span class="original-price" *ngIf="product.discount > 0">
-        {{ (product.price / (1 - product.discount/100)) | number:'1.0-0' }}₫
+        {{ (product.price / (1 - product.discount/100)) | number:'1.0-0' }}$
       </span>
+    </div>
+  </div>
+  <div class="colors">
+    <ng-container *ngFor="let stockDetail of product.stockDetails.slice(0, 4); let i = index">
+      <div
+        class="color-box"
+        [ngClass]="{'selected': selectedColorIndex === i}"
+        [style.background-color]="getColorHex(stockDetail.color)"
+        (mouseenter)="onSelectColorBox(i)"
+        (mouseleave)="onSelectColorBox(selectedColorIndex)"
+        (click)="onClickColorBox(i)"
+        [attr.title]="stockDetail.color"
+      ></div>
+    </ng-container>
+    <div class="color-box more-colors" *ngIf="product.stockDetails.length > 4">
+      +{{ product.stockDetails.length - 4 }}
     </div>
   </div>
   <div class="product-stats">
@@ -47,3 +64,9 @@
     </div>
   </div>
 </div>
+
+<style>
+.product-img-animate {
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+</style>

@@ -10,7 +10,7 @@ import { ResetPasswordComponent } from './auth/reset-password/reset-password.com
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./home-page/home-page.component').then(m => m.HomePageComponent)
+    loadComponent: () => import('./user/home-page/home-page.component').then(m => m.HomePageComponent)
   },
   {
     path: 'auth',
@@ -49,20 +49,24 @@ export const routes: Routes = [
     ]
   },
   {
-    path: 'products/:categoryId',
-    loadComponent: () => import('./product-category/product-category.component').then(m => m.ProductCategoryComponent)
+    path: 'products/category/:categoryId',
+    loadComponent: () => import('./user/product-category/product-category.component').then(m => m.ProductCategoryComponent)
   },
   {
     path: 'product/:id',
-    loadComponent: () => import('./product-detail/product-detail.component').then(m => m.ProductDetailComponent)
+    loadComponent: () => import('./user/product-detail/product-detail.component').then(m => m.ProductDetailComponent)
   },
   {
     path: 'about',
-    loadComponent: () => import('./about/about.component').then(m => m.AboutComponent)
+    loadComponent: () => import('./user/about/about.component').then(m => m.AboutComponent)
   },
   {
     path: 'contact',
-    loadComponent: () => import('./contact/contact.component').then(m => m.ContactComponent)
+    loadComponent: () => import('./user/contact/contact.component').then(m => m.ContactComponent)
+  },
+  {
+    path: 'search',
+    loadComponent: () => import('./user/product-search/product-search.component').then(m => m.ProductSearchComponent)
   },
   {
     path: '**',
