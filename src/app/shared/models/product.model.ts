@@ -73,7 +73,8 @@ export const colorMap: { [key: string]: string } = {
   'Nâu pastel': '#DEB887',
   'Xám pastel': '#D3D3D3',
   'Be pastel': '#F5F5DC',
-  'Kem pastel': '#FFFDD0'
+  'Kem pastel': '#FFFDD0',
+  'Ghi': '#848188'
 };
 
 export function getColorValue(colorName: string): string {
