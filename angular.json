@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/clothes_store_view",
+            "outputPath": "dist/clothes_store_fe",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
