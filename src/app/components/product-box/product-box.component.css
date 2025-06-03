@@ -151,6 +151,16 @@
   gap: 8px;
 }
 
+.original-price {
+  text-decoration: line-through;
+  color: #6c757d;
+  font-size: 0.875rem;
+}
+
+.current-price {
+  color: #dc3545;
+}
+
 .discount {
   font-size: 0.75rem;
   background-color: #dc3545;

@@ -11,7 +11,8 @@
         <h1 class="product-title">{{ product?.productName }}</h1>
         
         <div class="product-price">
-          {{ product?.price | currency:'VND' }}
+          <span *ngIf="product?.discount" class="original-price">{{ product?.price | currency:'VND' }}</span>
+          <span class="current-price">{{ (product?.price || 0) | discountPrice:product?.discount | currency:'VND' }}</span>
           <span *ngIf="product?.discount" class="discount">-{{product?.discount}}%</span>
         </div>
 
@@ -44,25 +45,35 @@
 
         <div *ngIf="selectedSize" class="stock-info">
           <span class="fw-bold">Tồn kho:</span> 
-          <span class="stock-value">{{ getSelectedSizeStock() }} sản phẩm</span>
+          <div class="stock-value">{{ getMaxQuantity() }} sản phẩm</div>
         </div>
 
         <button class="add-to-cart-btn" 
-                [disabled]="!selectedSize || getSelectedSizeStock() === 0"
-                (click)="addToCart()">
+                (click)="addToCart()" 
+                [disabled]="!selectedSize || getMaxQuantity() === 0">
           Thêm vào giỏ hàng
         </button>
       </div>
     </div>
   </div>
-</section>
-
-<!-- SẢN PHẨM LIÊN QUAN -->
-<section class="container related-products" *ngIf="relatedProducts.length > 0">
-  <h5 class="related-products-title">Sản Phẩm Liên Quan</h5>
-  <div class="row g-4">
-    <div class="col-12 col-sm-6 col-md-4 col-lg-3" *ngFor="let product of relatedProducts">
-      <app-product-box [product]="product"></app-product-box>
+  <!-- SẢN PHẨM LIÊN QUAN -->
+  <div class="related-products mt-5" *ngIf="relatedProducts.length > 0">
+    <h3 class="mb-4 related-products-title">Sản phẩm liên quan</h3>
+    <div class="products-slider" #relatedSlider>
+      <div class="products-container" [style.transform]="'translateX(' + slideOffset + 'px)'">
+        <div class="product-item" *ngFor="let product of relatedProducts">
+          <app-product-box [product]="product"></app-product-box>
+        </div>
+      </div>
+    </div>
+    <div class="slider-controls text-center mt-3" *ngIf="relatedProducts.length > 4">
+      <button class="nav-btn prev" (click)="slideLeft()" title="Xem sản phẩm trước">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <button class="nav-btn next" (click)="slideRight()" title="Xem sản phẩm tiếp">
+        <i class="fas fa-chevron-right"></i>
+      </button>
     </div>
   </div>
 </section>
+

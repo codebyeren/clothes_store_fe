@@ -4,6 +4,10 @@ import { ProductBoxComponent } from '../../components/product-box/product-box.co
 import { CommonModule } from '@angular/common';
 import { ProductCategory } from '../../shared/models/product.model';
 
+interface ExtendedProductCategory extends ProductCategory {
+  slideOffset: number;
+}
+
 @Component({
   selector: 'app-home-page',
   standalone: true,
@@ -15,30 +19,43 @@ import { ProductCategory } from '../../shared/models/product.model';
   styleUrls: ['./home-page.component.css']
 })
 export class HomePageComponent implements OnInit {
-  allCategories: ProductCategory[] = [];
-  visibleCategories: ProductCategory[] = [];
-  maxVisibleItems = 4;
-  step = 4;
+  allCategories: ExtendedProductCategory[] = [];
+  visibleCategories: ExtendedProductCategory[] = [];
+  slideStep = 700; 
 
   constructor(private productService: ProductService) {}
 
   ngOnInit(): void {
     this.productService.getHomeProducts().subscribe((categories: ProductCategory[]) => {
-      this.allCategories = categories;
+      this.allCategories = categories.map(category => ({
+        ...category,
+        slideOffset: 0
+      }));
       this.updateVisibleCategories();
     });
   }
 
-  loadMore(): void {
-    this.maxVisibleItems += this.step;
-    this.updateVisibleCategories();
-  }
-
   private updateVisibleCategories(): void {
-    this.visibleCategories = this.allCategories.slice(0, this.maxVisibleItems);
+    this.visibleCategories = this.allCategories;
   }
 
-  hasMore(): boolean {
-    return this.visibleCategories.length < this.allCategories.length;
+  slideLeft(category: ExtendedProductCategory): void {
+    const container = document.querySelector('.products-container') as HTMLElement;
+    if (container) {
+      const containerWidth = container.offsetWidth;
+      const maxOffset = 0;
+      category.slideOffset = Math.min(category.slideOffset + this.slideStep, maxOffset);
+    }
+  }
+
+  slideRight(category: ExtendedProductCategory): void {
+    const container = document.querySelector('.products-container') as HTMLElement;
+    if (container) {
+      const containerWidth = container.offsetWidth;
+      const contentWidth = container.scrollWidth;
+      const maxOffset = -(contentWidth - containerWidth);
+      category.slideOffset = Math.max(category.slideOffset - this.slideStep, maxOffset);
+    }
   }
 }
+

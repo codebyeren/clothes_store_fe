@@ -1,6 +1,7 @@
 export interface Size {
   size: string;
   stock: number;
+  productSizeId: number;
 }
 
 export interface StockDetail {
@@ -13,6 +14,7 @@ export interface Product {
   id: number;
   productName: string;
   price: number;
+  slug: string;
   discount: number;
   status: string;
   img: string;

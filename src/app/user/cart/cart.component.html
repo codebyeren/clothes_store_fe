@@ -1,0 +1,76 @@
+<div class="cart-container">
+  <h2>Giỏ hàng của tôi</h2>
+
+  <div *ngIf="cartItems.length === 0" class="empty-cart-message">
+    <i class="fas fa-shopping-cart"></i>
+    <p>Giỏ hàng của bạn đang trống.</p>
+    <a routerLink="/products" class="continue-shopping">Tiếp tục mua sắm</a>
+  </div>
+
+  <div *ngIf="cartItems.length > 0">
+    <div class="cart-items">
+      <div class="cart-item" *ngFor="let item of cartItems">
+        <div class="item-image" *ngIf="getProductImage(item)">
+          <img [src]="getProductImage(item)" [alt]="getProductName(item)">
+        </div>
+        <div class="item-details">
+          <h3>{{ getProductName(item) }}</h3>
+          <div class="cart-item-price">
+            <span class="original-price" *ngIf="getProductDiscount(item) > 0">{{getProductPrice(item) | currency:'VND':'symbol-narrow':'1.0-0'}}</span>
+            <span class="discounted-price">{{getDiscountedPrice(item) | currency:'VND':'symbol-narrow':'1.0-0'}}</span>
+          </div>
+          
+          <div class="item-info">
+            <div class="info-row">
+              <span class="label">Màu sắc:</span>
+              <span class="value">{{ item.color }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Kích thước:</span>
+              <span class="value">{{ item.size }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Tồn kho:</span>
+              <span class="value">{{ item.stock }} sản phẩm</span>
+            </div>
+          </div>
+
+          <div class="quantity-controls">
+            <button (click)="updateQuantity(item, item.quantity - 1)" [disabled]="item.quantity <= 1">
+              <i class="fas fa-minus"></i>
+            </button>
+            <span>{{ item.quantity }}</span>
+            <button (click)="updateQuantity(item, item.quantity + 1)" [disabled]="item.quantity >= item.stock">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+
+          <div class="item-total">
+            <span>Tổng:</span>
+            <span class="total-price">{{ getItemTotal(item) | currency:'VND':'symbol-narrow':'1.0-0' }}</span>
+          </div>
+
+          <button class="remove-button" (click)="removeItem(item)">
+            <i class="fas fa-trash-alt"></i>
+            <span>Xóa</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="cart-summary">
+      <div class="summary-row">
+        <span>Tổng số sản phẩm:</span>
+        <span>{{ cartItems.length }}</span>
+      </div>
+      <div class="summary-row total">
+        <span>Tổng tiền:</span>
+        <span class="total-price">{{ getTotalPrice() | currency:'VND':'symbol-narrow':'1.0-0' }}</span>
+      </div>
+      <button class="checkout-button">
+        <i class="fas fa-credit-card"></i>
+        <span>Thanh toán</span>
+      </button>
+    </div>
+  </div>
+</div>

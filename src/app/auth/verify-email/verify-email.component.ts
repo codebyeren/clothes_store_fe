@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { SessionService } from '../../services/session.service';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 
@@ -23,6 +24,7 @@ export class VerifyEmailComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
+    private sessionService: SessionService,
     private router: Router,
     private route: ActivatedRoute
   ) {
@@ -63,6 +65,7 @@ export class VerifyEmailComponent implements OnInit {
     this.loading = true;
     this.authService.verifyCode(this.email, this.f['verificationCode'].value).subscribe({
       next: (res) => {
+        this.sessionService.setResetSession();
         this.successMessage = res.message;
         setTimeout(() => {
           this.router.navigate(['/auth/reset-password'], {

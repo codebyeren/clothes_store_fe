@@ -5,10 +5,10 @@
   
     <nav class="menu">
       <a routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
-      <a routerLink="products/category/1" routerLinkActive="active">Đồ Nam</a>
-      <a routerLink="products/category/2" routerLinkActive="active">Đồ Nữ</a>
-      <a routerLink="products/category/3" routerLinkActive="active">Đồ Bé Trai</a>
-      <a routerLink="products/category/4" routerLinkActive="active">Đồ Bé Gái</a>
+      <a routerLink="products/category/do-nam" routerLinkActive="active">Đồ Nam</a>
+      <a routerLink="products/category/do-nu" routerLinkActive="active">Đồ Nữ</a>
+      <a routerLink="products/category/do-be-trai" routerLinkActive="active">Đồ Bé Trai</a>
+      <a routerLink="products/category/do-be-gai" routerLinkActive="active">Đồ Bé Gái</a>
     </nav>
   
     <div class="search">
@@ -29,10 +29,13 @@
         <button title="Đăng xuất" (click)="logout()">
           <i class="fa fa-sign-out"></i>
         </button>
-        <button title="Giỏ hàng">
+        <button title="Giỏ hàng" (click)="toggleCartDropdown()">
           <i class="fa fa-shopping-cart"></i>
         </button>
       </div>
     </ng-container>
+    <div class="cart-dropdown" *ngIf="showCartDropdown">
+      <app-cart-dropdown></app-cart-dropdown>
+    </div>
   </header>
   

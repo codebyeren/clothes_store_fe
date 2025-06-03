@@ -61,3 +61,15 @@
     cursor: pointer;
   }
   
+.cart-dropdown {
+  position: absolute;
+  top: 100%; /* Position below the header */
+  right: 0;
+  background-color: white; /* Or match your design */
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  z-index: 1001; /* Increased z-index to appear above other content */
+  min-width: 300px; /* Adjust as needed */
+  padding: 10px;
+}
+  

@@ -4,6 +4,7 @@ import { Observable, of, throwError, BehaviorSubject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
+import { SessionService } from './session.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,8 @@ export class AuthService {
 
   constructor(
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private sessionService: SessionService
   ) {}
 
   getTokenExp(token: string): number {
@@ -106,7 +108,13 @@ export class AuthService {
       this.logout();
       return of(null);
     }
-    const currentRefreshToken = localStorage.getItem('refreshToken');
+    const currentRefreshToken = sessionStorage.getItem('refreshToken') || localStorage.getItem('refreshToken');
+
+    if (!currentRefreshToken) {
+      this.logout();
+      return of(null);
+    }
+
     return this.http.post<any>(`${this.apiUrl}/auth/refresh-token`, { refreshToken: currentRefreshToken })
       .pipe(
         map(response => {
@@ -114,7 +122,7 @@ export class AuthService {
             this.saveTokens({
               accessToken: response.accessToken,
               refreshToken: response.refreshToken,
-              accessTokenExp: response.accessTokenExp || (Date.now() + 15 * 60 * 1000),
+              accessTokenExp: response.accessTokenExp || (Date.now() + 60 * 60 * 1000),
               refreshTokenExp: response.refreshTokenExp || (Date.now() + 7 * 24 * 60 * 60 * 1000),
             });
             return response.accessToken;
@@ -180,22 +188,51 @@ export class AuthService {
   }
 
   verifyCode(email: string, code: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/verify-code`, null, { params: { email, code } })
-      .pipe(
-        map(response => response),
-        catchError(error => throwError(() => error.error))
-      );
+    return this.http.post(`${this.apiUrl}/verify-code`, null, { 
+      params: { email, code } 
+    }).pipe(
+      map((response: any) => {
+        if (response.sessionId) {
+          this.sessionService.setResetSession(response.sessionId);
+        }
+        return response;
+      }),
+      catchError(error => throwError(() => error.error))
+    );
   }
 
   resetPassword(email: string, newPassword: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/reset-password`, null, { params: { email, newPassword } })
-      .pipe(
-        map(response => response),
-        catchError(error => throwError(() => error.error))
-      );
+    const sessionId = this.sessionService.getResetSession();
+    if (!sessionId) {
+      return throwError(() => ({ message: 'Phiên làm việc không hợp lệ' }));
+    }
+
+    return this.http.post(`${this.apiUrl}/reset-password`, null, { 
+      params: { email, newPassword },
+      headers: { 'X-Session-Id': sessionId }
+    }).pipe(
+      map(response => {
+        this.sessionService.clearResetSession();
+        return response;
+      }),
+      catchError(error => throwError(() => error.error))
+    );
   }
 
   isLoggedIn(): boolean {
     return this.isAccessTokenValid();
+  }
+
+  getCurrentUserId(): number | null {
+    const userStr = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        return user.id;
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
   }
 }

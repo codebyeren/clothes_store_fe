@@ -5,6 +5,10 @@ import { ProductBoxComponent } from '../../components/product-box/product-box.co
 import { ActivatedRoute } from '@angular/router';
 import { ProductCategory } from '../../shared/models/product.model';
 
+interface ExtendedProductCategory extends ProductCategory {
+  slideOffset: number;
+}
+
 @Component({
   selector: 'app-product-category',
   imports: [CommonModule, ProductBoxComponent],
@@ -12,10 +16,9 @@ import { ProductCategory } from '../../shared/models/product.model';
   styleUrl: './product-category.component.css'
 })
 export class ProductCategoryComponent {
-  allCategories: ProductCategory[] = [];
-  visibleCategories: ProductCategory[] = [];
-  maxVisibleItems = 4;
-  step = 4;
+  allCategories: ExtendedProductCategory[] = [];
+  visibleCategories: ExtendedProductCategory[] = [];
+  slideStep = 300;
   categoryDad: string = '';
   
   constructor(
@@ -26,21 +29,21 @@ export class ProductCategoryComponent {
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       let categoryDad = '';
-      const categoryId = +params['categoryId'];
-      if (categoryId) {
-        this.loadProduct(categoryId);
+      const slug = params['slug'];
+      if (slug) {
+        this.loadProduct(slug);
       }
-      switch (categoryId) {
-        case 1:
+      switch (slug) {
+        case "do-nam":
           categoryDad = 'Đồ Nam';
           break;
-        case 2:
+        case "do-nu":
           categoryDad = 'Đồ Nữ';
           break;
-        case 3:
+        case "do-be-trai":
           categoryDad = 'Đồ Bé Trai';
           break;
-        case 4:
+        case "do-be-gai":
           categoryDad = 'Đồ Bé Gái';
           break;
         default:
@@ -49,22 +52,36 @@ export class ProductCategoryComponent {
       this.categoryDad = categoryDad;
     });
   }
-  loadProduct(categoryId: number): void {
-    this.productService.getProductsByCategory(categoryId).subscribe((categories: ProductCategory[]) => {
-      this.allCategories = categories;
+
+  loadProduct(slug: string): void {
+    this.productService.getProductsByCategory(slug).subscribe((categories: ProductCategory[]) => {
+      this.allCategories = categories.map(category => ({
+        ...category,
+        slideOffset: 0
+      }));
       this.updateVisibleCategories();
     });
   }
-  loadMore(): void {
-    this.maxVisibleItems += this.step;
-    this.updateVisibleCategories();
-  }
 
   private updateVisibleCategories(): void {
-    this.visibleCategories = this.allCategories.slice(0, this.maxVisibleItems);
+    this.visibleCategories = this.allCategories;
   }
 
-  hasMore(): boolean {
-    return this.visibleCategories.length < this.allCategories.length;
+  slideLeft(category: ExtendedProductCategory): void {
+    const container = document.querySelector('.products-container') as HTMLElement;
+    if (container) {
+      const maxOffset = 0;
+      category.slideOffset = Math.min(category.slideOffset + this.slideStep, maxOffset);
+    }
+  }
+
+  slideRight(category: ExtendedProductCategory): void {
+    const container = document.querySelector('.products-container') as HTMLElement;
+    if (container) {
+      const containerWidth = container.offsetWidth;
+      const contentWidth = container.scrollWidth;
+      const maxOffset = -(contentWidth - containerWidth);
+      category.slideOffset = Math.max(category.slideOffset - this.slideStep, maxOffset);
+    }
   }
 }

@@ -42,6 +42,10 @@ export const routes: Routes = [
         loadComponent: () => import('./auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent)
       },
       {
+        path: 'user-profile',
+        loadComponent: () => import('./user/user-profile/user-profile.component').then(m => m.UserProfileComponent)
+      },
+      {
         path: '',
         redirectTo: '',
         pathMatch: 'full'
@@ -49,11 +53,15 @@ export const routes: Routes = [
     ]
   },
   {
-    path: 'products/category/:categoryId',
+    path: 'profile',
+    loadComponent: () => import('./user/user-profile/user-profile.component').then(m => m.UserProfileComponent)
+  },
+  {
+    path: 'products/category/:slug',
     loadComponent: () => import('./user/product-category/product-category.component').then(m => m.ProductCategoryComponent)
   },
   {
-    path: 'product/:id',
+    path: 'product/:slug',
     loadComponent: () => import('./user/product-detail/product-detail.component').then(m => m.ProductDetailComponent)
   },
   {
@@ -67,6 +75,10 @@ export const routes: Routes = [
   {
     path: 'search',
     loadComponent: () => import('./user/product-search/product-search.component').then(m => m.ProductSearchComponent)
+  },
+  {
+    path: 'cart',
+    loadComponent: () => import('./user/cart/cart.component').then(m => m.CartComponent)
   },
   {
     path: '**',
