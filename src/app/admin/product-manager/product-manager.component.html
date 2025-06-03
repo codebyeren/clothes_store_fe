@@ -1,0 +1,42 @@
+<div class="container-fluid mt-4">
+  <h3 class="mb-4">Quản Lý Sản Phẩm</h3>
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped align-middle text-center">
+      <thead class="table-dark">
+      <tr>
+        <th>STT</th>
+        <th>Tên sản phẩm</th>
+        <th>Giá</th>
+        <th>Số lượng</th>
+        <th>Loại</th>
+        <th>Ảnh</th>
+        <th>Hành động</th>
+      </tr>
+      </thead>
+      <tbody>
+      <!-- Lặp qua danh sách sản phẩm -->
+
+      <tr *ngFor="let product of products; let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ product.productName }}</td>
+        <td>{{ product.price }}₫</td>
+        <td>
+          {{ product.stockDetails?.length ? product.stockDetails[0].sizes?.[0]?.stock || 0 : 0 }}
+        </td>
+        <td>Áo</td>
+        <td>
+          <img [src]="product.img" alt="Ảnh sản phẩm" width="50" />
+        </td>
+        <td>
+          <button [routerLink]="['/product-manager', product.slug]" class="btn btn-warning btn-sm">Sửa</button>
+          <button class="btn btn-danger btn-sm">Xoá</button>
+        </td>
+      </tr>
+
+
+
+      </tbody>
+    </table>
+  </div>
+  <button class="btn btn-primary">Thêm Sản Phẩm</button>
+</div>

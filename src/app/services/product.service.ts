@@ -1,15 +1,37 @@
+
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { 
-  Product, 
-  ProductCategory, 
-  ProductResponse, 
-  ProductSearchResult, 
-  ProductDetailResponse 
+import {
+  Product,
+  ProductCategory,
+  ProductResponse,
+  ProductSearchResult,
+  ProductDetailResponse
 } from '../shared/models/product.model';
+
+export interface ProductDetailDTO {
+  id: number;
+  slug: string;
+  name: string;
+  description: string;
+  price: number;
+  discountPercent: number;
+  imageUrl: string;
+  stockDetails: StockDetailDTO[];
+}
+
+export interface StockDetailDTO {
+  color: string;
+  sizes: SizeDTO[];
+}
+
+export interface SizeDTO {
+  size: string;
+  quantity: number;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -34,8 +56,8 @@ export class ProductService {
     );
   }
 
-  getProductsByCategory(categoryId: number): Observable<ProductCategory[]> {
-    return this.http.get<ProductResponse>(`${this.baseUrl}/category/${categoryId}`).pipe(
+  getProductsByCategory(slug: string): Observable<ProductCategory[]> {
+    return this.http.get<ProductResponse>(`${this.baseUrl}/category/${slug}`).pipe(
       map(res => {
         const data = res.data;
         return Object.keys(data).map(categoryName => ({
@@ -70,6 +92,7 @@ export class ProductService {
       id: apiProduct.id,
       productName: apiProduct.productName,
       price: apiProduct.price,
+      slug: apiProduct.slug,
       discount: apiProduct.discount,
       status: apiProduct.status,
       img: apiProduct.img,
@@ -85,14 +108,14 @@ export class ProductService {
     };
   }
 
-  getProductById(id: number): Observable<ProductDetailResponse> {
-    return this.http.get<ProductDetailResponse>(`${this.detailUrl}/${id}`).pipe(
+  getProductById(slug: string): Observable<ProductDetailResponse> {
+    return this.http.get<ProductDetailResponse>(`${this.detailUrl}/${slug}`).pipe(
       map(response => ({
         code: response.code,
         message: response.message,
         data: {
           productDetails: this.mapApiProductToProduct(response.data.productDetails),
-          relatedProducts: response.data.relatedProducts.map((product: any) => 
+          relatedProducts: response.data.relatedProducts.map((product: any) =>
             this.mapApiProductToProduct(product)
           )
         }
@@ -100,18 +123,26 @@ export class ProductService {
     );
   }
 
-  getProductDetail(id: number): Observable<ProductDetailResponse> {
-    return this.http.get<ProductDetailResponse>(`${this.detailUrl}/${id}`).pipe(
+  getProductDetail(slug: string): Observable<ProductDetailResponse> {
+    return this.http.get<ProductDetailResponse>(`${this.detailUrl}/${slug}`).pipe(
       map(response => ({
         code: response.code,
         message: response.message,
         data: {
           productDetails: this.mapApiProductToProduct(response.data.productDetails),
-          relatedProducts: response.data.relatedProducts.map((product: any) => 
+          relatedProducts: response.data.relatedProducts.map((product: any) =>
             this.mapApiProductToProduct(product)
           )
         }
       }))
     );
+  }
+
+  getProducts(): Observable<ProductDetailDTO[]> {
+    return this.http.get<ProductDetailDTO[]>(`${this.apiUrl}/products`);
+  }
+
+  getProductBySlug(slug: string): Observable<ProductDetailDTO> {
+    return this.http.get<ProductDetailDTO>(`${this.detailUrl}/${slug}`);
   }
 }

@@ -53,7 +53,7 @@ export const routes: Routes = [
     loadComponent: () => import('./user/product-category/product-category.component').then(m => m.ProductCategoryComponent)
   },
   {
-    path: 'product/:id',
+    path: 'product/:slug',
     loadComponent: () => import('./user/product-detail/product-detail.component').then(m => m.ProductDetailComponent)
   },
   {
@@ -67,6 +67,12 @@ export const routes: Routes = [
   {
     path: 'search',
     loadComponent: () => import('./user/product-search/product-search.component').then(m => m.ProductSearchComponent)
+  },
+  {path : 'admin',
+  loadComponent : () => import('./admin/product-manager/product-manager.component').then(m=>m.ProductManagerComponent)},
+  {
+    path: 'product-manager/:slug',
+    loadComponent: () => import('./admin/product-detail/product-detail.component').then(m => m.ProductDetailComponent)
   },
   {
     path: '**',
