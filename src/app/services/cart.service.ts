@@ -1,10 +1,11 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable, OnDestroy } from '@angular/core';
 import { Observable, interval, Subscription, BehaviorSubject, Subject } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import { environment } from '../../environments/environment';
 import { ProductService } from './product.service';
+import { ToastrService } from 'ngx-toastr';
 
 export interface CartItemDTO {
   productId: number;
@@ -43,7 +44,8 @@ export class CartService implements OnDestroy {
   constructor(
     private http: HttpClient,
     private authService: AuthService,
-    private productService: ProductService
+    private productService: ProductService,
+    private toastr: ToastrService
   ) {
     // Initialize hasLoadedFromDB from localStorage
     this.hasLoadedFromDB = localStorage.getItem(this.LOADED_FROM_DB_KEY) === 'true';
@@ -108,21 +110,6 @@ export class CartService implements OnDestroy {
   }
 
   /**
-   * Creates HTTP headers with authorization token if available.
-   * @returns HttpHeaders for API requests
-   */
-  private getHeaders(): HttpHeaders {
-    const token = this.authService.getAccessToken();
-    if (!token) {
-      return new HttpHeaders({ 'Content-Type': 'application/json' });
-    }
-    return new HttpHeaders({
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    });
-  }
-
-  /**
    * Sets up periodic auto-save to sync cart with server.
    */
   private setupAutoSave(): void {
@@ -151,14 +138,8 @@ export class CartService implements OnDestroy {
 
     const currentCart = this.cartItems$.getValue();
 
-    const headers = this.getHeaders();
-    if (!headers.get('Authorization')) {
-      console.error('No authorization token available for sync');
-      return;
-    }
-
     console.log('Attempting to sync cart with backend...');
-    this.http.post(this.apiUrl, currentCart, { headers })
+    this.http.post(this.apiUrl, currentCart)
       .subscribe({
         next: () => {
           console.log('Cart synced successfully');
@@ -178,15 +159,8 @@ export class CartService implements OnDestroy {
     return new Promise((resolve, reject) => {
       const currentCart = this.cartItems$.getValue();
 
-      const headers = this.getHeaders();
-      if (!headers.get('Authorization')) {
-        console.error('No authorization token available for sync before logout');
-        reject(new Error('No authorization token'));
-        return;
-      }
-
       console.log('Attempting to sync cart with backend before logout...');
-      this.http.post(this.apiUrl, currentCart, { headers })
+      this.http.post(this.apiUrl, currentCart)
         .subscribe({
           next: (response) => {
             console.log('Cart synced successfully before logout. API Response:', response);
@@ -247,10 +221,13 @@ export class CartService implements OnDestroy {
         quantity: newQuantity
       };
       this.updateCart(updatedItems);
+      this.toastr.success('Đã cập nhật số lượng sản phẩm trong giỏ hàng');
     } else {
       const updatedItems = [...currentCart, item];
       this.updateCart(updatedItems);
+      this.toastr.success('Đã thêm sản phẩm vào giỏ hàng');
     }
+    this.saveCart();
   }
 
   /**
@@ -270,6 +247,8 @@ export class CartService implements OnDestroy {
       cartItem.size === item.size ? item : cartItem
     );
     this.updateCart(updatedItems);
+    this.toastr.success('Đã cập nhật giỏ hàng');
+    this.saveCart();
   }
 
   /**
@@ -284,6 +263,8 @@ export class CartService implements OnDestroy {
         i.size === item.size)
     );
     this.updateCart(updatedItems);
+    this.toastr.success('Đã xóa sản phẩm khỏi giỏ hàng');
+    this.saveCart();
   }
 
   /**
@@ -309,6 +290,7 @@ export class CartService implements OnDestroy {
     localStorage.removeItem(this.CART_STORAGE_KEY);
     this.setHasLoadedFromDB(false);
     this.cartUpdate$.next();
+    this.toastr.success('Đã xóa tất cả sản phẩm trong giỏ hàng');
   }
 
   /**
@@ -317,21 +299,20 @@ export class CartService implements OnDestroy {
   loadCartFromDB(): void {
     if (!this.authService.isLoggedIn() || this.hasLoadedFromDB) return;
 
-    this.http.get<CartResponse>(this.apiUrl, {
-      headers: this.getHeaders()
-    }).subscribe({
-      next: (response) => {
-        if (response.code === 200) {
-          this.updateCart(response.data);
-          this.setHasLoadedFromDB(true);
-        } else {
-          console.error('Error loading cart from DB:', response.message);
+    this.http.get<CartResponse>(this.apiUrl)
+      .subscribe({
+        next: (response) => {
+          if (response.code === 200) {
+            this.updateCart(response.data);
+            this.setHasLoadedFromDB(true);
+          } else {
+            console.error('Error loading cart from DB:', response.message);
+          }
+        },
+        error: (error) => {
+          console.error('Error loading cart from DB:', error);
         }
-      },
-      error: (error) => {
-        console.error('Error loading cart from DB:', error);
-      }
-    });
+      });
   }
 
   /**
@@ -345,5 +326,9 @@ export class CartService implements OnDestroy {
     this.cartUpdate$.complete();
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  private saveCart(): void {
+    localStorage.setItem(this.CART_STORAGE_KEY, JSON.stringify(this.cartItems$.value));
   }
 }

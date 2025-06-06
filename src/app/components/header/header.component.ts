@@ -26,11 +26,20 @@ export class HeaderComponent implements OnDestroy {
   logout() {
     this.authService.logout();
     this.isLoggedIn = false;
+    this.showCartDropdown = false;
     this.router.navigate(['/auth/login']);
   }
 
   onAccountClick() {
     this.router.navigate(['/user/profile']);
+  }
+
+  onFavoritesClick() {
+    this.router.navigate(['/user/favorites']);
+  }
+
+  onOrdersClick() {
+    this.router.navigate(['/user/orders']);
   }
 
   onSearch(productName: string) {
@@ -41,7 +50,6 @@ export class HeaderComponent implements OnDestroy {
 
   toggleCartDropdown() {
     this.showCartDropdown = !this.showCartDropdown;
-    console.log('toggleCartDropdown called. showCartDropdown is now:', this.showCartDropdown);
   }
 
   ngOnDestroy() {

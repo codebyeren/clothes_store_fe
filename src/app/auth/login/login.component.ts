@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { TokenService } from '../../services/token.service';
 
 @Component({
   selector: 'app-login',
@@ -25,7 +26,8 @@ export class LoginComponent implements OnInit {
     private formBuilder: FormBuilder,
     private router: Router,
     private route: ActivatedRoute,
-    private authService: AuthService
+    private authService: AuthService,
+    private tokenService: TokenService
   ) {
     this.loginForm = this.formBuilder.group({
       username: ['', Validators.required],
@@ -47,7 +49,7 @@ export class LoginComponent implements OnInit {
     }
 
     // If already logged in, redirect to return URL
-    if (this.authService.isAccessTokenValid()) {
+    if (this.tokenService.isAccessTokenValid()) {
       this.router.navigate([this.returnUrl]);
     }
   }

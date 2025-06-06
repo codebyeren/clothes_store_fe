@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
 import { environment } from '../../environments/environment';
@@ -53,24 +53,12 @@ export class OrderService {
     private authService: AuthService
   ) {}
 
-  private getHeaders(): HttpHeaders {
-    const token = this.authService.getAccessToken();
-    return new HttpHeaders({
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    });
-  }
-
   createOrder(orderData: CreateOrderRequest): Observable<ResponseObject<any>> {
-    return this.http.post<ResponseObject<any>>(`${this.apiUrl}`, orderData, {
-      headers: this.getHeaders()
-    });
+    return this.http.post<ResponseObject<any>>(`${this.apiUrl}`, orderData);
   }
 
   getOrders(): Observable<ResponseObject<Order[]>> {
-    return this.http.get<ResponseObject<Order[]>>(`${this.apiUrl}`, {
-      headers: this.getHeaders()
-    });
+    return this.http.get<ResponseObject<Order[]>>(`${this.apiUrl}`);
   }
 
   /**
@@ -79,11 +67,7 @@ export class OrderService {
    * @returns Observable of the API response.
    */
   cancelOrder(orderId: number): Observable<ResponseObject<any>> {
-    const headers = this.getHeaders();
-    // Change endpoint to match backend Controller: PUT /api/orders with body { id: orderId, status: 'Cancelled' }
     const body = { id: orderId, status: 'Cancelled' };
-    return this.http.put<ResponseObject<any>>(`${this.apiUrl}`, body, { // Use this.apiUrl which is /api/orders
-      headers: headers
-    });
+    return this.http.put<ResponseObject<any>>(`${this.apiUrl}`, body);
   }
 } 
