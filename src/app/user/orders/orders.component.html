@@ -10,7 +10,7 @@
           <div class="order-header">
             <div class="order-info">
               <span class="order-id">Đơn hàng #{{order.id}}</span>
-              <span class="order-date">{{formatDate(order.paymentTime)}}</span>
+              <span class="order-date">{{order.paymentTime | formatTime}}</span>
             </div>
             <div class="order-status">
               <span [class]="getStatusClass(order.status)">{{order.status}}</span>

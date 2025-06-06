@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../../services/user.service';
 import { UserSidebarComponent } from '../../components/user-sidebar/user-sidebar.component';
+import { FormatTimePipe } from '../../shared/pipes/format-time.pipe';
 
 @Component({
   selector: 'app-user-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, UserSidebarComponent],
+  imports: [CommonModule, FormsModule, UserSidebarComponent, FormatTimePipe],
   templateUrl: './user-profile.component.html',
   styleUrls: ['./user-profile.component.css']
 })

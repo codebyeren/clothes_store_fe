@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {  OrderService } from '../../services/order.service';
-import {CurrencyPipe, DatePipe, NgClass, NgForOf} from '@angular/common';
+import {CommonModule, CurrencyPipe, DatePipe} from '@angular/common';
 import {MatDialog} from '@angular/material/dialog';
 import {EditStatusOrderComponent} from '../edit-status-order/edit-status-order.component';
 import { Order } from '../../shared/models/order.model';
@@ -11,7 +11,7 @@ import { Order } from '../../shared/models/order.model';
   imports: [
     CurrencyPipe,
     DatePipe,
-    NgForOf
+    CommonModule
   ],
   styleUrls: ['./order-manager.component.css']
 })

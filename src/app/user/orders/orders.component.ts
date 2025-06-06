@@ -5,11 +5,12 @@ import { UserSidebarComponent } from '../../components/user-sidebar/user-sidebar
 import { OrderService } from '../../services/order.service';
 import { UserService } from '../../services/user.service';
 import { Order } from '../../shared/models/order.model';
+import { FormatTimePipe } from '../../shared/pipes/format-time.pipe';
 
 @Component({
   selector: 'app-orders',
   standalone: true,
-  imports: [CommonModule, RouterModule, UserSidebarComponent],
+  imports: [CommonModule, RouterModule, UserSidebarComponent, FormatTimePipe],
   templateUrl: './orders.component.html',
   styleUrls: ['./orders.component.css']
 })
@@ -99,16 +100,5 @@ export class OrdersComponent implements OnInit {
       default:
         return '';
     }
-  }
-
-  formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('vi-VN', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
   }
 } 

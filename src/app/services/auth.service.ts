@@ -8,6 +8,7 @@ import { SessionService } from './session.service';
 import { TokenService } from './token.service';
 import { ToastrService } from 'ngx-toastr';
 import { AuthTokensDTO, AuthResponse } from '../shared/models/auth.model';
+import { ApiResponse } from '../shared/models/api-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -108,33 +109,43 @@ export class AuthService {
   }
 
   refreshToken(): Observable<string | null> {
-    if (!this.tokenService.isRefreshTokenValid()) {
-      this.logout();
-      return of(null);
-    }
     const currentRefreshToken = this.tokenService.getRefreshToken();
 
-    if (!currentRefreshToken) {
+    if (!currentRefreshToken || !this.tokenService.isRefreshTokenValid()) {
+      console.log('No valid refresh token found or refresh token expired, logging out.');
       this.logout();
       return of(null);
     }
 
-    return this.http.post<AuthTokensDTO>(`${this.apiUrl}/auth/refresh-token`, { refreshToken: currentRefreshToken })
+    console.log('Attempting to refresh access token...');
+    return this.http.post<ApiResponse<{ accessToken: string }>>(`${this.apiUrl}/auth/refresh`, { refreshToken: currentRefreshToken })
       .pipe(
         map(response => {
-          if (response && response.accessToken) {
+          if (response && response.code === 200 && response.data && response.data.accessToken) {
+            console.log('Access token refreshed successfully.');
+
+            const existingRefreshToken = this.tokenService.getRefreshToken();
+            const existingRefreshTokenExp = parseInt(sessionStorage.getItem('refreshTokenExp') || localStorage.getItem('refreshTokenExp') || '0', 10);
+            const rememberMe = localStorage.getItem('refreshToken') !== null;
+
             this.tokenService.saveTokens({
-              accessToken: response.accessToken,
-              refreshToken: response.refreshToken,
-              accessTokenExp: response.accessTokenExp || (Date.now() + 60 * 60 * 1000),
-              refreshTokenExp: response.refreshTokenExp || (Date.now() + 7 * 24 * 60 * 60 * 1000),
+              accessToken: response.data.accessToken,
+              refreshToken: existingRefreshToken || '',
+              accessTokenExp: this.tokenService.getTokenExp(response.data.accessToken),
+              refreshTokenExp: existingRefreshTokenExp,
+              remember: rememberMe
             });
+
             this.toastr.success('Phiên đăng nhập đã được gia hạn');
-            return response.accessToken;
+            return response.data.accessToken;
+          } else {
+            console.error('Access token refresh failed:', response?.message || 'Unknown error');
+            this.logout();
+            return null;
           }
-          return null;
         }),
-        catchError(() => {
+        catchError((error) => {
+          console.error('HTTP error during access token refresh:', error);
           this.logout();
           return of(null);
         })

@@ -4,7 +4,6 @@ import { Observable, interval, Subscription, BehaviorSubject, Subject } from 'rx
 import { debounceTime, takeUntil } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import { environment } from '../../environments/environment';
-import { ProductService } from './product.service';
 import { ToastrService } from 'ngx-toastr';
 import { CartItemDTO, CartResponse } from '../shared/models/cart.model';
 
@@ -26,7 +25,6 @@ export class CartService implements OnDestroy {
   constructor(
     private http: HttpClient,
     private authService: AuthService,
-    private productService: ProductService,
     private toastr: ToastrService
   ) {
     // Initialize hasLoadedFromDB from localStorage
