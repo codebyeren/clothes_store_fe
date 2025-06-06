@@ -1,0 +1,27 @@
+<div class="container mt-4">
+  <h4>Thêm Danh Mục Mới</h4>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+    <!-- Tên danh mục -->
+    <div class="mb-3">
+      <label class="form-label">Tên danh mục</label>
+      <input type="text" class="form-control" formControlName="categoryName">
+      <div class="text-danger" *ngIf="form.get('categoryName')?.invalid && form.get('categoryName')?.touched">
+        Vui lòng nhập tên danh mục (ít nhất 2 ký tự).
+      </div>
+    </div>
+
+    <!-- Danh mục cha cố định -->
+    <div class="mb-3">
+      <label class="form-label">Danh mục cha</label>
+      <select class="form-select" formControlName="parentId">
+        <option value="">-- Chọn danh mục cha --</option>
+        <option *ngFor="let option of parentOptions" [value]="option.id">
+          {{ option.name }}
+        </option>
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Thêm Mới</button>
+  </form>
+</div>

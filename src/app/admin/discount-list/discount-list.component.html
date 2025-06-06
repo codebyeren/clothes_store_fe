@@ -1,0 +1,19 @@
+<div class="container container-list-discount mt-4">
+  <h4 class="mb-4">Danh sách khuyến mãi</h4>
+
+  <div *ngFor="let item of discount" class="card mb-3">
+    <div class="card-body">
+      <h5 class="card-title">Sản phẩm ID: {{ item.productId }}</h5>
+
+      <p class="card-text">
+        <strong>Phần trăm giảm:</strong> {{ item.discountPercent }}%
+      </p>
+      <p class="card-text">
+        <strong>Ngày bắt đầu:</strong> {{ item.startSale }}
+      </p>
+      <p class="card-text">
+        <strong>Ngày kết thúc:</strong> {{ item.endSale }}
+      </p>
+    </div>
+  </div>
+</div>

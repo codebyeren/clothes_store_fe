@@ -1,0 +1,15 @@
+<div class="card p-3">
+  <h5>Chỉnh sửa Size</h5>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="mb-3">
+      <label for="size" class="form-label">Tên Size</label>
+      <input id="size" type="text" class="form-control" formControlName="size" />
+      <div *ngIf="form.get('size')?.invalid && (form.get('size')?.touched || form.get('size')?.dirty)" class="text-danger">
+        Vui lòng nhập tên Size (ít nhất 1 ký tự).
+      </div>
+
+    </div>
+    <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Lưu</button>
+    <button type="button" class="btn btn-secondary ms-2" (click)="onCancel()">Huỷ</button>
+  </form>
+</div>

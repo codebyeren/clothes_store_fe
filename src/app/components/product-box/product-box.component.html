@@ -1,5 +1,5 @@
 <div class="product-box">
-  <a [routerLink]="['/product', product.id]" class="product-link">
+  <a [routerLink]="['/product', product.slug]" class="product-link">
     <div class="product-image-container">
       <!-- Top left badges -->
       <div class="badges-top-left">
@@ -32,7 +32,8 @@
     <div class="product-info">
       <h3 class="product-name">{{ product.productName }}</h3>
       <div class="product-price">
-        {{ product.price | currency:'VND' }}
+        <span *ngIf="product.discount" class="original-price">{{ product.price | currency:'VND' }}</span>
+        <span class="current-price">{{ product.price | discountPrice:product.discount | currency:'VND' }}</span>
         <span *ngIf="product.discount" class="discount">-{{product.discount}}%</span>
       </div>
     </div>

@@ -12,16 +12,21 @@
   </div>
 
   <div *ngFor="let category of visibleCategories" class="mb-5">
-    <h5 class="ps-3 mb-3 ">{{ category.category }}</h5>
-    <div class="row g-4">
-      <div class="col-12 col-sm-6 col-md-4 col-lg-3" *ngFor="let product of category.products">
-        <app-product-box [product]="product"></app-product-box>
+    <h5 class="ps-3 mb-3">{{ category.category }}</h5>
+    <div class="products-slider" #productSlider>
+      <div class="products-container" [style.transform]="'translateX(' + category.slideOffset + 'px)'">
+        <div class="product-item" *ngFor="let product of category.products">
+          <app-product-box [product]="product"></app-product-box>
+        </div>
       </div>
     </div>
-  </div>
-
-
-  <div class="text-center mt-4" *ngIf="hasMore()">
-    <button class="btn btn-outline-primary px-4 py-2" (click)="loadMore()">Xem thêm</button>
+    <div class="slider-controls text-center mt-3" *ngIf="category.products.length > 4">
+      <button class="nav-btn prev" (click)="slideLeft(category)" title="Xem sản phẩm trước">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <button class="nav-btn next" (click)="slideRight(category)" title="Xem sản phẩm tiếp">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
   </div>
 </div>

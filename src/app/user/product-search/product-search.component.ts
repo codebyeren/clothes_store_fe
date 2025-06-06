@@ -1,10 +1,14 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ProductBoxComponent } from '../../components/product-box/product-box.component';
-import { CommonModule, NgFor } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { ProductService } from '../../services/product.service';
-import { Router } from '@angular/router';
 import { Product, ProductSearchResult } from '../../shared/models/product.model';
+
+interface SliderState {
+  currentSlide: number;
+  displayedProducts: Product[];
+}
 
 @Component({
   selector: 'app-product-search',
@@ -19,36 +23,36 @@ export class ProductSearchComponent implements OnInit {
   total: number = 0;
   message: string = '';
   isLoading: boolean = false;
+  searchQuery: string = '';
+  itemsPerPage: number = 8;
+  
+  searchSlider: SliderState = {
+    currentSlide: 0,
+    displayedProducts: []
+  };
+  
+  suggestedSlider: SliderState = {
+    currentSlide: 0,
+    displayedProducts: []
+  };
 
   constructor(
     private route: ActivatedRoute,
     private productService: ProductService,
-    private router: Router,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       const productName = params['productName']?.trim() || '';
+      this.searchQuery = productName;
       this.searchProducts(productName);
     });
   }
 
-  search(productName: string): void {
-    if (!productName?.trim()) {
-      this.products = [];
-      this.total = 0;
-      this.message = 'Vui lòng nhập từ khóa tìm kiếm';
-      this.cdr.markForCheck();
-      return;
-    }
-    this.router.navigate(['/product/search'], { queryParams: { productName: productName.trim() } });
-  }
-
   private searchProducts(productName: string): void {
     if (!productName) {
-      this.products = [];
-      this.total = 0;
+      this.resetState();
       this.message = 'Vui lòng nhập từ khóa tìm kiếm';
       this.cdr.markForCheck();
       return;
@@ -62,18 +66,58 @@ export class ProductSearchComponent implements OnInit {
       next: (result: ProductSearchResult) => {
         this.products = result.products || [];
         this.total = result.total || 0;
-        this.message = result.message || (this.products.length === 0 ? 'Không tìm thấy sản phẩm phù hợp' : '');
+        this.message = result.message || '';
+        
+        if (this.products.length > 0) {
+          this.updateSliderProducts(this.searchSlider);
+          this.updateSliderProducts(this.suggestedSlider);
+        }
+        
         this.isLoading = false;
         this.cdr.markForCheck();
       },
       error: (error) => {
         console.error('Search error:', error);
-        this.products = [];
-        this.total = 0;
+        this.resetState();
         this.message = 'Có lỗi xảy ra khi tìm kiếm sản phẩm. Vui lòng thử lại sau.';
         this.isLoading = false;
         this.cdr.markForCheck();
       }
     });
+  }
+
+  private resetState(): void {
+    this.products = [];
+    this.searchSlider.displayedProducts = [];
+    this.suggestedSlider.displayedProducts = [];
+    this.total = 0;
+  }
+
+  private updateSliderProducts(slider: SliderState): void {
+    if (this.products.length <= this.itemsPerPage) {
+      slider.displayedProducts = this.products;
+      return;
+    }
+
+    const startIndex = slider.currentSlide * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    slider.displayedProducts = this.products.slice(startIndex, endIndex);
+  }
+
+  nextSlide(slider: SliderState): void {
+    const maxSlides = Math.ceil(this.products.length / this.itemsPerPage) - 1;
+    if (slider.currentSlide < maxSlides) {
+      slider.currentSlide++;
+      this.updateSliderProducts(slider);
+      this.cdr.markForCheck();
+    }
+  }
+
+  prevSlide(slider: SliderState): void {
+    if (slider.currentSlide > 0) {
+      slider.currentSlide--;
+      this.updateSliderProducts(slider);
+      this.cdr.markForCheck();
+    }
   }
 }

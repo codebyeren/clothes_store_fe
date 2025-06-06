@@ -1,0 +1,40 @@
+<div class="cart-dropdown">
+  <div *ngIf="cartItems.length === 0" class="empty-cart-message">
+    Giỏ hàng của bạn đang trống.
+  </div>
+  <div *ngIf="cartItems.length > 0" class="cart-items">
+    <div class="cart-item" *ngFor="let item of cartItems">
+      <div class="item-image" *ngIf="getProductImage(item)">
+        <img [src]="getProductImage(item)" [alt]="getProductName(item)">
+      </div>
+      <div class="item-info">
+        <h4>{{ getProductName(item) }}</h4>
+        <div class="item-details">
+          <p>Màu: {{ item.color }}</p>
+          <p>Size: {{ item.size }}</p>
+          <p>Số lượng: {{ item.quantity }}</p>
+          <div class="cart-item-price">
+            <span class="original-price" *ngIf="getDiscountedPrice(item) < getProductPrice(item)">
+              {{ getProductPrice(item) | currency:'VND' }}
+            </span>
+            <span class="discounted-price">
+              {{ getDiscountedPrice(item) | currency:'VND' }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <button class="remove-btn" (click)="removeItem(item)">
+        <i class="fas fa-trash-alt"></i>
+      </button>
+    </div>
+    <div class="cart-actions">
+      <div class="cart-total">
+        <span>Tổng cộng:</span>
+        <span class="total-price">{{ getTotalPrice() | currency:'VND' }}</span>
+      </div>
+      <a routerLink="/cart" class="view-cart-btn">
+        <i class="fas fa-shopping-cart"></i> Xem giỏ hàng
+      </a>
+    </div>
+  </div>
+</div> 

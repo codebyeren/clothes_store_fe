@@ -11,7 +11,8 @@
         <h1 class="product-title">{{ product?.productName }}</h1>
 
         <div class="product-price">
-          {{ product?.price | currency:'VND' }}
+          <span *ngIf="product?.discount" class="original-price">{{ product?.price | currency:'VND' }}</span>
+          <span class="current-price">{{ (product?.price || 0) | discountPrice:product?.discount | currency:'VND' }}</span>
           <span *ngIf="product?.discount" class="discount">-{{product?.discount}}%</span>
         </div>
 
@@ -28,7 +29,6 @@
             </button>
           </div>
         </div>
-
         <div *ngIf="getSelectedStockDetail()?.sizes?.length" class="size-selection">
           <label class="form-label fw-semibold">Chọn size:</label>
           <div class="d-flex flex-wrap gap-2">
@@ -44,9 +44,8 @@
 
         <div *ngIf="selectedSize" class="stock-info">
           <span class="fw-bold">Tồn kho:</span>
-          <span class="stock-value">{{ getSelectedSizeStock() }} sản phẩm</span>
+          <div class="stock-value">100  sản phẩm</div>
         </div>
-
       </div>
     </div>
   </div>

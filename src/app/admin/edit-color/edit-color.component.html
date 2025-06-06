@@ -1,0 +1,15 @@
+<div class="card p-3">
+  <h5>Chỉnh sửa Màu</h5>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="mb-3">
+      <label for="color" class="form-label">Tên Màu</label>
+      <input id="color" type="text" class="form-control" formControlName="color" />
+      <div *ngIf="form.get('color')?.invalid && (form.get('color')?.touched || form.get('color')?.dirty)" class="text-danger">
+        Vui lòng nhập tên màu (ít nhất 2 ký tự).
+      </div>
+
+    </div>
+    <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Lưu</button>
+    <button type="button" class="btn btn-secondary ms-2" (click)="onCancel()">Huỷ</button>
+  </form>
+</div>

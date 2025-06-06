@@ -1,66 +1,54 @@
-import { Component } from '@angular/core';
-import {CurrencyPipe, NgForOf, NgIf,NgClass} from "@angular/common";
-import {getColorValue, Product, ProductDetailResponse} from "../../shared/models/product.model";
-import {ProductService} from '../../services/product.service';
-import { RouterModule } from '@angular/router';
-import {ActivatedRoute} from '@angular/router';
-interface Size {
-  size: string;
-  stock: number;
-}
+import { Component, Inject, OnInit } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { CommonModule } from '@angular/common';
+import { DiscountPricePipe } from '../../shared/pipes/discount-price.pipe';
+import { FormsModule } from '@angular/forms';
+import { Product, getColorValue } from '../../shared/models/product.model';
+
 @Component({
   selector: 'app-product-detail',
-    imports: [
-        CurrencyPipe,
-        NgForOf,
-        NgIf,
-      NgClass,
-      RouterModule
-    ],
+  standalone: true,
+  imports: [
+    CommonModule,
+    DiscountPricePipe,
+    FormsModule
+  ],
   templateUrl: './product-detail.component.html',
-  styleUrl: './product-detail.component.css'
+  styleUrls: ['./product-detail.component.css']
 })
-export class ProductDetailComponent {
-
-  product: Product | null = null;
-  relatedProducts: Product[] = [];
+export class ProductDetailComponent implements OnInit {
+  product: Product;
   selectedColorIndex: number = 0;
-  selectedSize: string | null = null;
+  selectedSize: string = '';
+  getColorValue = getColorValue;
+  quantity: number = 1;
 
   constructor(
-    private productService: ProductService,
-    private route: ActivatedRoute
-  ) {}
-
-  ngOnInit(): void {
-    this.route.params.subscribe(params => {
-      const productId = params['id'];
-      this.loadProductDetails(productId);
-    });
+    public dialogRef: MatDialogRef<ProductDetailComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: { product: Product }
+  ) {
+    this.product = data.product;
   }
 
-  loadProductDetails(productId: number): void {
-    this.productService.getProductDetail(productId).subscribe({
-      next: (response: ProductDetailResponse) => {
-        this.product = response.data.productDetails;
-        this.relatedProducts = response.data.relatedProducts;
-        if (this.product?.stockDetails?.length > 0) {
-          this.selectedColorIndex = 0;
-          const firstStockDetail = this.product.stockDetails[0];
-          if (firstStockDetail?.sizes?.length > 0) {
-            this.selectedSize = firstStockDetail.sizes[0].size;
-          }
-        }
-      },
-      error: (error) => {
-        console.error('Error loading product details:', error);
+  ngOnInit(): void {
+    if (this.product.stockDetails && this.product.stockDetails.length) {
+      this.selectedColorIndex = 0;
+      const firstColorDetail = this.product.stockDetails[0];
+      if (firstColorDetail.sizes && firstColorDetail.sizes.length) {
+        this.selectedSize = firstColorDetail.sizes[0].size;
       }
-    });
+    }
+
   }
 
   onColorSelect(index: number): void {
     this.selectedColorIndex = index;
-    this.selectedSize = null;
+    const colorDetail = this.product.stockDetails[index];
+    if (colorDetail.sizes && colorDetail.sizes.length) {
+      this.selectedSize = colorDetail.sizes[0].size;
+    } else {
+      this.selectedSize = '';
+    }
   }
 
   onSizeSelect(size: string): void {
@@ -68,38 +56,30 @@ export class ProductDetailComponent {
   }
 
   getSelectedStockDetail() {
-    if (!this.product?.stockDetails) return null;
-    return this.product.stockDetails[this.selectedColorIndex];
+    return this.product.stockDetails ? this.product.stockDetails[this.selectedColorIndex] : null;
   }
 
-  getSelectedSizeStock(): number {
+  getSelectedSizeDetail() {
     const stockDetail = this.getSelectedStockDetail();
-    if (!stockDetail || !this.selectedSize) return 0;
+    if (!stockDetail || !stockDetail.sizes) return null;
+    return stockDetail.sizes.find(size => size.size === this.selectedSize);
+  }
 
-    const sizeDetail = stockDetail.sizes.find(s => s.size === this.selectedSize);
+  getStockQuantity(): number {
+    const sizeDetail = this.getSelectedSizeDetail();
     return sizeDetail ? sizeDetail.stock : 0;
   }
 
-  getColorValue = getColorValue;
+  increaseQuantity(): void {
+    if (this.quantity < this.getStockQuantity()) {
+      this.quantity++;
+    }
+  }
 
-  addToCart(): void {
-    if (!this.product || !this.selectedSize) return;
-
-    const selectedStockDetail = this.getSelectedStockDetail();
-    if (!selectedStockDetail) return;
-
-    const cartItem = {
-      productId: this.product.id,
-      productName: this.product.productName,
-      price: this.product.price,
-      color: selectedStockDetail.color,
-      size: this.selectedSize,
-      quantity: 1,
-      image: this.product.img
-    };
-
-    // TODO: Implement cart service
-    console.log('Adding to cart:', cartItem);
+  decreaseQuantity(): void {
+    if (this.quantity > 1) {
+      this.quantity--;
+    }
   }
 
   getImageUrl(img: string): string {

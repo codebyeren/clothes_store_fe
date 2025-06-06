@@ -1,16 +1,27 @@
-
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import {
-  Product,
-  ProductCategory,
-  ProductResponse,
-  ProductSearchResult,
-  ProductDetailResponse
-} from '../shared/models/product.model';
+
+// Các interface dùng trong service
+export interface ProductVariantDTO {
+  color: string;
+  img: string;
+  sizes: {
+    size: string;
+    stock: number;
+  }[];
+}
+
+export interface ProductCreateUpdateDTO {
+  productName: string;
+  price: number;
+  status: string; // ví dụ: 'ACTIVE'
+  categoryIds: number[];
+  imgMain: string;
+  variants: ProductVariantDTO[];
+}
 
 export interface ProductDetailDTO {
   id: number;
@@ -33,6 +44,8 @@ export interface SizeDTO {
   quantity: number;
 }
 
+// Các interface khác có thể giữ nguyên hoặc điều chỉnh tùy backend
+
 @Injectable({
   providedIn: 'root'
 })
@@ -44,8 +57,8 @@ export class ProductService {
 
   constructor(private http: HttpClient) {}
 
-  getHomeProducts(): Observable<ProductCategory[]> {
-    return this.http.get<ProductResponse>(this.baseUrl).pipe(
+  getHomeProducts(): Observable<any> {
+    return this.http.get<any>(this.baseUrl).pipe(
       map(res => {
         const data = res.data;
         return Object.keys(data).map(categoryName => ({
@@ -56,8 +69,8 @@ export class ProductService {
     );
   }
 
-  getProductsByCategory(slug: string): Observable<ProductCategory[]> {
-    return this.http.get<ProductResponse>(`${this.baseUrl}/category/${slug}`).pipe(
+  getProductsByCategory(slug: string): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/category/${slug}`).pipe(
       map(res => {
         const data = res.data;
         return Object.keys(data).map(categoryName => ({
@@ -68,9 +81,8 @@ export class ProductService {
     );
   }
 
-  searchProducts(productName: string): Observable<ProductSearchResult> {
-    const params = new HttpParams()
-      .set('productName', productName.trim());
+  searchProducts(productName: string): Observable<any> {
+    const params = new HttpParams().set('productName', productName.trim());
     const headers = new HttpHeaders()
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
@@ -87,7 +99,7 @@ export class ProductService {
     );
   }
 
-  private mapApiProductToProduct(apiProduct: any): Product {
+  private mapApiProductToProduct(apiProduct: any): any {
     return {
       id: apiProduct.id,
       productName: apiProduct.productName,
@@ -108,8 +120,8 @@ export class ProductService {
     };
   }
 
-  getProductById(slug: string): Observable<ProductDetailResponse> {
-    return this.http.get<ProductDetailResponse>(`${this.detailUrl}/${slug}`).pipe(
+  getProductById(slug: string): Observable<any> {
+    return this.http.get<any>(`${this.detailUrl}/${slug}`).pipe(
       map(response => ({
         code: response.code,
         message: response.message,
@@ -123,8 +135,8 @@ export class ProductService {
     );
   }
 
-  getProductDetail(slug: string): Observable<ProductDetailResponse> {
-    return this.http.get<ProductDetailResponse>(`${this.detailUrl}/${slug}`).pipe(
+  getProductDetail(slug: string): Observable<any> {
+    return this.http.get<any>(`${this.detailUrl}/${slug}`).pipe(
       map(response => ({
         code: response.code,
         message: response.message,
@@ -144,5 +156,17 @@ export class ProductService {
 
   getProductBySlug(slug: string): Observable<ProductDetailDTO> {
     return this.http.get<ProductDetailDTO>(`${this.detailUrl}/${slug}`);
+  }
+
+  // Thêm sản phẩm mới
+  addProduct(product: ProductCreateUpdateDTO): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/product`, product);
+  }
+  deleteProduct(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/product/${id}`);
+  }
+  // Cập nhật sản phẩm theo slug
+  updateProduct(id: number, product: ProductCreateUpdateDTO): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/product/${id}`, product);
   }
 }

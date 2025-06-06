@@ -1,18 +1,45 @@
 export interface Size {
   size: string;
   stock: number;
+  productSizeId: number;
+}
+export interface User{
+  id : number;
+  firstName : string;
+  lastName:string;
+  birthday :Date;
+  address:string;
+  email : string;
+  phoneNumber : string;
+
+}
+export interface Category {
+  id: number;
+  parentId: number | null;
+  categoryName: string;
+  slug: string;
 }
 
+export interface SizeAdmin{
+  id : number;
+  size:string;
+}
 export interface StockDetail {
   color: string;
   img: string;
   sizes: Size[];
+}
+export interface Color{
+  id : number;
+  color : string;
+
 }
 
 export interface Product {
   id: number;
   productName: string;
   price: number;
+  slug: string;
   discount: number;
   status: string;
   img: string;
@@ -79,4 +106,4 @@ export const colorMap: { [key: string]: string } = {
 
 export function getColorValue(colorName: string): string {
   return colorMap[colorName] || '#CCCCCC';
-} 
+}

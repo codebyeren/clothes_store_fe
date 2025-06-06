@@ -42,6 +42,10 @@ export const routes: Routes = [
         loadComponent: () => import('./auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent)
       },
       {
+        path: 'user-profile',
+        loadComponent: () => import('./user/user-profile/user-profile.component').then(m => m.UserProfileComponent)
+      },
+      {
         path: '',
         redirectTo: '',
         pathMatch: 'full'
@@ -49,7 +53,11 @@ export const routes: Routes = [
     ]
   },
   {
-    path: 'products/category/:categoryId',
+    path: 'profile',
+    loadComponent: () => import('./user/user-profile/user-profile.component').then(m => m.UserProfileComponent)
+  },
+  {
+    path: 'products/category/:slug',
     loadComponent: () => import('./user/product-category/product-category.component').then(m => m.ProductCategoryComponent)
   },
   {
@@ -73,6 +81,30 @@ export const routes: Routes = [
   {
     path: 'product-manager/:slug',
     loadComponent: () => import('./admin/product-detail/product-detail.component').then(m => m.ProductDetailComponent)
+  },
+  {
+    path: 'cart',
+    loadComponent: () => import('./user/cart/cart.component').then(m => m.CartComponent)
+  },
+  {
+    path: 'add-product',
+    loadComponent: () => import('./admin/add-product/add-product.component').then(m => m.AddProductComponent)
+  },
+  {
+    path: 'color',
+    loadComponent: () => import('./admin/colors-manager/colors-manager.component').then(m => m.ColorsManagerComponent)
+  },
+  {
+    path: 'size',
+    loadComponent: () => import('./admin/size-manager/size-manager.component').then(m => m.SizeManagerComponent)
+  },
+  {
+    path: 'cate',
+    loadComponent: () => import('./admin/category-manager/category-manager.component').then(m => m.CategoryManagerComponent)
+  },
+  {
+    path: 'user',
+    loadComponent: () => import('./admin/user-manager/user-manager.component').then(m => m.UserManagerComponent)
   },
   {
     path: '**',

@@ -1,0 +1,26 @@
+<h2 class="mb-3">Thêm Khuyến Mãi</h2>
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <div class="mb-3">
+    <label class="form-label">Phần Trăm Giảm</label>
+    <input type="number" formControlName="discountPercent" class="form-control" />
+    <div *ngIf="form.controls['discountPercent']?.invalid " class="text-danger">
+      Vui lòng nhập phần trăm giảm hợp lệ (1 - 100).
+    </div>
+
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Ngày Bắt Đầu</label>
+    <input type="date" formControlName="startSale" class="form-control" />
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Ngày Kết Thúc</label>
+    <input type="date" formControlName="endSale" class="form-control" />
+  </div>
+
+  <div class="text-end">
+    <button type="button" class="btn btn-secondary me-2" (click)="onCancel()">Hủy</button>
+    <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Lưu</button>
+  </div>
+</form>
