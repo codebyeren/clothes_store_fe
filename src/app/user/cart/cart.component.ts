@@ -2,11 +2,12 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { CartService, CartItemDTO } from '../../services/cart.service';
+import { CartService } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
 import { ProductService } from '../../services/product.service';
 import { Subscription } from 'rxjs';
 import { OrderService } from '../../services/order.service';
+import { CartItemDTO } from '../../shared/models/cart.model';
 
 @Component({
   selector: 'app-cart',
@@ -22,8 +23,6 @@ export class CartComponent implements OnInit, OnDestroy {
 
   constructor(
     private cartService: CartService,
-    private authService: AuthService,
-    private productService: ProductService,
     private orderService: OrderService,
     private router: Router
   ) {

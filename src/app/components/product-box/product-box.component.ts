@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { Product, getColorValue } from '../../shared/models/product.model';
 import { DiscountPricePipe } from '../../shared/pipes/discount-price.pipe';
 import { FavoriteService } from '../../services/favorite.service';
-import { ResponseObject } from '../../services/favorite.service';
+import { FavoriteResponse } from '../../shared/models/favorite.model';
 
 @Component({
   selector: 'app-product-box',
@@ -47,7 +47,7 @@ export class ProductBoxComponent {
   toggleFavorite(): void {
     if (this.product.isFavorite) {
       this.favoriteService.removeFromFavorites(this.product.id).subscribe({
-        next: (response: ResponseObject<any>) => {
+        next: (response: FavoriteResponse<any>) => {
           console.log('Removed from favorites:', response);
           this.product.isFavorite = false;
         },
@@ -57,7 +57,7 @@ export class ProductBoxComponent {
       });
     } else {
       this.favoriteService.addToFavorites(this.product.id).subscribe({
-        next: (response: ResponseObject<any>) => {
+        next: (response: FavoriteResponse<any>) => {
           console.log('Added to favorites:', response);
           this.product.isFavorite = true;
         },

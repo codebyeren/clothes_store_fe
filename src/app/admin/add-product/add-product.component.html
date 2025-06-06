@@ -1,0 +1,135 @@
+<mat-dialog-content>
+  <h2 class="text-center text-primary mb-4">Thêm sản phẩm mới</h2>
+
+  <form class="form-add" [formGroup]="productForm" (ngSubmit)="onSubmit()">
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Tên sản phẩm</mat-label>
+          <input matInput formControlName="productName" />
+          <mat-error *ngIf="productForm.get('productName')?.invalid && productForm.get('productName')?.touched">
+            Tên sản phẩm là bắt buộc
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Giá</mat-label>
+          <input matInput type="number" formControlName="price" />
+          <mat-error *ngIf="productForm.get('price')?.invalid && productForm.get('price')?.touched">
+            Giá phải lớn hơn hoặc bằng 0
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="col-12 mb-3">
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Danh mục sản phẩm</mat-label>
+          <mat-select formControlName="categoryIds" multiple>
+            <mat-option *ngFor="let category of categories" [value]="category.id">
+              {{ category.categoryName }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="productForm.get('categoryIds')?.invalid && productForm.get('categoryIds')?.touched">
+            Vui lòng chọn ít nhất một danh mục
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Trạng thái</mat-label>
+          <input matInput formControlName="status" />
+        </mat-form-field>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <input type="file" (change)="onFileSelected($event, 'imgMain')" accept="image/*" class="form-control mb-2" />
+        <img
+          *ngIf="imgMainPreview"
+          [src]="imgMainPreview"
+          class="img-thumbnail"
+          width="120"
+          alt="Ảnh chính mới"
+        />
+      </div>
+    </div>
+
+    <div formArrayName="variants" class="stock-details-section mb-3">
+      <h3>Chi tiết tồn kho (Variants)</h3>
+      <button mat-raised-button color="primary" type="button"  class="btn" (click)="addStock()">
+        Thêm biến thể
+      </button>
+
+      <div *ngFor="let stock of variants.controls; let i = index" [formGroupName]="i" class="card p-3 my-2">
+
+
+        <mat-form-field appearance="fill" class="full-width mb-3">
+          <mat-label>Chọn màu sắc</mat-label>
+          <mat-select formControlName="color" required>
+            <mat-option *ngFor="let c of colors" [value]="c.color">
+              {{ c.color }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Ảnh cho biến thể -->
+        <input type="file" (change)="onFileSelected($event, 'variant', i)" accept="image/*" />
+        <div class="my-2">
+          <img
+            *ngIf="imgPreviews[i]"
+            [src]="imgPreviews[i]"
+            width="120"
+            alt="Ảnh biến thể mới"
+          />
+          <img
+            *ngIf="!imgPreviews[i] && variants.at(i).get('img')?.value"
+            [src]="getImageUrl(variants.at(i).get('img')?.value)"
+            width="120"
+            alt="Ảnh biến thể cũ"
+          />
+        </div>
+
+        <button mat-stroked-button color="warn" type="button" (click)="removeStock(i)">
+          Xóa biến thể
+        </button>
+
+        <!-- Kích cỡ (sizes) -->
+        <div formArrayName="sizes" class="mt-3">
+          <h4>Kích cỡ</h4>
+          <button mat-stroked-button color="primary" type="button" (click)="addSize(i)">
+            Thêm kích cỡ
+          </button>
+
+          <div *ngFor="let sizeCtrl of getSizes(i).controls; let j = index" [formGroupName]="j" class="d-flex align-items-center gap-2 my-2">
+            <mat-form-field appearance="fill" style="flex: 1;">
+              <mat-label>Chọn kích cỡ</mat-label>
+              <mat-select formControlName="size" required>
+                <mat-option *ngFor="let s of sizes" [value]="s.size">
+                  {{ s.size }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill" style="width: 120px;">
+              <mat-label>Tồn kho</mat-label>
+              <input matInput type="number" formControlName="stock" min="0" />
+            </mat-form-field>
+
+            <button mat-icon-button color="warn" type="button" (click)="removeSize(i, j)" aria-label="Xóa kích cỡ">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <button mat-raised-button color="primary" class="btn-danger" type="submit" [disabled]="productForm.invalid">
+      Lưu sản phẩm
+    </button>
+  </form>
+
+</mat-dialog-content>

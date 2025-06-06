@@ -7,6 +7,7 @@ import { environment } from '../../environments/environment';
 import { SessionService } from './session.service';
 import { TokenService } from './token.service';
 import { ToastrService } from 'ngx-toastr';
+import { AuthTokensDTO, AuthResponse } from '../shared/models/auth.model';
 
 @Injectable({
   providedIn: 'root'
@@ -56,8 +57,8 @@ export class AuthService {
     }
   }
 
-  login(username: string, password: string, remember: boolean = false): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/auth/login`, { username, password })
+  login(username: string, password: string, remember: boolean = false): Observable<AuthResponse<AuthTokensDTO>> {
+    return this.http.post<AuthResponse<AuthTokensDTO>>(`${this.apiUrl}/auth/login`, { username, password })
       .pipe(
         map(response => {
           if (response && response.data && response.data.accessToken) {
@@ -118,7 +119,7 @@ export class AuthService {
       return of(null);
     }
 
-    return this.http.post<any>(`${this.apiUrl}/auth/refresh-token`, { refreshToken: currentRefreshToken })
+    return this.http.post<AuthTokensDTO>(`${this.apiUrl}/auth/refresh-token`, { refreshToken: currentRefreshToken })
       .pipe(
         map(response => {
           if (response && response.accessToken) {
@@ -140,8 +141,8 @@ export class AuthService {
       );
   }
 
-  register(data: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/auth/register`, data)
+  register(data: any): Observable<AuthResponse<any>> {
+    return this.http.post<AuthResponse<any>>(`${this.apiUrl}/auth/register`, data)
       .pipe(
         map(response => {
           if (response.code === 200) {

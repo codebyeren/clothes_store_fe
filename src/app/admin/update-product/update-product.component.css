@@ -1,0 +1,78 @@
+/* Căn lề và độ rộng */
+.full-width {
+  width: 100%;
+}
+
+.mb-3 {
+  margin-bottom: 1rem;
+}
+
+/* Tiêu đề */
+h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  color: #3f51b5;
+}
+
+/* Section tồn kho */
+.stock-details-section {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  background-color: #fafafa;
+}
+
+/* Mỗi mục tồn kho */
+.stock-item {
+  background-color: white;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Tiêu đề nhỏ trong tồn kho */
+.stock-details-section h3,
+.sizes-section h4 {
+  font-weight: 600;
+  color: #303f9f;
+  margin-bottom: 1rem;
+}
+
+/* Section kích cỡ */
+.sizes-section {
+  padding-left: 1rem;
+  margin-top: 1rem;
+  border-left: 3px solid #3f51b5;
+}
+
+/* Các hàng form trong kích cỡ */
+.row.g-3.align-items-center {
+  align-items: center;
+}
+
+/* Nút lưu và hủy */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+/* Lỗi form */
+.mat-error {
+  font-size: 0.8rem;
+  color: #f44336;
+}
+
+
+.mat-select-panel {
+  max-height: 200px !important;
+}
+
+/* Hover trên mục tồn kho */
+.stock-item:hover {
+  box-shadow: 0 4px 12px rgba(63, 81, 181, 0.3);
+  transition: box-shadow 0.3s ease-in-out;
+}

@@ -5,8 +5,9 @@ import { ProductService } from '../../services/product.service';
 import { ActivatedRoute } from '@angular/router';
 import { Product, ProductDetailResponse, getColorValue } from '../../shared/models/product.model';
 import { DiscountPricePipe } from '../../shared/pipes/discount-price.pipe';
-import { CartService, CartItemDTO } from '../../services/cart.service';
+import { CartService } from '../../services/cart.service';
 import { FormsModule } from '@angular/forms';
+import { CartItemDTO } from '../../shared/models/cart.model';
 
 @Component({
   selector: 'app-product-detail',

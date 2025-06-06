@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { TokenData } from '../shared/models/auth.model';
 
 @Injectable({
   providedIn: 'root'
@@ -33,13 +34,7 @@ export class TokenService {
     return !!token && Date.now() < exp;
   }
 
-  saveTokens(data: {
-    accessToken: string;
-    refreshToken: string;
-    accessTokenExp: number;
-    refreshTokenExp: number;
-    remember?: boolean;
-  }): void {
+  saveTokens(data: TokenData): void {
     const storage = data.remember ? localStorage : sessionStorage;
     storage.setItem('accessToken', data.accessToken);
     storage.setItem('refreshToken', data.refreshToken);

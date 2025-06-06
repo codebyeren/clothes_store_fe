@@ -1,0 +1,35 @@
+<div class="card mx-auto" style=' width: 50vw ; height: 80vw'>
+  <div class="card-body">
+    <h2 class="card-title text-center mb-4">Thông tin người dùng</h2>
+
+    <div class="row mb-3" *ngIf="user">
+      <label class="col-sm-4 fw-bold">Họ:</label>
+      <div class="col-sm-8">{{ user.firstName }}</div>
+    </div>
+
+    <div class="row mb-3" *ngIf="user">
+      <label class="col-sm-4 fw-bold">Tên:</label>
+      <div class="col-sm-8">{{ user.lastName }}</div>
+    </div>
+
+    <div class="row mb-3" *ngIf="user">
+      <label class="col-sm-4 fw-bold">Email:</label>
+      <div class="col-sm-8">{{ user.email }}</div>
+    </div>
+
+    <div class="row mb-3" *ngIf="user">
+      <label class="col-sm-4 fw-bold">Địa chỉ:</label>
+      <div class="col-sm-8">{{ user.address }}</div>
+    </div>
+
+    <div class="row mb-3" *ngIf="user">
+      <label class="col-sm-4 fw-bold">Số điện thoại:</label>
+      <div class="col-sm-8">{{ user.phoneNumber }}</div>
+    </div>
+
+    <div class="row mb-3" *ngIf="user">
+      <label class="col-sm-4 fw-bold">Ngày sinh:</label>
+      <div class="col-sm-8">{{ user.birthday | date:'dd/MM/yyyy' }}</div>
+    </div>
+  </div>
+</div>

@@ -1,8 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { CartService, CartItemDTO } from '../../services/cart.service';
+import { CartService } from '../../services/cart.service';
 import { Subscription } from 'rxjs';
+import { CartItemDTO } from '../../shared/models/cart.model';
 
 @Component({
   selector: 'app-cart-dropdown',

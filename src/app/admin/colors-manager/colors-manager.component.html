@@ -1,0 +1,32 @@
+<div class="container-fluid mt-4">
+  <h3 class="mb-4">Quản Lý Màu</h3>
+
+
+
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped text-center align-middle">
+      <thead class="table-dark">
+      <tr>
+        <th>STT</th>
+        <th>Màu</th>
+        <th>Hành Động</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let color of colors; let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ color.color }}</td>
+
+        <td>
+
+          <button (click)="openUpdateColor(color)"  class="btn btn-primary">Sửa</button>
+          <button (click)="deleteColor(color.id)" class="btn btn-danger btn-sm m-1">Xoá</button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="text-end mb-3">
+    <button (click)="openAddColor()"  class="btn btn-primary">Thêm Sản Phẩm</button>
+  </div>
+</div>

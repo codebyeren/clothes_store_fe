@@ -6,6 +6,7 @@ import { ForgetPasswordComponent } from './auth/forget-password/forget-password.
 import { VerifyEmailComponent } from './auth/verify-email/verify-email.component';
 // import { VerifyPhoneComponent } from './auth/verify-phone/verify-phone.component';
 import { ResetPasswordComponent } from './auth/reset-password/reset-password.component';
+import { AdminLayoutComponent } from './admin/layout/admin-layout.component';
 
 export const routes: Routes = [
   {
@@ -75,6 +76,48 @@ export const routes: Routes = [
   {
     path: 'cart',
     loadComponent: () => import('./user/cart/cart.component').then(m => m.CartComponent)
+  },
+  {
+    path: 'admin',
+    component: AdminLayoutComponent,
+    children: [
+      {path : 'product-manager',
+        loadComponent : () => import('./admin/product-manager/product-manager.component').then(m=>m.ProductManagerComponent)},
+        {
+          path: 'product-manager/:slug',
+          loadComponent: () => import('./admin/product-detail/product-detail.component').then(m => m.ProductDetailComponent)
+        },
+        {
+          path: 'add-product',
+          loadComponent: () => import('./admin/add-product/add-product.component').then(m => m.AddProductComponent)
+        },
+        {
+          path: 'color',
+          loadComponent: () => import('./admin/colors-manager/colors-manager.component').then(m => m.ColorsManagerComponent)
+        },
+        {
+          path: 'size',
+          loadComponent: () => import('./admin/size-manager/size-manager.component').then(m => m.SizeManagerComponent)
+        },
+        {
+          path: 'category',
+          loadComponent: () => import('./admin/category-manager/category-manager.component').then(m => m.CategoryManagerComponent)
+        },
+        {
+          path: 'order-manager',
+          loadComponent: () => import('./admin/order-manager/order-manager.component').then(m => m.OrderManagerComponent) 
+
+        },
+        {
+          path: 'user',
+          loadComponent: () => import('./admin/user-manager/user-manager.component').then(m => m.UserManagerComponent)
+        },
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full'
+      }
+    ]
   },
   {
     path: 'user',

@@ -3,24 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap } from 'rxjs';
 import { AuthService } from './auth.service';
 import { environment } from '../../environments/environment';
-// Assuming ProductDTO structure based on provided API response
-export interface FavoriteProductDTO {
-  id: number;
-  productName: string;
-  price: number; // Changed to number based on API response
-  discount: number; // Changed to number based on API response
-  status: string;
-  img: string;
-  stockDetails: any[]; // Simplified type based on API response structure
-  isFavorite: boolean;
-  slug: string;
-}
-
-export interface ResponseObject<T> {
-  code: number; // Changed from status to code based on API response
-  message: string;
-  data: T;
-}
+import { FavoriteProductDTO, FavoriteResponse } from '../shared/models/favorite.model'; // Import from shared models
+// import { ApiResponse } from '../shared/models/api-response.model'; // No longer needed if FavoriteResponse extends ApiResponse
 
 @Injectable({
   providedIn: 'root'
@@ -54,7 +38,7 @@ export class FavoriteService {
       return;
     }
 
-    this.http.get<ResponseObject<FavoriteProductDTO[]>>(`${this.apiUrl}/list`)
+    this.http.get<FavoriteResponse<FavoriteProductDTO[]>>(`${this.apiUrl}/list`)
       .subscribe({
         next: (response) => {
           if (response.code === 200) {
@@ -71,8 +55,8 @@ export class FavoriteService {
       });
   }
 
-  addToFavorites(productId: number): Observable<ResponseObject<any>> {
-    return this.http.post<ResponseObject<any>>(`${this.apiUrl}/add/${productId}`, {})
+  addToFavorites(productId: number): Observable<FavoriteResponse<any>> {
+    return this.http.post<FavoriteResponse<any>>(`${this.apiUrl}/add/${productId}`, {})
       .pipe(
         tap(response => {
           if (response.code === 200) {
@@ -85,8 +69,8 @@ export class FavoriteService {
       );
   }
 
-  removeFromFavorites(productId: number): Observable<ResponseObject<any>> {
-    return this.http.delete<ResponseObject<any>>(`${this.apiUrl}/delete/${productId}`)
+  removeFromFavorites(productId: number): Observable<FavoriteResponse<any>> {
+    return this.http.delete<FavoriteResponse<any>>(`${this.apiUrl}/delete/${productId}`)
       .pipe(
         tap(response => {
           if (response.code === 200) {

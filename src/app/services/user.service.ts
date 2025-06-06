@@ -1,12 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
+import { User } from '../shared/models/product.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
   private apiUrl = 'http://localhost:8080/api/auth/user';
+    private  apiAdminUrl = 'http://localhost:8080/api/auth/users'
 
   constructor(private http: HttpClient) { }
 
@@ -16,5 +18,10 @@ export class UserService {
 
   updateUserInfo(userData: any): Observable<any> {
     return this.http.put<any>(this.apiUrl, userData);
+  }
+  getAllUsers(): Observable<User[]> {
+    return this.http.get<{ code: number; message: string; data: User[] }>(this.apiAdminUrl
+    )
+      .pipe(map(res => res.data));
   }
 }

@@ -3,11 +3,36 @@ export interface Size {
   stock: number;
   productSizeId: number;
 }
+export interface User{
+  id : number;
+  firstName : string;
+  lastName:string;
+  birthday :Date;
+  address:string;
+  email : string;
+  phoneNumber : string;
 
+}
+export interface Category {
+  id: number;
+  parentId: number | null;
+  categoryName: string;
+  slug: string;
+}
+
+export interface SizeAdmin{
+  id : number;
+  size:string;
+}
 export interface StockDetail {
   color: string;
   img: string;
   sizes: Size[];
+}
+export interface Color{
+  id : number;
+  color : string;
+
 }
 
 export interface Product {
@@ -78,7 +103,45 @@ export const colorMap: { [key: string]: string } = {
   'Kem pastel': '#FFFDD0',
   'Ghi': '#848188'
 };
+export interface ProductVariantDTO {
+  color: string;
+  img: string;
+  sizes: {
+    size: string;
+    stock: number;
+  }[];
+}
+export interface ProductCreateUpdateDTO {
+  productName: string;
+  price: number;
+  status: string; // ví dụ: 'ACTIVE'
+  categoryIds: number[];
+  imgMain: string;
+  variants: ProductVariantDTO[];
+}
+
 
 export function getColorValue(colorName: string): string {
   return colorMap[colorName] || '#CCCCCC';
-} 
+}
+
+export interface ProductDetailDTO {
+  id: number;
+  slug: string;
+  name: string;
+  description: string;
+  price: number;
+  discountPercent: number;
+  imageUrl: string;
+  stockDetails: StockDetailDTO[];
+}
+
+export interface StockDetailDTO {
+  color: string;
+  sizes: SizeDTO[];
+}
+
+export interface SizeDTO {
+  size: string;
+  quantity: number;
+}

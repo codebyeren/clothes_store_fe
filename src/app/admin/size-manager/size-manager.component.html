@@ -1,0 +1,32 @@
+<div class="container-fluid mt-4">
+  <h3 class="mb-4">Quản Lý Màu</h3>
+
+
+
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped text-center align-middle">
+      <thead class="table-dark">
+      <tr>
+        <th>STT</th>
+        <th>Size</th>
+        <th>Hành Động</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let size of sizes; let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ size.size }}</td>
+
+        <td>
+
+          <button (click)="openUpdateSize(size)"  class="btn btn-primary">Sửa</button>
+          <button (click)="deleteSize(size.id)" class="btn btn-danger btn-sm m-1">Xoá</button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="text-end mb-3">
+    <button (click)="openAddSize()"  class="btn btn-primary">Thêm Size</button>
+  </div>
+</div>

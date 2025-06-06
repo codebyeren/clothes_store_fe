@@ -1,0 +1,52 @@
+<section class="container py-5">
+  <div class="product-detail-container">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="product-image-container">
+          <img class="product-image" [src]="getImageUrl((getSelectedStockDetail()?.img || product?.img) || '')" [alt]="product?.productName">
+        </div>
+      </div>
+
+      <div class="col-md-6 product-info">
+        <h1 class="product-title">{{ product?.productName }}</h1>
+
+        <div class="product-price">
+          <span *ngIf="product?.discount" class="original-price">{{ product?.price | currency:'VND' }}</span>
+          <span class="current-price">{{ (product?.price || 0) | discountPrice:product?.discount | currency:'VND' }}</span>
+          <span *ngIf="product?.discount" class="discount">-{{product?.discount}}%</span>
+        </div>
+
+        <div *ngIf="product?.stockDetails" class="color-selection">
+          <label class="form-label fw-semibold">Chọn màu:</label>
+          <div class="d-flex flex-wrap gap-2">
+            <button *ngFor="let detail of product?.stockDetails; let i = index"
+                    type="button"
+                    class="color-btn"
+                    [ngClass]="{ 'active': selectedColorIndex === i }"
+                    [style.--color-value]="getColorValue(detail.color)"
+                    (click)="onColorSelect(i)"
+                    [title]="detail.color">
+            </button>
+          </div>
+        </div>
+        <div *ngIf="getSelectedStockDetail()?.sizes?.length" class="size-selection">
+          <label class="form-label fw-semibold">Chọn size:</label>
+          <div class="d-flex flex-wrap gap-2">
+            <button *ngFor="let size of getSelectedStockDetail()?.sizes"
+                    type="button"
+                    class="size-btn"
+                    [ngClass]="{ 'active': selectedSize === size.size }"
+                    (click)="onSizeSelect(size.size)">
+              {{ size.size }}
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="selectedSize" class="stock-info">
+          <span class="fw-bold">Tồn kho:</span>
+          <div class="stock-value">100  sản phẩm</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

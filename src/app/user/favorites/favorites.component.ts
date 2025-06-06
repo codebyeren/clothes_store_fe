@@ -2,8 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UserSidebarComponent } from '../../components/user-sidebar/user-sidebar.component';
 import { ProductBoxComponent } from '../../components/product-box/product-box.component';
-import { FavoriteService, FavoriteProductDTO } from '../../services/favorite.service';
+import { FavoriteService } from '../../services/favorite.service';
 import { UserService } from '../../services/user.service';
+import { FavoriteProductDTO } from '../../shared/models/favorite.model';
 
 @Component({
   selector: 'app-favorites',

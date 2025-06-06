@@ -6,25 +6,7 @@ import { AuthService } from './auth.service';
 import { environment } from '../../environments/environment';
 import { ProductService } from './product.service';
 import { ToastrService } from 'ngx-toastr';
-
-export interface CartItemDTO {
-  productId: number;
-  productName: string;
-  color: string;
-  size: string;
-  quantity: number;
-  stock: number;
-  imageUrl: string;
-  discountPercent: number;
-  price: string;
-  slug: string;
-}
-
-interface CartResponse {
-  code: number;
-  message: string;
-  data: CartItemDTO[];
-}
+import { CartItemDTO, CartResponse } from '../shared/models/cart.model';
 
 @Injectable({
   providedIn: 'root'

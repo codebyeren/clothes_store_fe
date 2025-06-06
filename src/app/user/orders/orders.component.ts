@@ -2,8 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { UserSidebarComponent } from '../../components/user-sidebar/user-sidebar.component';
-import { OrderService, Order } from '../../services/order.service';
+import { OrderService } from '../../services/order.service';
 import { UserService } from '../../services/user.service';
+import { Order } from '../../shared/models/order.model';
 
 @Component({
   selector: 'app-orders',
