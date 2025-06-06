@@ -1,14 +1,5 @@
 <div class="container">
-  <div class="sidebar">
-    <h3>{{user.firstName}} {{user.lastName}}</h3>
-    <ul>
-      <li>Thông tin tài khoản</li>
-      <li>Lịch sử đơn hàng</li>
-      <li>Sản phẩm yêu thích</li>
-      <li>Mã Ưu Đãi</li>
-      <li>Đăng Xuất</li>
-    </ul>
-  </div>
+  <app-user-sidebar [firstName]="user.firstName" [lastName]="user.lastName"></app-user-sidebar>
   <div class="profile-form">
     <h2>TÀI KHOẢN CỦA TÔI</h2>
     <div class="form-group">

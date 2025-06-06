@@ -30,7 +30,7 @@ export class HeaderComponent implements OnDestroy {
   }
 
   onAccountClick() {
-    this.router.navigate(['/profile']);
+    this.router.navigate(['/user/profile']);
   }
 
   onSearch(productName: string) {

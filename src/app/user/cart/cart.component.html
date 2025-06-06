@@ -67,7 +67,7 @@
         <span>Tổng tiền:</span>
         <span class="total-price">{{ getTotalPrice() | currency:'VND':'symbol-narrow':'1.0-0' }}</span>
       </div>
-      <button class="checkout-button">
+      <button class="checkout-button" (click)="createOrder()" [disabled]="cartItems.length === 0">
         <i class="fas fa-credit-card"></i>
         <span>Thanh toán</span>
       </button>

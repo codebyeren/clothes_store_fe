@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { Product, getColorValue } from '../../shared/models/product.model';
 import { DiscountPricePipe } from '../../shared/pipes/discount-price.pipe';
 import { FavoriteService } from '../../services/favorite.service';
+import { ResponseObject } from '../../services/favorite.service';
 
 @Component({
   selector: 'app-product-box',
@@ -43,31 +44,25 @@ export class ProductBoxComponent {
     return this.getImageUrl(this.product.img);
   }
 
-  onToggleFavorite() {
+  toggleFavorite(): void {
     if (this.product.isFavorite) {
-      // Remove from favorites
-      this.favoriteService.removeFavorite(1, this.product.id).subscribe({
-        next: (response) => {
-          console.log('Remove favorite response:', response);
-          if (response.statusCode === 200) {
-            this.product.isFavorite = false;
-          }
+      this.favoriteService.removeFromFavorites(this.product.id).subscribe({
+        next: (response: ResponseObject<any>) => {
+          console.log('Removed from favorites:', response);
+          this.product.isFavorite = false;
         },
-        error: (error) => {
-          console.error('Error removing favorite:', error);
+        error: (error: any) => {
+          console.error('Error removing from favorites:', error);
         }
       });
     } else {
-      // Add to favorites
-      this.favoriteService.addFavorite(1, this.product.id).subscribe({
-        next: (response) => {
-          console.log('Add favorite response:', response);
-           if (response.statusCode === 200) {
-            this.product.isFavorite = true;
-          }
+      this.favoriteService.addToFavorites(this.product.id).subscribe({
+        next: (response: ResponseObject<any>) => {
+          console.log('Added to favorites:', response);
+          this.product.isFavorite = true;
         },
-        error: (error) => {
-          console.error('Error adding favorite:', error);
+        error: (error: any) => {
+          console.error('Error adding to favorites:', error);
         }
       });
     }

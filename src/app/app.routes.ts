@@ -53,10 +53,6 @@ export const routes: Routes = [
     ]
   },
   {
-    path: 'profile',
-    loadComponent: () => import('./user/user-profile/user-profile.component').then(m => m.UserProfileComponent)
-  },
-  {
     path: 'products/category/:slug',
     loadComponent: () => import('./user/product-category/product-category.component').then(m => m.ProductCategoryComponent)
   },
@@ -79,6 +75,32 @@ export const routes: Routes = [
   {
     path: 'cart',
     loadComponent: () => import('./user/cart/cart.component').then(m => m.CartComponent)
+  },
+  {
+    path: 'user',
+    children: [
+      {
+        path: 'profile',
+        loadComponent: () => import('./user/user-profile/user-profile.component').then(m => m.UserProfileComponent)
+      },
+      {
+        path: 'orders',
+        loadComponent: () => import('./user/orders/orders.component').then(m => m.OrdersComponent)
+      },
+      {
+        path: 'favorites',
+        loadComponent: () => import('./user/favorites/favorites.component').then(m => m.FavoritesComponent)
+      },
+      {
+        path: 'cart',
+        loadComponent: () => import('./user/cart/cart.component').then(m => m.CartComponent)
+      },
+      {
+        path: '',
+        redirectTo: '',
+        pathMatch: 'full'
+      }
+    ]
   },
   {
     path: '**',

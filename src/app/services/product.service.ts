@@ -107,21 +107,11 @@ export class ProductService {
     };
   }
 
-  getProductById(slug: string): Observable<ProductDetailResponse> {
-    return this.http.get<ProductDetailResponse>(`${this.detailUrl}/${slug}`).pipe(
-      map(response => ({
-        code: response.code,
-        message: response.message,
-        data: {
-          productDetails: this.mapApiProductToProduct(response.data.productDetails),
-          relatedProducts: response.data.relatedProducts.map((product: any) => 
-            this.mapApiProductToProduct(product)
-          )
-        }
-      }))
-    );
-  }
-
+  /**
+   * Fetches product details by slug.
+   * @param slug The product slug.
+   * @returns Observable of ProductDetailResponse.
+   */
   getProductDetail(slug: string): Observable<ProductDetailResponse> {
     return this.http.get<ProductDetailResponse>(`${this.detailUrl}/${slug}`).pipe(
       map(response => ({
@@ -139,9 +129,5 @@ export class ProductService {
 
   getProducts(): Observable<ProductDetailDTO[]> {
     return this.http.get<ProductDetailDTO[]>(`${this.apiUrl}/products`);
-  }
-
-  getProductBySlug(slug: string): Observable<ProductDetailDTO> {
-    return this.http.get<ProductDetailDTO>(`${this.detailUrl}/${slug}`);
   }
 }

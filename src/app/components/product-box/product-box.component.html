@@ -8,7 +8,7 @@
       </div>
       <!-- Top right favorite button -->
       <button class="favorite-btn" type="button" tabindex="-1"
-        (click)="$event.preventDefault(); $event.stopPropagation(); onToggleFavorite()">
+        (click)="$event.preventDefault(); $event.stopPropagation(); toggleFavorite()">
         <svg *ngIf="product.isFavorite; else heartOutline" width="22" height="22" viewBox="0 0 24 24" fill="#dc3545" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 21C12 21 4 13.36 4 8.5C4 5.42 6.42 3 9.5 3C11.24 3 12.91 3.81 14 5.08C15.09 3.81 16.76 3 18.5 3C21.58 3 24 5.42 24 8.5C24 13.36 16 21 16 21H12Z"/>
         </svg>

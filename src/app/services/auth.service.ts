@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, of, throwError, BehaviorSubject } from 'rxjs';
+import { Observable, of, throwError, BehaviorSubject, Subject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { SessionService } from './session.service';
 
@@ -19,11 +19,44 @@ export class AuthService {
     this.loggedIn$.next(value);
   }
 
+  // Add a Subject to signal logout initiation
+  private _logoutInitiated = new Subject<void>();
+  logoutInitiated$ = this._logoutInitiated.asObservable();
+
   constructor(
     private router: Router,
     private http: HttpClient,
     private sessionService: SessionService
-  ) {}
+  ) {
+    // Initialize loggedIn$ based on access token validity
+    const initialLoggedIn = this.isAccessTokenValid();
+    this.loggedIn$ = new BehaviorSubject<boolean>(initialLoggedIn);
+
+    // Attempt to auto-login using refresh token if not currently logged in
+    if (!initialLoggedIn && this.isRefreshTokenValid()) {
+      console.log('Attempting auto-login with refresh token...');
+      this.refreshToken().subscribe({
+        next: (newToken) => {
+          if (newToken) {
+            console.log('Auto-login successful.');
+            // The refreshToken method already calls setLoggedIn(true)
+          } else {
+            console.log('Auto-login failed: Could not refresh token.');
+            // The refreshToken method already calls logout() if refresh fails
+          }
+        },
+        error: (error) => {
+          console.error('Auto-login error:', error);
+          // The refreshToken method's catchError should handle logout
+        }
+      });
+    } else if (!initialLoggedIn && !this.isRefreshTokenValid()) {
+        console.log('No valid refresh token found for auto-login.');
+        // Ensure logged out state is correct if tokens are invalid
+        this.clearLocalStorage();
+        this.setLoggedIn(false);
+    }
+  }
 
   getTokenExp(token: string): number {
     try {
@@ -57,22 +90,25 @@ export class AuthService {
   }
 
   logout(): void {
+    // Signal that logout is initiated
+    this._logoutInitiated.next();
+
     const refreshToken = localStorage.getItem('refreshToken');
     if (refreshToken) {
       this.http.post<any>(`${this.apiUrl}/auth/logout`, { refreshToken })
         .pipe(
           catchError(error => {
-            console.error('Logout error:', error);
-            return of(null);
+            console.error('Logout error sending refresh token to backend:', error);
+            return of(null); // Continue even if backend logout fails
           })
         )
         .subscribe(() => {
-          this.clearLocalStorage();
+          this.clearLocalStorage(); // Clear auth tokens
           this.setLoggedIn(false);
           this.router.navigate(['/auth/login']);
         });
     } else {
-      this.clearLocalStorage();
+      this.clearLocalStorage(); // Clear auth tokens
       this.setLoggedIn(false);
       this.router.navigate(['/auth/login']);
     }

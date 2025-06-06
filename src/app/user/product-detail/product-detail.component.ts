@@ -8,18 +8,6 @@ import { DiscountPricePipe } from '../../shared/pipes/discount-price.pipe';
 import { CartService, CartItemDTO } from '../../services/cart.service';
 import { FormsModule } from '@angular/forms';
 
-interface Size {
-  size: string;
-  stock: number;
-  productSizeId: number;
-}
-
-interface StockDetail {
-  color: string;
-  url: string;
-  sizes: Size[];
-}
-
 @Component({
   selector: 'app-product-detail',
   standalone: true,
@@ -70,9 +58,8 @@ export class ProductDetailComponent implements OnInit {
           this.relatedProducts = response.data.relatedProducts;
           if (this.product.stockDetails && this.product.stockDetails.length > 0) {
             this.selectedColor = this.product.stockDetails[0].color;
-            if (this.product.stockDetails[0].sizes && this.product.stockDetails[0].sizes.length > 0) {
-              this.selectedSize = this.product.stockDetails[0].sizes[0].size;
-            }
+            this.selectedColorIndex = 0;
+            this.updateAvailableSizes();
           }
         }
         this.loading = false;
@@ -90,7 +77,7 @@ export class ProductDetailComponent implements OnInit {
       const colorDetail = this.product.stockDetails.find(
         detail => detail.color === this.selectedColor
       );
-      if (colorDetail && colorDetail.sizes.length > 0) {
+      if (colorDetail && colorDetail.sizes && colorDetail.sizes.length > 0) {
         this.selectedSize = colorDetail.sizes[0].size;
       } else {
         this.selectedSize = '';
@@ -99,24 +86,24 @@ export class ProductDetailComponent implements OnInit {
   }
 
   getAvailableSizes(): string[] {
-    if (!this.product || !this.selectedColor) return [];
+    if (!this.product || !this.selectedColor || !this.product.stockDetails) return [];
     const colorDetail = this.product.stockDetails.find(
       detail => detail.color === this.selectedColor
     );
-    return colorDetail ? colorDetail.sizes.map(size => size.size) : [];
+    return colorDetail && colorDetail.sizes ? colorDetail.sizes.map(size => size.size) : [];
   }
 
   getAvailableColors(): string[] {
     if (!this.product || !this.product.stockDetails) return [];
-    return this.product.stockDetails.map((detail: any) => detail.color);
+    return this.product.stockDetails.map(detail => detail.color);
   }
 
   getStockQuantity(): number {
-    if (!this.product || !this.selectedColor || !this.selectedSize) return 0;
+    if (!this.product || !this.selectedColor || !this.selectedSize || !this.product.stockDetails) return 0;
     const colorDetail = this.product.stockDetails.find(
       detail => detail.color === this.selectedColor
     );
-    if (!colorDetail) return 0;
+    if (!colorDetail || !colorDetail.sizes) return 0;
     const sizeDetail = colorDetail.sizes.find(
       size => size.size === this.selectedSize
     );
@@ -124,11 +111,11 @@ export class ProductDetailComponent implements OnInit {
   }
 
   getColorImage(color: string): string {
-    if (!this.product) return '';
+    if (!this.product || !this.product.stockDetails) return '';
     const colorDetail = this.product.stockDetails.find(
       detail => detail.color === color
     );
-    return colorDetail ? colorDetail.img : '';
+    return colorDetail ? this.getImageUrl(colorDetail.img) : '';
   }
 
   slideLeft(): void {
@@ -150,8 +137,10 @@ export class ProductDetailComponent implements OnInit {
   }
 
   onColorSelect(index: number): void {
+    if (!this.product || !this.product.stockDetails) return;
     this.selectedColorIndex = index;
-    this.selectedSize = '';
+    this.selectedColor = this.product.stockDetails[index].color;
+    this.updateAvailableSizes();
   }
 
   onSizeSelect(size: string): void {
@@ -159,19 +148,19 @@ export class ProductDetailComponent implements OnInit {
   }
 
   getSelectedStockDetail(): any {
-    if (!this.product || !this.product.stockDetails) return null;
+    if (!this.product || !this.product.stockDetails || !this.selectedColor) return null;
     return this.product.stockDetails.find((detail: any) => detail.color === this.selectedColor);
   }
 
   getSelectedSizeDetail(): any {
     const stockDetail = this.getSelectedStockDetail();
-    if (!stockDetail || !stockDetail.sizes) return null;
+    if (!stockDetail || !stockDetail.sizes || !this.selectedSize) return null;
     return stockDetail.sizes.find((size: any) => size.size === this.selectedSize);
   }
 
   getMaxQuantity(): number {
     const sizeDetail = this.getSelectedSizeDetail();
-    return sizeDetail ? sizeDetail.quantity : 0;
+    return sizeDetail ? sizeDetail.stock : 0;
   }
 
   onColorChange(): void {
@@ -185,10 +174,13 @@ export class ProductDetailComponent implements OnInit {
     if (!this.product) return;
 
     const sizeDetail = this.getSelectedSizeDetail();
-    if (!sizeDetail || sizeDetail.quantity < this.quantity) {
+    if (!sizeDetail || this.quantity > sizeDetail.stock) {
       this.error = 'Selected quantity exceeds available stock';
+      console.error(this.error, { requested: this.quantity, available: sizeDetail?.stock });
       return;
     }
+
+    this.error = '';
 
     const cartItem: CartItemDTO = {
       productId: this.product.id,
@@ -196,14 +188,15 @@ export class ProductDetailComponent implements OnInit {
       color: this.selectedColor,
       size: this.selectedSize,
       quantity: this.quantity,
-      stock: sizeDetail.quantity,
-      imageUrl: this.getSelectedStockDetail().img,
+      stock: sizeDetail.stock,
+      imageUrl: this.getSelectedStockDetail()?.img,
       discountPercent: this.product.discount || 0,
       price: this.product.price.toString(),
       slug: this.product.slug
     };
 
     this.cartService.addToCart(cartItem);
+    console.log('Item added to cart:', cartItem);
   }
 
   increaseQuantity(): void {
