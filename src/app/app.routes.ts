@@ -105,13 +105,17 @@ export const routes: Routes = [
         },
         {
           path: 'order-manager',
-          loadComponent: () => import('./admin/order-manager/order-manager.component').then(m => m.OrderManagerComponent) 
+          loadComponent: () => import('./admin/order-manager/order-manager.component').then(m => m.OrderManagerComponent)
 
         },
         {
           path: 'user',
           loadComponent: () => import('./admin/user-manager/user-manager.component').then(m => m.UserManagerComponent)
         },
+      {
+        path: 'dash',
+        loadComponent: () => import('./admin/dashboard/dashboard.component').then(m => m.DashboardComponent)
+      },
       {
         path: '',
         redirectTo: 'dashboard',

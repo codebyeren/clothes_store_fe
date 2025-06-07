@@ -13,6 +13,8 @@
   --button-bg-hover: #f0f0f0;
   --button-border: var(--border-color);
   --button-text: var(--text-color);
+  --mat-select-panel-background-color: white;
+  --mat-sys-surface-container: white;
 }
 
 .password-toggle {

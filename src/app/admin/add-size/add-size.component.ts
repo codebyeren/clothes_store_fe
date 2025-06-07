@@ -31,19 +31,42 @@ export class AddSizeComponent {
     }
 
     const newSize = {
-      size: this.form.value.size ?? ''
+      size: this.form.value.size?.trim() ?? ''
     };
 
-    this.sizeService.createSize(newSize).subscribe(() => {
-      this.addSuccess.emit();
-      alert("Thêm màu thành công")
+    if (!newSize.size) {
+      alert('Kích cỡ không được để trống');
+      return;
+    }
 
-      this.form.reset();
-      this.dialogRef.close();
+    // Kiểm tra size đã tồn tại chưa
+    this.sizeService.getAllSize().subscribe(sizes => {
+      const exists = sizes.some(s => s.size.toLowerCase() === newSize.size.toLowerCase());
+      if (exists) {
+        alert('Kích cỡ này đã tồn tại, vui lòng chọn kích cỡ khác.');
+        return;
+      }
+
+      // Nếu chưa tồn tại mới gọi tạo
+      this.sizeService.createSize(newSize).subscribe(() => {
+        this.addSuccess.emit();
+        alert("Thêm kích cỡ thành công");
+
+        this.form.reset();
+        this.dialogRef.close();
+      }, err => {
+        alert('Lỗi khi thêm kích cỡ');
+        console.error(err);
+      });
+    }, err => {
+      alert('Lỗi khi lấy danh sách kích cỡ');
+      console.error(err);
     });
   }
+
 
   onCancel() {
     this.cancel.emit();
   }
+
 }

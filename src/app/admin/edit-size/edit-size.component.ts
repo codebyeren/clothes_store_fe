@@ -1,6 +1,6 @@
 import {Component, Inject} from '@angular/core';
 import {NgIf} from "@angular/common";
-import {FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import { SizeAdmin} from '../../shared/models/product.model';
@@ -21,8 +21,13 @@ export class EditSizeComponent {
   constructor(
     private sizeService: SizeService,
     public dialogRef: MatDialogRef<EditSizeComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { size: SizeAdmin }
-  ) {}
+    @Inject(MAT_DIALOG_DATA) public data: { size: SizeAdmin },
+    private fb: FormBuilder
+  ) {
+    this.form = this.fb.group({
+      size: ['', [Validators.required, Validators.minLength(1)]]
+    });
+  }
 
   ngOnInit(): void {
     this.form = new FormGroup({
@@ -33,16 +38,40 @@ export class EditSizeComponent {
   onSubmit() {
     if (this.form.invalid) return;
 
-    const updatedSize: SizeAdmin = {
-      ...this.data.size,
-      size: this.form.value.size
-    };
+    const updatedSizeValue = this.form.value.size?.trim() ?? '';
+    if (!updatedSizeValue) {
+      alert('Kích cỡ không được để trống');
+      return;
+    }
 
-    this.sizeService.updateSize(updatedSize.id, updatedSize).subscribe(() => {
-      this.form.reset()
-      this.dialogRef.close(true);
+    this.sizeService.getAllSize().subscribe(sizes => {
+      const exists = sizes.some(s =>
+        s.size.toLowerCase() === updatedSizeValue.toLowerCase() &&
+        s.id !== this.data.size.id
+      );
+      if (exists) {
+        alert('Kích cỡ này đã tồn tại, vui lòng chọn kích cỡ khác.');
+        return;
+      }
+
+      const updatedSize: SizeAdmin = {
+        ...this.data.size,
+        size: updatedSizeValue
+      };
+
+      this.sizeService.updateSize(updatedSize.id, updatedSize).subscribe(() => {
+        this.form.reset();
+        this.dialogRef.close(true);
+      }, err => {
+        alert('Lỗi khi cập nhật kích cỡ');
+        console.error(err);
+      });
+    }, err => {
+      alert('Lỗi khi lấy danh sách kích cỡ');
+      console.error(err);
     });
   }
+
 
   onCancel() {
     this.dialogRef.close(false);

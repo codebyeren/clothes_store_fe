@@ -30,16 +30,35 @@ export class EditColorComponent implements OnInit {
   onSubmit() {
     if (this.form.invalid) return;
 
+    const updatedName = this.form.value.color ?? '';
+    const originalName = this.data.color.color;
+
+    if (updatedName.trim().toLowerCase() === originalName.trim().toLowerCase()) {
+      this.saveUpdate(updatedName); // Không cần kiểm tra trùng
+      return;
+    }
+
+    this.colorService.checkColorExists(updatedName).subscribe(exists => {
+      if (exists) {
+        alert("Màu này đã tồn tại!");
+        return;
+      }
+      this.saveUpdate(updatedName);
+    });
+  }
+
+  private saveUpdate(colorName: string) {
     const updatedColor: Color = {
       ...this.data.color,
-      color: this.form.value.color
+      color: colorName
     };
 
     this.colorService.updateColor(updatedColor.id, updatedColor).subscribe(() => {
-      this.form.reset()
-      this.dialogRef.close(true);  // Đóng dialog và trả về true báo đã update thành công
+      this.form.reset();
+      this.dialogRef.close(true);
     });
   }
+
 
   onCancel() {
     this.dialogRef.close(false);

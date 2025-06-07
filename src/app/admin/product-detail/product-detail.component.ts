@@ -81,7 +81,10 @@ export class ProductDetailComponent implements OnInit {
       this.quantity--;
     }
   }
-
+  getMaxQuantity(): number {
+    const sizeDetail = this.getSelectedSizeDetail();
+    return sizeDetail ? sizeDetail.stock : 0;
+  }
   getImageUrl(img: string): string {
     return `/img/${img}.webp`;
   }

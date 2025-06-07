@@ -3,7 +3,7 @@
 
   <div *ngFor="let item of discount" class="card mb-3">
     <div class="card-body">
-      <h5 class="card-title">Sản phẩm ID: {{ item.productId }}</h5>
+      <h5 class="card-title">Sản phẩm: {{ getProductName(item.productId) }}</h5>
 
       <p class="card-text">
         <strong>Phần trăm giảm:</strong> {{ item.discountPercent }}%

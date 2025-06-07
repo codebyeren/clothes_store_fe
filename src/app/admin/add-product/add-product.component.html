@@ -24,19 +24,26 @@
         </mat-form-field>
       </div>
 
-      <div class="col-12 mb-3">
-        <mat-form-field appearance="fill" class="full-width">
-          <mat-label>Danh mục sản phẩm</mat-label>
-          <mat-select formControlName="categoryIds" multiple>
-            <mat-option *ngFor="let category of categories" [value]="category.id">
-              {{ category.categoryName }}
-            </mat-option>
-          </mat-select>
-          <mat-error *ngIf="productForm.get('categoryIds')?.invalid && productForm.get('categoryIds')?.touched">
-            Vui lòng chọn ít nhất một danh mục
-          </mat-error>
-        </mat-form-field>
-      </div>
+      <!-- Parent Category -->
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Danh mục cha</mat-label>
+        <mat-select formControlName="parentCategoryId" (selectionChange)="onParentCategoryChange($event.value)">
+          <mat-option *ngFor="let parent of parentCategories" [value]="parent.id">
+            {{ parent.categoryName }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Child Categories -->
+      <mat-form-field appearance="fill" class="full-width" *ngIf="childCategories.length > 0">
+        <mat-label>Danh mục con</mat-label>
+        <mat-select formControlName="childCategoryIds" multiple>
+          <mat-option *ngFor="let child of childCategories" [value]="child.id">
+            {{ child.categoryName }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
 
       <div class="col-md-6 mb-3">
         <mat-form-field appearance="fill" class="full-width">

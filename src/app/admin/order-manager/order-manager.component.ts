@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import {  OrderService } from '../../services/order.service';
-import {CurrencyPipe, DatePipe, NgClass, NgForOf} from '@angular/common';
+import {CurrencyPipe, DatePipe, NgClass, NgForOf, NgIf} from '@angular/common';
 import {MatDialog} from '@angular/material/dialog';
 import {EditStatusOrderComponent} from '../edit-status-order/edit-status-order.component';
 import { Order } from '../../shared/models/order.model';
+import {UserService} from '../../services/user.service';
+import {forkJoin} from 'rxjs';
 
 @Component({
   selector: 'app-order-manager',
@@ -11,14 +13,18 @@ import { Order } from '../../shared/models/order.model';
   imports: [
     CurrencyPipe,
     DatePipe,
-    NgForOf
+    NgForOf,
+    NgIf
   ],
   styleUrls: ['./order-manager.component.css']
 })
 export class OrderManagerComponent implements OnInit {
   orders: Order[] = [];
+  userMap: { [key: number]: string } = {};
+
 
   constructor(private orderService: OrderService,
+              private userService : UserService,
               public dialog: MatDialog) {}
 
   ngOnInit(): void {
@@ -29,7 +35,19 @@ export class OrderManagerComponent implements OnInit {
     this.orderService.getAllOrder().subscribe({
       next: (data) => {
         this.orders = data;
-        console.log('Danh sách đơn hàng:', this.orders);
+
+
+        const uniqueUserIds = [...new Set(this.orders.map(order => order.userId).filter(id => !!id))];
+
+        const userObservables = uniqueUserIds.map(userId =>
+          this.userService.getById(userId)
+        );
+
+        forkJoin(userObservables).subscribe(users => {
+          users.forEach(user => {
+            this.userMap[user.id] = user.lastName;
+          });
+        });
       },
       error: (err) => {
         console.error('Lỗi khi tải đơn hàng:', err);
@@ -39,11 +57,12 @@ export class OrderManagerComponent implements OnInit {
 
 
   updateStatus(order : Order) {
-    this.dialog.open(EditStatusOrderComponent, {
+   const pop =  this.dialog.open(EditStatusOrderComponent, {
       width: '50vw',
       height: '80vh',
       data : {order}
     });
+    pop.afterClosed().subscribe(() => this.loadOrders());
   }
   cancelOrder(orderId: number): void {
     if (!confirm('Bạn có chắc muốn hủy đơn hàng này không?')) return;
@@ -51,7 +70,7 @@ export class OrderManagerComponent implements OnInit {
     this.orderService.cancelOrder(orderId).subscribe({
       next: (res) => {
         alert('Đã hủy đơn hàng thành công!');
-        this.loadOrders(); // Refresh danh sách sau khi hủy
+        this.loadOrders();
       },
       error: (err) => {
         console.error('Lỗi khi hủy đơn hàng:', err);

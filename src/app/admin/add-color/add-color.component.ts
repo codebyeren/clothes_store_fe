@@ -27,22 +27,27 @@ export class AddColorComponent {
   public dialogRef: MatDialogRef<AddColorComponent>) {}
 
   onSubmit() {
-    if (this.form.invalid) {
-      return;
-    }
+    if (this.form.invalid) return;
 
-    const newColor = {
-      color: this.form.value.color ?? ''
-    };
+    const colorName = this.form.value.color ?? '';
 
-    this.colorService.createColor(newColor).subscribe(() => {
-      this.addSuccess.emit();
-      alert("Thêm màu thành công")
+    this.colorService.checkColorExists(colorName).subscribe(exists => {
+      if (exists) {
+        alert("Màu này đã tồn tại!");
+        return;
+      }
 
-      this.form.reset();
-      this.dialogRef.close();
+      const newColor = { color: colorName };
+
+      this.colorService.createColor(newColor).subscribe(() => {
+        this.addSuccess.emit();
+        alert("Thêm màu thành công");
+        this.form.reset();
+        this.dialogRef.close();
+      });
     });
   }
+
 
   onCancel() {
     this.cancel.emit();

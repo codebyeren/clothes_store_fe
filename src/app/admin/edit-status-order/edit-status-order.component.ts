@@ -13,6 +13,7 @@ import {MatFormField} from '@angular/material/form-field';
 import {MatLabel} from '@angular/material/input';
 import {MatOption} from '@angular/material/core';
 import {MatSelect} from '@angular/material/select';
+import {NgForOf} from '@angular/common';
 
 @Component({
   selector: 'app-edit-status-order',
@@ -27,13 +28,14 @@ import {MatSelect} from '@angular/material/select';
     MatFormField,
     MatLabel,
     MatOption,
-    MatSelect
+    MatSelect,
+    NgForOf
   ],
   styleUrls: ['./edit-status-order.component.css']
 })
 export class EditStatusOrderComponent {
   statusForm: FormGroup;
-  statusOptions: string[] = ['Pending', 'Completed', 'Cancelled'];
+  statusOptions: string[] = ['Pending', 'Completed', 'Shipped'];
 
   constructor(
     private dialogRef: MatDialogRef<EditStatusOrderComponent>,
@@ -48,13 +50,17 @@ export class EditStatusOrderComponent {
 
   onSave(): void {
     if (this.statusForm.valid) {
-      const newStatus = this.statusForm.value.status;
       const orderId = this.data.order.id;
+      const newStatus ={
+        id : orderId,
+        status : this.statusForm.value.status
+      }
 
-      this.orderService.updateStatus(orderId, newStatus).subscribe({
+console.log(newStatus)
+      this.orderService.updateStatus(newStatus).subscribe({
         next: (response) => {
-          console.log('Cập nhật trạng thái thành công:', response);
-          this.dialogRef.close(newStatus); // Gửi status mới về component cha
+          console.log('Cập nhật trạng thái thành công:', newStatus);
+          this.dialogRef.close(newStatus);
         },
         error: (err) => {
           console.error('Lỗi khi cập nhật trạng thái:', err);

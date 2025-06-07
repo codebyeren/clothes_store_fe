@@ -25,21 +25,31 @@ export class SizeManagerComponent {
 
   ngOnInit(): void {
 
-    this.sizeService.getAllSize().subscribe(data =>
-      this.sizes = data);
+   this.load()
   }
 
-
+load() : void {
+  this.sizeService.getAllSize().subscribe(data =>
+    this.sizes = data);
+}
   openAddSize() {
-    this.dialog.open(AddSizeComponent, {
+    const dialogRef = this.dialog.open(AddSizeComponent, {
       width: '50vw',
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      this.load()
+
     });
   }
   openUpdateSize(size : any){
-    this.dialog.open(EditSizeComponent,{
+    const dialogRef = this.dialog.open(EditSizeComponent,{
       width : '50vw',
       data : {size}
-    })
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      this.load()
+
+    });
   }
   deleteSize(id: number): void {
     if (confirm('Bạn có chắc muốn xoá màu này không?')) {

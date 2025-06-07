@@ -17,7 +17,7 @@
         <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
         <td>{{ categy.categoryName }}</td>
         <td>{{ categy.slug }}</td>
-        <td>{{ categy.parentId }}</td>
+        <td>{{ getParentCategoryName(categy.parentId) }}</td>
         <td>
           <button (click)="openUpdateCate(categy)" class="btn btn-primary">Sửa</button>
           <button (click)="deleteCate(categy.id)" class="btn btn-danger btn-sm m-1">Xoá</button>

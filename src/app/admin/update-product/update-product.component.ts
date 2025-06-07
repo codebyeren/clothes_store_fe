@@ -9,7 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { CategoryService } from '../../services/category.service';
-import {ProductService} from '../../services/product.service';
+import { ProductService } from '../../services/product.service';
 
 @Component({
   selector: 'app-update-product',
@@ -29,23 +29,26 @@ export class UpdateProductComponent implements OnInit {
   productForm: FormGroup;
   product: Product;
   imgMainPreview: string | null = null;
+  imgPreviews: string[] = [];
   categories: Category[] = [];
+  parentCategories: Category[] = [];
+  childCategories: Category[] = [];
 
   constructor(
     private fb: FormBuilder,
-    private productService : ProductService,
+    private productService: ProductService,
     private categoryService: CategoryService,
     public dialogRef: MatDialogRef<UpdateProductComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { product: Product }
   ) {
     this.product = data.product;
-
     this.productForm = this.fb.group({
       productName: ['', Validators.required],
       price: [0, [Validators.required, Validators.min(0)]],
       status: [''],
       imgMain: [''],
-      categoryIds: [[], Validators.required],
+      parentCategoryId: [null, Validators.required],
+      childCategoryIds: [[]],
       variants: this.fb.array([])
     });
   }
@@ -53,11 +56,12 @@ export class UpdateProductComponent implements OnInit {
   ngOnInit(): void {
     this.loadCategories();
     this.loadProductData();
-  }
 
-  loadCategories(): void {
-    this.categoryService.getAllCategories().subscribe(data => {
-      this.categories = data;
+    // Cập nhật childCategories khi thay đổi parentCategoryId
+    this.productForm.get('parentCategoryId')?.valueChanges.subscribe(parentId => {
+      this.childCategories = this.categories.filter(c => c.parentId === parentId);
+      // Reset chọn danh mục con khi đổi danh mục cha
+      this.productForm.get('childCategoryIds')?.setValue([]);
     });
   }
 
@@ -69,13 +73,24 @@ export class UpdateProductComponent implements OnInit {
     return this.variants.at(stockIndex).get('sizes') as FormArray;
   }
 
-  loadProductData(): void {
-    if (!this.product || !this.product.stockDetails) {
-      console.error('No product or stockDetails data provided');
-      return;
-    }
+  loadCategories(): void {
+    this.categoryService.getAllCategories().subscribe(data => {
+      this.categories = data;
+      this.parentCategories = data.filter(c => !c.parentId);
 
-    // Load product data to form
+      // Nếu đã có parentCategoryId trong form thì cập nhật childCategories tương ứng
+      const currentParentId = this.productForm.get('parentCategoryId')?.value;
+      if (currentParentId) {
+        this.childCategories = this.categories.filter(c => c.parentId === currentParentId);
+      } else {
+        this.childCategories = [];
+      }
+    });
+  }
+
+  loadProductData(): void {
+    if (!this.product || !this.product.stockDetails) return;
+
     this.productForm.patchValue({
       productName: this.product.productName || '',
       price: this.product.price || 0,
@@ -83,13 +98,19 @@ export class UpdateProductComponent implements OnInit {
       imgMain: this.product.img || ''
     });
 
-    // Load selected categories
     this.categoryService.getByProductId(this.product.id).subscribe(selectedCategories => {
-      const selectedIds = selectedCategories.map(c => c.id);
-      this.productForm.patchValue({ categoryIds: selectedIds });
+      const parentCat = selectedCategories.find(c => !c.parentId);
+      const childCats = selectedCategories.filter(c => c.parentId);
+
+      this.productForm.patchValue({
+        parentCategoryId: parentCat ? parentCat.id : null,
+        childCategoryIds: childCats.map(c => c.id)
+      });
+
+      // Cập nhật danh mục con để hiển thị đúng
+      this.childCategories = this.categories.filter(c => c.parentId === (parentCat ? parentCat.id : null));
     });
 
-    // Load stock details
     this.product.stockDetails.forEach(stock => {
       const stockGroup = this.fb.group({
         color: [stock.color || '', Validators.required],
@@ -98,14 +119,12 @@ export class UpdateProductComponent implements OnInit {
       });
 
       const sizeArray = stockGroup.get('sizes') as FormArray;
-      if (stock.sizes && stock.sizes.length) {
-        stock.sizes.forEach(size => {
-          sizeArray.push(this.fb.group({
-            size: [size.size || '', Validators.required],
-            stock: [size.stock || 0, [Validators.required, Validators.min(0)]]
-          }));
-        });
-      }
+      stock.sizes?.forEach(size => {
+        sizeArray.push(this.fb.group({
+          size: [size.size || '', Validators.required],
+          stock: [size.stock || 0, [Validators.required, Validators.min(0)]]
+        }));
+      });
 
       this.variants.push(stockGroup);
     });
@@ -127,14 +146,16 @@ export class UpdateProductComponent implements OnInit {
 
   removeStock(index: number): void {
     this.variants.removeAt(index);
+    this.imgPreviews.splice(index, 1);
   }
 
   addSize(stockIndex: number): void {
-    const sizeGroup = this.fb.group({
-      size: ['', Validators.required],
-      stock: [0, [Validators.required, Validators.min(0)]]
-    });
-    this.getSizes(stockIndex).push(sizeGroup);
+    this.getSizes(stockIndex).push(
+      this.fb.group({
+        size: ['', Validators.required],
+        stock: [0, [Validators.required, Validators.min(0)]]
+      })
+    );
   }
 
   removeSize(stockIndex: number, sizeIndex: number): void {
@@ -142,24 +163,39 @@ export class UpdateProductComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.productForm.valid) {
-      const formData = this.productForm.value;
-      console.log('Dữ liệu gửi lên server:', JSON.stringify(formData, null, 2));
-
-      this.productService.updateProduct(this.product.id, formData).subscribe({
-        next: (response) => {
-          console.log('Cập nhật sản phẩm thành công:', response);
-          this.dialogRef.close(response);
-        },
-        error: (err) => {
-          console.error('Lỗi khi cập nhật sản phẩm:', err);
-        }
-      });
-    } else {
+    if (this.productForm.invalid) {
       console.warn('Form không hợp lệ');
+      return;
     }
-  }
 
+    const raw = this.productForm.value;
+
+    const result = {
+      productName: raw.productName,
+      price: raw.price,
+      status: raw.status,
+      categoryIds: [raw.parentCategoryId, ...raw.childCategoryIds],
+      imgMain: raw.imgMain,
+      variants: raw.variants.map((variant: { color: string; img: string; sizes: { size: string; stock: number }[] }) => ({
+        color: variant.color,
+        img: variant.img,
+        sizes: variant.sizes
+      }))
+
+    };
+    console.log('Dữ liệu gửi lên server:', JSON.stringify(result, null, 2));
+
+    this.productService.updateProduct(this.product.id, result).subscribe({
+      next: (res) => {
+        console.log('Cập nhật sản phẩm thành công:', res);
+        alert('Cập nhật sản pẩm thành công')
+        this.dialogRef.close(res);
+      },
+      error: (err) => {
+        console.error('Lỗi khi cập nhật sản phẩm:', err);
+      }
+    });
+  }
 
   onCancel(): void {
     this.dialogRef.close();
@@ -168,6 +204,7 @@ export class UpdateProductComponent implements OnInit {
   getImageUrl(img: string): string {
     return `/img/${img}.webp`;
   }
+
   onFileSelected(event: Event, type: 'imgMain' | 'variant', variantIndex?: number): void {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
@@ -177,35 +214,19 @@ export class UpdateProductComponent implements OnInit {
     const previewUrl = URL.createObjectURL(file);
 
     if (type === 'imgMain') {
-
       this.imgMainPreview = previewUrl;
       this.productForm.get('imgMain')?.setValue(fileNameWithoutExt);
-      this.product.img = '';
     }
 
-    const formData = new FormData();
-    formData.append('file', file);
-
+    if (type === 'variant' && variantIndex !== undefined) {
+      this.imgPreviews[variantIndex] = previewUrl;
+      this.variants.at(variantIndex).get('img')?.setValue(fileNameWithoutExt);
+    }
   }
-  imgPreviews: string[] = []; // mảng lưu url preview cho từng variant
-  onFileSelectedV(event: Event, index: number) {
-    const input = event.target as HTMLInputElement;
-    if (!input.files || input.files.length === 0) return;
-
-    const file = input.files[0];
-    const previewUrl = URL.createObjectURL(file);
-    const fileNameWithoutExt = file.name.split('.').slice(0, -1).join('.');
-
-    // Lưu preview url cho variant tương ứng
-    this.imgPreviews[index] = previewUrl;
-
-    // Cập nhật tên ảnh vào formControl variants[i].img
-    this.variants.at(index).get('img')?.setValue(fileNameWithoutExt);
-
-    // Upload ảnh lên server nếu cần (gọi API)
-    const formData = new FormData();
-    formData.append('file', file);
-
+  onParentCategoryChange(parentId: number): void {
+    this.childCategories = this.categories.filter(c => c.parentId === parentId);
+    // Reset childCategoryIds khi đổi parent
+    this.productForm.get('childCategoryIds')?.setValue([]);
   }
 
 }

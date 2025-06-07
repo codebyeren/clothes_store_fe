@@ -11,7 +11,10 @@ interface ResponseObject<T> {
   message: string;
   data: T;
 }
-
+export interface OrderUpdateDto{
+  id : number
+  status : string
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -54,8 +57,8 @@ export class OrderService {
         return of([]);
       })
     );
-  }  updateStatus(orderId: number, status: string): Observable<ResponseObject<any>> {
-    const body = { id: orderId, status: status };
-    return this.http.put<ResponseObject<any>>(`${this.apiUrl}`, body);
+  }  updateStatus( status: OrderUpdateDto): Observable<ResponseObject<any>> {
+
+    return this.http.put<ResponseObject<any>>(`${this.apiUrl}`,status );
   }
-} 
+}

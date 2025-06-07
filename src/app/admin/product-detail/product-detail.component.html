@@ -44,7 +44,7 @@
 
         <div *ngIf="selectedSize" class="stock-info">
           <span class="fw-bold">Tồn kho:</span>
-          <div class="stock-value">100  sản phẩm</div>
+          <div class="stock-value">{{ getMaxQuantity() }} sản phẩm</div>
         </div>
       </div>
     </div>

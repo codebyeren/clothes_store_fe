@@ -73,4 +73,10 @@ export class CategoryManagerComponent {
       });
     }
   }
+  getParentCategoryName(parentId: number | null): string {
+    if (!parentId) return '';
+    const parent = this.categories.find(c => c.id === parentId);
+    return parent ? parent.categoryName : 'Không tìm thấy';
+  }
+
 }

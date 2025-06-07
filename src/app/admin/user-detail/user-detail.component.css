@@ -1,0 +1,48 @@
+.user-card {
+  width: 50vw;
+  max-width: 50vw;
+  margin-top: 40px;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.card-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+label.fw-bold {
+  color: #555;
+}
+
+.row.mb-3 {
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.col-sm-8 {
+  color: #444;
+  font-weight: 500;
+}
+
+@media (max-width: 576px) {
+  .user-card {
+    padding: 15px;
+  }
+
+  .row.mb-3 {
+    flex-direction: column;
+  }
+
+  label.col-sm-4,
+  .col-sm-8 {
+    width: 100%;
+  }
+
+  label.col-sm-4 {
+    margin-bottom: 4px;
+  }
+}

@@ -45,4 +45,11 @@ export class ColorService {
   deleteColor(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
+  // color.service.ts
+  checkColorExists(colorName: string) {
+    return this.getAllColors().pipe(
+      map((colors) => colors.some(c => c.color.toLowerCase().trim() === colorName.toLowerCase().trim()))
+    );
+  }
+
 }

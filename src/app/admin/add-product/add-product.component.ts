@@ -29,14 +29,15 @@ import {MatDialogContent, MatDialogRef} from '@angular/material/dialog';
     MatDialogContent
   ],
   templateUrl: './add-product.component.html',
-  styleUrls: ['./add-product.component.css']
+  styleUrls: ['./add-product.component.css',]
 })
 export class AddProductComponent implements OnInit {
   productForm: FormGroup;
   categories: Category[] = [];
   sizes: SizeAdmin[] = [];
   colors: Color[] = [];
-
+  parentCategories: Category[] = [];
+  childCategories: Category[] = [];
   imgMainPreview: string | null = null;
   imgPreviews: string[] = [];
 
@@ -53,20 +54,35 @@ export class AddProductComponent implements OnInit {
       price: [0, [Validators.required, Validators.min(0)]],
       status: [''],
       imgMain: [''],
-      categoryIds: [[], Validators.required],
+      parentCategoryId: [null, Validators.required],
+      childCategoryIds: [[]],
       variants: this.fb.array([])
     });
   }
 
   ngOnInit(): void {
     this.loadCategories();
-    this.loadSizes();
-    this.loadColors();
-  }
+  this.loadSizes();
+  this.loadColors()
 
+
+    this.productForm.get('parentCategoryId')?.valueChanges.subscribe(parentId => {
+      this.childCategories = this.categories.filter(c => c.parentId === parentId);
+      this.productForm.get('childCategoryIds')?.setValue([]);
+    });
+  }
   loadCategories(): void {
     this.categoryService.getAllCategories().subscribe(data => {
       this.categories = data;
+      this.parentCategories = data.filter(c => !c.parentId);
+
+
+      const currentParentId = this.productForm.get('parentCategoryId')?.value;
+      if (currentParentId) {
+        this.childCategories = this.categories.filter(c => c.parentId === currentParentId);
+      } else {
+        this.childCategories = [];
+      }
     });
   }
 
@@ -97,7 +113,7 @@ export class AddProductComponent implements OnInit {
       sizes: this.fb.array([])
     });
 
-    // Mặc định thêm 1 size trống khi thêm biến thể mới
+
     const sizesArray = stockGroup.get('sizes') as FormArray;
     sizesArray.push(this.createSizeGroup());
 
@@ -162,10 +178,24 @@ export class AddProductComponent implements OnInit {
       return;
     }
 
-    const formData = this.productForm.value;
-    console.log('Dữ liệu gửi lên server:', JSON.stringify(formData, null, 2));
+    const raw = this.productForm.value;
 
-    this.productService.addProduct(formData).subscribe({
+    const result = {
+      productName: raw.productName,
+      price: raw.price,
+      status: raw.status,
+      categoryIds: [raw.parentCategoryId, ...raw.childCategoryIds], // Gộp cả cha và con
+      imgMain: raw.imgMain,
+      variants: raw.variants.map((variant: { color: string; img: string; sizes: { size: string; stock: number }[] }) => ({
+        color: variant.color,
+        img: variant.img,
+        sizes: variant.sizes
+      }))
+
+    };
+    console.log('Dữ liệu gửi lên server:', JSON.stringify(result, null, 2));
+
+    this.productService.addProduct(result).subscribe({
       next: (response) => {
         console.log('Tạo sản phẩm thành công:', response);
         this.dialogRef.close(response);
@@ -202,4 +232,10 @@ export class AddProductComponent implements OnInit {
   getImageUrl(img: string): string {
     return `/img/${img}.webp`;
   }
+  onParentCategoryChange(parentId: number): void {
+    this.childCategories = this.categories.filter(c => c.parentId === parentId);
+    // Reset childCategoryIds khi đổi parent
+    this.productForm.get('childCategoryIds')?.setValue([]);
+  }
+
 }

@@ -6,6 +6,7 @@
       <thead class="table-dark">
       <tr>
         <th>STT</th>
+        <th>Người Dùng</th>
         <th>Thời Gian</th>
         <th>Tổng Tiền</th>
         <th>Số lượng sản phẩm</th>
@@ -16,6 +17,7 @@
       <tbody>
       <tr *ngFor="let order of orders; let i = index">
         <td>{{ i + 1 }}</td>
+        <td>{{ userMap[order.userId]  }}</td>
         <td>{{ order.paymentTime | date:'dd/MM/yyyy HH:mm:ss' }}</td>
         <td>{{ order.total | currency:'VND' }}</td>
         <td>{{ order.orderItems.length }}</td>
@@ -24,15 +26,8 @@
               {{ order.status }}
         </td>
         <td>
-          <button class="btn btn-sm btn-outline-primary me-2" (click)="updateStatus(order)">
+          <button class="btn btn-sm btn-primary me-2" (click)="updateStatus(order)">
             Cập nhật trạng thái
-          </button>
-          <button
-            class="btn btn-sm btn-outline-danger"
-            (click)="cancelOrder(order.id)"
-            [disabled]="order.status === 'Cancelled'"
-          >
-            Hủy đơn
           </button>
         </td>
       </tr>

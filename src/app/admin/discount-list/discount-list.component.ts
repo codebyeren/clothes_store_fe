@@ -15,27 +15,41 @@ import { Discount } from '../../shared/models/discount.model';
   styleUrl: './discount-list.component.css'
 })
 export class DiscountListComponent {
- product : Product [] = []
-  discount : Discount [] = []
+  product: Product[] = [];
+  discount: Discount[] = [];
+  productNameMap: { [key: number]: string } = {};
+
   constructor(
-    private productService : ProductService,
-    private discountService : DiscountService,
-    private dialogRef: MatDialogRef<Discount>,
-  ) {
-  }
+    private productService: ProductService,
+    private discountService: DiscountService,
+    private dialogRef: MatDialogRef<Discount>
+  ) {}
+
   ngOnInit() {
-    this.loaddDiscont();
-    this.loadProduct()
+    this.loadAllData();
   }
 
-  loadProduct() : void{
-   this.productService.getHomeProducts().subscribe(data=>{
-     this.product = data
-   })
+  loadAllData() {
+    this.productService.getHomeProducts().subscribe(products => {
+      this.product = products;
+      console.log(' Products:', this.product);
+
+      this.productNameMap = {};
+      this.product.forEach(p => {
+        this.productNameMap[p.id] = p.productName;
+      });
+      console.log(' productNameMap:', this.productNameMap);
+
+      this.discountService.getALlDisCount().subscribe(discounts => {
+        this.discount = discounts;
+        console.log('Discounts:', this.discount);
+      });
+    });
   }
-  loaddDiscont() : void{
-    this.discountService.getALlDisCount().subscribe(data=>{
-      this.discount = data
-    })
+
+
+  getProductName(productId: number): string {
+    return this.productNameMap[productId] || 'Không tìm thấy';
   }
 }
+
