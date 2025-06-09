@@ -37,7 +37,7 @@
 
   <div>
     <label>Ảnh chính:</label>
-    <input type="file" (change)="onFileSelected($event, 'imgMain')" />
+    <input type="file" (change)="onFileSelected($event, 'main')" />
     <div *ngIf="imgMainPreview">
       <img [src]="imgMainPreview" width="100" />
     </div>

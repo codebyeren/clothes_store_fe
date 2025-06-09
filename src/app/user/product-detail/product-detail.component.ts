@@ -8,6 +8,8 @@ import { DiscountPricePipe } from '../../shared/pipes/discount-price.pipe';
 import { CartService } from '../../services/cart.service';
 import { FormsModule } from '@angular/forms';
 import { CartItemDTO } from '../../shared/models/cart.model';
+import { AuthService } from '../../services/auth.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-product-detail',
@@ -33,14 +35,20 @@ export class ProductDetailComponent implements OnInit {
   quantity: number = 1;
   loading: boolean = true;
   error: string = '';
+  isLoggedIn = false;
 
   constructor(
     private productService: ProductService,
     private route: ActivatedRoute,
-    private cartService: CartService
+    private cartService: CartService,
+    private authService: AuthService,
+    private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
+    this.authService.isLoggedIn$.subscribe(isLoggedIn => {
+      this.isLoggedIn = isLoggedIn;
+    });
     this.route.params.subscribe(params => {
       const slug = params['slug'];
       if (slug) {
@@ -172,12 +180,17 @@ export class ProductDetailComponent implements OnInit {
   }
 
   addToCart(): void {
+    if (!this.isLoggedIn) {
+      this.toastr.warning('Vui lòng đăng nhập để thêm vào giỏ hàng');
+      return;
+    }
+
     if (!this.product) return;
 
     const sizeDetail = this.getSelectedSizeDetail();
     if (!sizeDetail || this.quantity > sizeDetail.stock) {
       this.error = 'Selected quantity exceeds available stock';
-      console.error(this.error, { requested: this.quantity, available: sizeDetail?.stock });
+      this.toastr.error('Số lượng vượt quá tồn kho');
       return;
     }
 

@@ -15,7 +15,8 @@ export class TokenService {
   }
 
   getAccessToken(): string | null {
-    return sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken');
+    const token = sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken');
+    return token;
   }
 
   getRefreshToken(): string | null {
@@ -25,7 +26,8 @@ export class TokenService {
   isAccessTokenValid(): boolean {
     const token = this.getAccessToken();
     const exp = parseInt(sessionStorage.getItem('accessTokenExp') || localStorage.getItem('accessTokenExp') || '0', 10);
-    return !!token && Date.now() < exp;
+    const isValid = !!token && Date.now() < exp;
+    return isValid;
   }
 
   isRefreshTokenValid(): boolean {
@@ -62,6 +64,33 @@ export class TokenService {
       return payload.sub;
     } catch {
       return null;
+    }
+  }
+
+  getUsername(): string | null {
+    try {
+      const token = this.getAccessToken();
+      if (!token) {
+        return null;
+      }
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.sub;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  isAdmin(): boolean {
+    try {
+      const token = this.getAccessToken();
+      if (!token) {
+        return false;
+      }
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const isAdminUser = payload.role === 'ADMIN';
+      return isAdminUser;
+    } catch (error) {
+      return false;
     }
   }
 } 

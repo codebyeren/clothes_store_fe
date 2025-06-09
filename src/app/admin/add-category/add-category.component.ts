@@ -2,14 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import { CategoryService } from '../../services/category.service';
 import {MatDialogRef} from '@angular/material/dialog';
-import {NgForOf, NgIf} from '@angular/common';
+import {CommonModule} from '@angular/common';
 
 @Component({
   selector: 'app-add-category',
   imports: [
     ReactiveFormsModule,
-    NgIf,
-    NgForOf
+  CommonModule
   ],
   templateUrl: './add-category.component.html'
 })

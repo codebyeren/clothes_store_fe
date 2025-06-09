@@ -165,45 +165,33 @@ export class UpdateProductComponent implements OnInit {
     this.getSizes(stockIndex).removeAt(sizeIndex);
   }
 
-  onFileSelected(event: Event, type: 'imgMain' | 'variant', variantIndex?: number): void {
+  onFileSelected(event: Event, type: 'main' | 'variant', variantIndex?: number): void {
     const input = event.target as HTMLInputElement;
-    if (!input.files || input.files.length === 0) return;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
 
-    const file = input.files[0];
-    const reader = new FileReader();
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (type === 'main') {
+          this.imgMainPreview = reader.result as string;
 
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
+          this.productForm.patchValue({
+            img: file.name
+          });
+        } else if (type === 'variant' && variantIndex !== undefined) {
+          this.imgPreviews[variantIndex] = reader.result as string;
 
-        ctx.drawImage(img, 0, 0);
-        canvas.toBlob(blob => {
-          if (!blob) return;
-          const newFile = new File([blob], file.name.replace(/\.\w+$/, '.webp'), { type: 'image/webp' });
-
-          const previewUrl = URL.createObjectURL(newFile);
-          if (type === 'imgMain') {
-            this.imgMainFile = newFile;
-            this.imgMainPreview = previewUrl;
-            this.productForm.get('imgMain')?.setValue(newFile.name.split('.').slice(0, -1).join('.'));
-          }
-          if (type === 'variant' && variantIndex !== undefined) {
-            this.variantFiles[variantIndex] = newFile;
-            this.imgPreviews[variantIndex] = previewUrl;
-            this.variants.at(variantIndex).get('img')?.setValue(newFile.name.split('.').slice(0, -1).join('.'));
-          }
-        }, 'image/webp');
+          // Gán tên file ảnh vào variant tương ứng
+          const variantsFormArray = this.productForm.get('variants') as FormArray;
+          const variantGroup = variantsFormArray.at(variantIndex) as FormGroup;
+          variantGroup.patchValue({
+            img: file.name
+          });
+        }
       };
-      if (e.target?.result) {
-        img.src = e.target.result as string;
-      }
-    };
-    reader.readAsDataURL(file);
+
+      reader.readAsDataURL(file);
+    }
   }
 
   onSubmit(): void {

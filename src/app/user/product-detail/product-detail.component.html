@@ -50,8 +50,14 @@
 
         <button class="add-to-cart-btn" 
                 (click)="addToCart()" 
-                [disabled]="!selectedSize || getMaxQuantity() === 0">
+                [disabled]="!selectedSize || getMaxQuantity() === 0"
+                *ngIf="isLoggedIn">
           Thêm vào giỏ hàng
+        </button>
+        <button class="add-to-cart-btn" 
+                (click)="addToCart()" 
+                *ngIf="!isLoggedIn">
+          Đăng nhập để mua hàng
         </button>
       </div>
     </div>
