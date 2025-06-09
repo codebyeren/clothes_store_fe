@@ -3,7 +3,7 @@ import { NgFor } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 
-import {Category, Product} from '../../shared/models/product.model';
+import {Category, Product, ProductSearchResult} from '../../shared/models/product.model';
 import { ProductService } from '../../services/product.service';
 
 import { ProductDetailComponent } from '../product-detail/product-detail.component';
@@ -16,11 +16,12 @@ import {CategoryService} from '../../services/category.service';
 import {DiscountListComponent} from '../discount-list/discount-list.component';
 import {EditStatusOrderComponent} from '../edit-status-order/edit-status-order.component';
 import {EditDiscountComponent} from '../edit-discount/edit-discount.component';
+import {FormsModule} from '@angular/forms';
 
 @Component({
   selector: 'app-product-manager',
   standalone: true,
-  imports: [NgFor],
+  imports: [NgFor, FormsModule],
   templateUrl: './product-manager.component.html',
   styleUrls: ['./product-manager.component.css',
   ]
@@ -31,6 +32,7 @@ export class ProductManagerComponent implements OnInit {
   category : Category[] =[]
   currentPage: number = 1;
   itemsPerPage: number = 10;
+  searchTerm: string = '';
 
   constructor(
     private productService: ProductService,
@@ -140,6 +142,17 @@ export class ProductManagerComponent implements OnInit {
       }
     }
   }
+  changePage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      // Cuộn lên đầu trang
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  }
+
 
 
   getImageUrl(img: string): string {
@@ -161,4 +174,25 @@ export class ProductManagerComponent implements OnInit {
       });
     }
   }
+  searchProductsByName(name: string): void {
+    this.productService.searchProducts(name).subscribe({
+      next: (result: ProductSearchResult) => {
+        this.products = result.products;
+        this.currentPage = 1;
+
+        console.log('Tìm thấy', result.total, 'sản phẩm.');
+      },
+      error: (err) => {
+        console.error('Lỗi khi tìm kiếm:', err);
+      }
+    });
+  }
+  onSearch(): void {
+    if (this.searchTerm.trim()) {
+      this.searchProductsByName(this.searchTerm);
+    } else {
+      this.loadProducts();
+    }
+  }
+
 }

@@ -1,0 +1,95 @@
+<div class="container-fluid" *ngIf="!isLoading">
+
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="card shadow h-100 py-2">
+        <div class="card-body">
+          <h5 class="text-primary">Tổng doanh thu</h5>
+          <h3>{{ totalIncome | number:'1.0-0' }} ₫</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card shadow h-100 py-2">
+        <div class="card-body">
+          <h5 class="text-success">Tổng đơn hàng</h5>
+          <h3>{{ totalOrder }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col-md-3">
+      <label for="yearFilter" class="form-label">Chọn năm</label>
+      <select id="yearFilter" class="form-select" [(ngModel)]="selectedYear" (change)="filterRevenueByYear()">
+        <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="row mb-4">
+    <div class="col">
+      <div class="card shadow">
+        <div class="card-body">
+          <h5 class="mb-3">Tổng Doanh Thu Năm {{ selectedYear }} : {{ totalIncomeByYear | number:'1.0-0' }} ₫</h5>
+          <canvas baseChart
+                  [data]="revenueChartData"
+                  [options]="revenueChartOptions"
+                  [type]="'bar'">
+          </canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container mt-4">
+
+
+    <div class="mb-4 d-flex flex-wrap gap-2">
+      <button *ngFor="let category of topProductsByCategory"
+              (click)="selectCategory(category)"
+              [class.btn-primary]="selectedCategory?.category === category.category"
+              [class.btn-outline-primary]="selectedCategory?.category !== category.category"
+              class="btn">
+        {{ category.category }}
+      </button>
+    </div>
+
+
+    <div *ngIf="selectedCategory">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">{{ selectedCategory.category }}</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-3 mb-3" *ngFor="let product of selectedCategory.products">
+              <div class="card h-100">
+                <img [src]="'http://localhost:8080/images/' + product.img" class="card-img-top" alt="{{ product.productName }}">
+                <div class="card-body">
+                  <h6 class="card-title">{{ product.productName }}</h6>
+                  <p class="card-text text-primary">
+                    {{ product.price | number:'1.0-0' }} ₫
+                    <span *ngIf="product.discount">-{{ product.discount }}%</span>
+                  </p>
+                  <p class="text-muted">{{ product.status }}</p>
+                </div>
+              </div>
+            </div>
+            <p *ngIf="selectedCategory.products.length === 0" class="text-center w-100">Không có sản phẩm.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+</div>
+
+<div class="text-center mt-5" *ngIf="isLoading">
+  <div class="spinner-border text-primary" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>

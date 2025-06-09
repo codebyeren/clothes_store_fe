@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { 
+import {
   Product,
   ProductCategory,
   ProductResponse,
@@ -24,6 +24,7 @@ export class ProductService {
   private baseUrl = 'http://localhost:8080/api/product';
   private searchUrl = 'http://localhost:8080/api/product/search';
   private detailUrl = 'http://localhost:8080/api/product/detail';
+  private adminUrl ="http://localhost:8080/api/admin/upload"
   private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
@@ -40,6 +41,12 @@ export class ProductService {
     );
   }
 
+  uploadFiles(files: File[]): Observable<any> {
+    const formData = new FormData();
+    files.forEach(file => formData.append('files', file));
+    return this.http.post(this.adminUrl, formData);
+  }
+
   getProductsByCategory(slug: string): Observable<ProductCategory[]> {
     return this.http.get<ProductResponse>(`${this.baseUrl}/category/${slug}`).pipe(
       map(res => {
@@ -53,11 +60,11 @@ export class ProductService {
   }
 
   searchProducts(productName: string): Observable<ProductSearchResult> {
-    const params = new HttpParams()
-      .set('productName', productName.trim());
+    const params = new HttpParams().set('productName', productName.trim());
     const headers = new HttpHeaders()
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
+
     return this.http.get<any>(`${this.searchUrl}`, { headers, params }).pipe(
       map(response => {
         const productsRaw = response.data?.products;
@@ -70,6 +77,8 @@ export class ProductService {
       })
     );
   }
+
+
 
   private mapApiProductToProduct(apiProduct: any): Product {
     return {
@@ -104,7 +113,7 @@ export class ProductService {
         message: response.message,
         data: {
           productDetails: this.mapApiProductToProduct(response.data.productDetails),
-          relatedProducts: response.data.relatedProducts.map((product: any) => 
+          relatedProducts: response.data.relatedProducts.map((product: any) =>
             this.mapApiProductToProduct(product)
           )
         }

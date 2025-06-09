@@ -84,20 +84,7 @@
 
         <!-- Ảnh cho biến thể -->
         <input type="file" (change)="onFileSelected($event, 'variant', i)" accept="image/*" />
-        <div class="my-2">
-          <img
-            *ngIf="imgPreviews[i]"
-            [src]="imgPreviews[i]"
-            width="120"
-            alt="Ảnh biến thể mới"
-          />
-          <img
-            *ngIf="!imgPreviews[i] && variants.at(i).get('img')?.value"
-            [src]="getImageUrl(variants.at(i).get('img')?.value)"
-            width="120"
-            alt="Ảnh biến thể cũ"
-          />
-        </div>
+
 
         <button mat-stroked-button color="warn" type="button" (click)="removeStock(i)">
           Xóa biến thể

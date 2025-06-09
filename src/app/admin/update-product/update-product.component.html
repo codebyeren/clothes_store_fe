@@ -43,6 +43,7 @@
     </div>
   </div>
 
+
   <div formArrayName="variants">
     <div *ngFor="let variant of variants.controls; let i = index" [formGroupName]="i" class="variant-section">
       <h4>Màu {{ i + 1 }}</h4>
@@ -56,7 +57,18 @@
         <input type="file" (change)="onFileSelected($event, 'variant', i)" />
         <img *ngIf="imgPreviews[i]" [src]="imgPreviews[i]" width="100" />
       </div>
-
+      <img
+        *ngIf="imgPreviews[i]"
+        [src]="imgPreviews[i]"
+        width="120"
+        alt="Ảnh biến thể mới"
+      />
+      <img
+        *ngIf="!imgPreviews[i] && variant.get('img')?.value"
+        [src]="getImageUrl(variant.get('img')?.value)"
+        width="120"
+        alt="Ảnh biến thể cũ"
+      />
       <div formArrayName="sizes">
         <div *ngFor="let size of getSizes(i).controls; let j = index" [formGroupName]="j">
           <mat-form-field>

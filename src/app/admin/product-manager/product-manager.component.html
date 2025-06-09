@@ -1,11 +1,26 @@
 <div class="container-fluid mt-4 pb-4">
   <h3 class="mb-4">Quản Lý Sản Phẩm</h3>
-  <div class="d-flex justify-content-end mb-3">
-  <button (click)="openAddProduct()" class="btn btn-primary me-2">Thêm Sản Phẩm</button>
-    <button (click)="openDiscountList()" class="btn btn-primary me-2">Xem Giảm Giá</button>
-</div>
 
-  <div class="table-responsive">
+  <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap">
+    <div class="d-flex align-items-center mb-2 mb-md-0">
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (input)="onSearch()"
+        class="form-control me-2"
+        placeholder="Tìm kiếm sản phẩm..."
+        style="max-width: 300px;"
+      />
+    </div>
+
+    <div class="d-flex">
+      <button (click)="openAddProduct()" class="btn btn-primary me-2">Thêm Sản Phẩm</button>
+      <button (click)="openDiscountList()" class="btn btn-primary">Xem Giảm Giá</button>
+    </div>
+  </div>
+
+
+<div class="table-responsive">
     <table class="table table-bordered table-striped align-middle text-center">
       <thead class="table-dark">
       <tr>
@@ -43,20 +58,21 @@
     <nav>
       <ul class="pagination mb-0">
         <li class="page-item" [class.disabled]="currentPage === 1">
-          <a class="page-link" (click)="currentPage = currentPage - 1" style="cursor: pointer">Trước</a>
+          <a class="page-link" (click)="changePage(currentPage - 1)" style="cursor: pointer">Trước</a>
         </li>
         <li
           class="page-item"
           *ngFor="let page of [].constructor(totalPages); let p = index"
           [class.active]="p + 1 === currentPage"
         >
-          <a class="page-link" (click)="currentPage = p + 1" style="cursor: pointer">{{ p + 1 }}</a>
+          <a class="page-link" (click)="changePage(p + 1)" style="cursor: pointer">{{ p + 1 }}</a>
         </li>
         <li class="page-item" [class.disabled]="currentPage === totalPages">
-          <a class="page-link" (click)="currentPage = currentPage + 1" style="cursor: pointer">Sau</a>
+          <a class="page-link" (click)="changePage(currentPage + 1)" style="cursor: pointer">Sau</a>
         </li>
       </ul>
     </nav>
   </div>
+
 
 </div>

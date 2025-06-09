@@ -41,21 +41,25 @@ export class DashboardService {
   }
 
   getDashboardData(): Observable<DashboardData> {
-    return this.http.get<DashboardDataRaw>(this.baseUrl).pipe(
+    return this.http.get<{ code: number; message: string; data: DashboardDataRaw }>(this.baseUrl).pipe(
       map(res => {
-        const data = res.topProductsByParentCategory || {};
-        const topProductsByParentCategory = Object.keys(data).map(categoryName => ({
+        const rawData = res.data;
+
+        const topProductsByParentCategory = Object.keys(rawData.topProductsByParentCategory || {}).map(categoryName => ({
           category: categoryName,
-          products: data[categoryName].map(item => this.mapApiProductToProduct(item))
+          products: rawData.topProductsByParentCategory[categoryName].map(item =>
+            this.mapApiProductToProduct(item)
+          )
         }));
 
         return {
-          totalIncome: res.totalIncome,
-          totalOrder: res.totalOrder,
+          totalIncome: rawData.totalIncome,
+          totalOrder: rawData.totalOrder,
           topProductsByParentCategory,
-          revenueChart: res.revenueChart,
+          revenueChart: rawData.revenueChart,
         };
       })
     );
   }
+
 }

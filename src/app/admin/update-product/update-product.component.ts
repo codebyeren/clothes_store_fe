@@ -30,6 +30,10 @@ export class UpdateProductComponent implements OnInit {
   product: Product;
   imgMainPreview: string | null = null;
   imgPreviews: string[] = [];
+  // Lưu file ảnh upload khi chọn (chưa upload lên server)
+  imgMainFile: File | null = null;
+  variantFiles: { [variantIndex: number]: File } = {};
+
   categories: Category[] = [];
   parentCategories: Category[] = [];
   childCategories: Category[] = [];
@@ -57,10 +61,8 @@ export class UpdateProductComponent implements OnInit {
     this.loadCategories();
     this.loadProductData();
 
-    // Cập nhật childCategories khi thay đổi parentCategoryId
     this.productForm.get('parentCategoryId')?.valueChanges.subscribe(parentId => {
       this.childCategories = this.categories.filter(c => c.parentId === parentId);
-      // Reset chọn danh mục con khi đổi danh mục cha
       this.productForm.get('childCategoryIds')?.setValue([]);
     });
   }
@@ -78,7 +80,6 @@ export class UpdateProductComponent implements OnInit {
       this.categories = data;
       this.parentCategories = data.filter(c => !c.parentId);
 
-      // Nếu đã có parentCategoryId trong form thì cập nhật childCategories tương ứng
       const currentParentId = this.productForm.get('parentCategoryId')?.value;
       if (currentParentId) {
         this.childCategories = this.categories.filter(c => c.parentId === currentParentId);
@@ -97,6 +98,9 @@ export class UpdateProductComponent implements OnInit {
       status: this.product.status || '',
       imgMain: this.product.img || ''
     });
+    if (this.product.img) {
+      this.imgMainPreview = this.getImageUrl(this.product.img);
+    }
 
     this.categoryService.getByProductId(this.product.id).subscribe(selectedCategories => {
       const parentCat = selectedCategories.find(c => !c.parentId);
@@ -107,7 +111,6 @@ export class UpdateProductComponent implements OnInit {
         childCategoryIds: childCats.map(c => c.id)
       });
 
-      // Cập nhật danh mục con để hiển thị đúng
       this.childCategories = this.categories.filter(c => c.parentId === (parentCat ? parentCat.id : null));
     });
 
@@ -146,7 +149,7 @@ export class UpdateProductComponent implements OnInit {
 
   removeStock(index: number): void {
     this.variants.removeAt(index);
-    this.imgPreviews.splice(index, 1);
+    delete this.variantFiles[index];
   }
 
   addSize(stockIndex: number): void {
@@ -162,37 +165,118 @@ export class UpdateProductComponent implements OnInit {
     this.getSizes(stockIndex).removeAt(sizeIndex);
   }
 
+  onFileSelected(event: Event, type: 'imgMain' | 'variant', variantIndex?: number): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        ctx.drawImage(img, 0, 0);
+        canvas.toBlob(blob => {
+          if (!blob) return;
+          const newFile = new File([blob], file.name.replace(/\.\w+$/, '.webp'), { type: 'image/webp' });
+
+          const previewUrl = URL.createObjectURL(newFile);
+          if (type === 'imgMain') {
+            this.imgMainFile = newFile;
+            this.imgMainPreview = previewUrl;
+            this.productForm.get('imgMain')?.setValue(newFile.name.split('.').slice(0, -1).join('.'));
+          }
+          if (type === 'variant' && variantIndex !== undefined) {
+            this.variantFiles[variantIndex] = newFile;
+            this.imgPreviews[variantIndex] = previewUrl;
+            this.variants.at(variantIndex).get('img')?.setValue(newFile.name.split('.').slice(0, -1).join('.'));
+          }
+        }, 'image/webp');
+      };
+      if (e.target?.result) {
+        img.src = e.target.result as string;
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
   onSubmit(): void {
     if (this.productForm.invalid) {
       console.warn('Form không hợp lệ');
       return;
     }
 
-    const raw = this.productForm.value;
+    // Gom tất cả file cần upload
+    const filesToUpload: File[] = [];
+    const fileIndexMap: { [variantIndex: number]: number } = {};
 
-    const result = {
+    if (this.imgMainFile) {
+      filesToUpload.push(this.imgMainFile);
+    }
+
+    Object.entries(this.variantFiles).forEach(([variantIndexStr, file]) => {
+      const variantIndex = Number(variantIndexStr);
+      fileIndexMap[variantIndex] = filesToUpload.length;
+      filesToUpload.push(file);
+    });
+
+    if (filesToUpload.length === 0) {
+
+      this.submitProductForm();
+    } else {
+
+      this.productService.uploadFiles(filesToUpload).subscribe({
+        next: (uploadedFileNames: string[]) => {
+          // Cập nhật tên ảnh chính
+          let imgMainName = this.productForm.get('imgMain')?.value;
+          let startIndex = 0;
+          if (this.imgMainFile) {
+            imgMainName = uploadedFileNames[0];
+            startIndex = 1;
+          }
+
+
+          const variants = this.productForm.value.variants;
+          for (const [variantIndexStr, pos] of Object.entries(fileIndexMap)) {
+            const variantIndex = Number(variantIndexStr);
+            variants[variantIndex].img = uploadedFileNames[startIndex + pos];
+          }
+
+          this.submitProductForm(imgMainName, variants);
+        },
+        error: err => {
+          console.error('Lỗi khi upload ảnh:', err);
+          alert('Lỗi khi upload ảnh');
+        }
+      });
+    }
+  }
+
+  submitProductForm(imgMainName?: string, variants?: any): void {
+    const raw = this.productForm.value;
+    const payload = {
       productName: raw.productName,
       price: raw.price,
       status: raw.status,
       categoryIds: [raw.parentCategoryId, ...raw.childCategoryIds],
-      imgMain: raw.imgMain,
-      variants: raw.variants.map((variant: { color: string; img: string; sizes: { size: string; stock: number }[] }) => ({
-        color: variant.color,
-        img: variant.img,
-        sizes: variant.sizes
-      }))
-
+      imgMain: imgMainName || raw.imgMain,
+      variants: variants || raw.variants
     };
-    console.log('Dữ liệu gửi lên server:', JSON.stringify(result, null, 2));
 
-    this.productService.updateProduct(this.product.id, result).subscribe({
-      next: (res) => {
-        console.log('Cập nhật sản phẩm thành công:', res);
-        alert('Cập nhật sản pẩm thành công')
+    this.productService.updateProduct(this.product.id, payload).subscribe({
+      next: res => {
+        alert('Cập nhật sản phẩm thành công');
         this.dialogRef.close(res);
       },
-      error: (err) => {
-        console.error('Lỗi khi cập nhật sản phẩm:', err);
+      error: err => {
+        console.error('Lỗi cập nhật sản phẩm:', err);
+        alert('Lỗi khi cập nhật sản phẩm');
       }
     });
   }
@@ -205,28 +289,8 @@ export class UpdateProductComponent implements OnInit {
     return `/img/${img}.webp`;
   }
 
-  onFileSelected(event: Event, type: 'imgMain' | 'variant', variantIndex?: number): void {
-    const input = event.target as HTMLInputElement;
-    if (!input.files || input.files.length === 0) return;
-
-    const file = input.files[0];
-    const fileNameWithoutExt = file.name.split('.').slice(0, -1).join('.');
-    const previewUrl = URL.createObjectURL(file);
-
-    if (type === 'imgMain') {
-      this.imgMainPreview = previewUrl;
-      this.productForm.get('imgMain')?.setValue(fileNameWithoutExt);
-    }
-
-    if (type === 'variant' && variantIndex !== undefined) {
-      this.imgPreviews[variantIndex] = previewUrl;
-      this.variants.at(variantIndex).get('img')?.setValue(fileNameWithoutExt);
-    }
-  }
   onParentCategoryChange(parentId: number): void {
     this.childCategories = this.categories.filter(c => c.parentId === parentId);
-    // Reset childCategoryIds khi đổi parent
     this.productForm.get('childCategoryIds')?.setValue([]);
   }
-
 }
