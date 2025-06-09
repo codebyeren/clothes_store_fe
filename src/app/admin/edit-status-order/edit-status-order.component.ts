@@ -35,7 +35,7 @@ import {NgForOf} from '@angular/common';
 })
 export class EditStatusOrderComponent {
   statusForm: FormGroup;
-  statusOptions: string[] = ['Pending', 'Completed', 'Shipped'];
+  statusOptions: string[] = ['Pending', 'Confirmed', 'Shipped',"Cancelled"];
 
   constructor(
     private dialogRef: MatDialogRef<EditStatusOrderComponent>,

@@ -130,7 +130,7 @@ export class ProductService {
   deleteProduct(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/product/${id}`);
   }
-  // Cập nhật sản phẩm theo slug
+
   updateProduct(id: number, product: ProductCreateUpdateDTO): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/product/${id}`, product);
   }

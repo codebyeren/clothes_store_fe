@@ -19,7 +19,7 @@ export interface OrderUpdateDto{
   providedIn: 'root'
 })
 export class OrderService {
-  private apiUrl = `${environment.apiUrl}/orders`;
+  private apiUrl = `http://localhost:8080/api/orders`;
 
   constructor(
     private http: HttpClient,

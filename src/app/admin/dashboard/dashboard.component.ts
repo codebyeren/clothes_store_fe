@@ -76,7 +76,6 @@ export class DashboardComponent implements OnInit {
         this.availableYears = Array.from(years).sort((a, b) => b - a);
         this.selectedYear = this.availableYears[0];
 
-        // Mặc định chọn danh mục đầu tiên khi load data xong
         if (this.topProductsByCategory.length > 0) {
           this.selectedCategory = this.topProductsByCategory[0];
         }

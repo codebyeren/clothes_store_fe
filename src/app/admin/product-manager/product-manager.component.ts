@@ -22,8 +22,8 @@ import {FormsModule} from '@angular/forms';
   selector: 'app-product-manager',
   standalone: true,
   imports: [NgFor, FormsModule],
-  templateUrl: './product-manager.component.html',
-  styleUrls: ['./product-manager.component.css',
+templateUrl: './product-manager.component.html',
+  styleUrls: ['./product-manager.component.css'
   ]
 })
 export class ProductManagerComponent implements OnInit {

@@ -34,7 +34,7 @@ export class UserManagerComponent {
     const dialogRef=this.dialog.open(UserDetailComponent, {
       data: { user },
       width: '50vw',
-      height : '80vw'
+      height : '50vw'
     });
     dialogRef.afterClosed().subscribe(result => {
       this.load()

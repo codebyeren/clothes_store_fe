@@ -1,15 +1,15 @@
 <div class="container">
   <app-user-sidebar [firstName]="user.firstName" [lastName]="user.lastName"></app-user-sidebar>
-  
+
   <div class="orders-content">
     <div class="content-wrapper">
       <h2>LỊCH SỬ ĐƠN HÀNG</h2>
-      
+
       <div class="orders-list" *ngIf="orders.length > 0; else noOrders">
         <div class="order-card" *ngFor="let order of orders">
           <div class="order-header">
             <div class="order-info">
-              <span class="order-id">Đơn hàng #{{order.id}}</span>
+              <span class="order-id">Đơn hàng </span>
               <span class="order-date">{{formatDate(order.paymentTime)}}</span>
             </div>
             <div class="order-status">
@@ -43,9 +43,9 @@
             <div class="order-total">
               Tổng tiền: <span>{{order.total | currency:'VND'}}</span>
             </div>
-            <button *ngIf="order.status.toLowerCase() === 'pending'" 
-                    class="cancel-button" 
-                    (click)="cancelOrder(order)" 
+            <button *ngIf="order.status.toLowerCase() === 'pending'"
+                    class="cancel-button"
+                    (click)="cancelOrder(order)"
                     [disabled]="loading">
               Hủy đơn hàng
             </button>
@@ -60,4 +60,4 @@
       </ng-template>
     </div>
   </div>
-</div> 
+</div>

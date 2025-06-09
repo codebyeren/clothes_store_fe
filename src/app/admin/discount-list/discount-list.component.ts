@@ -28,17 +28,19 @@ export class DiscountListComponent {
   ngOnInit() {
     this.loadAllData();
   }
-
   loadAllData() {
-    this.productService.getHomeProducts().subscribe(products => {
-      this.product = products;
-      console.log(' Products:', this.product);
+    this.productService.getHomeProducts().subscribe((categories: any[]) => {
+      const allProducts: Product[] = categories.flatMap(c => c.products);
+
+      this.product = allProducts;
+      console.log('Merged Products:', this.product);
 
       this.productNameMap = {};
       this.product.forEach(p => {
         this.productNameMap[p.id] = p.productName;
       });
-      console.log(' productNameMap:', this.productNameMap);
+
+      console.log('productNameMap:', this.productNameMap);
 
       this.discountService.getALlDisCount().subscribe(discounts => {
         this.discount = discounts;
@@ -46,6 +48,7 @@ export class DiscountListComponent {
       });
     });
   }
+
 
 
   getProductName(productId: number): string {

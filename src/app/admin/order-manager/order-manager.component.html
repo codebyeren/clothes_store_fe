@@ -20,13 +20,15 @@
         <td>{{ userMap[order.userId]  }}</td>
         <td>{{ order.paymentTime | date:'dd/MM/yyyy HH:mm:ss' }}</td>
         <td>{{ order.total | currency:'VND' }}</td>
-        <td>{{ order.orderItems.length }}</td>
+        <td>{{ getTotalQuantity(order) }}</td>
+
         <td>
 
               {{ order.status }}
         </td>
         <td>
-          <button class="btn btn-sm btn-primary me-2" (click)="updateStatus(order)">
+          <button class="btn btn-sm btn-primary me-2" (click)="openOrderDetail(order)">Chi Tiết </button>
+          <button class="btn btn-sm btn-primary me-2" [disabled]="order.status == 'Cancelled' || order.status == 'Confirmed'" (click)="updateStatus(order)">
             Cập nhật trạng thái
           </button>
         </td>

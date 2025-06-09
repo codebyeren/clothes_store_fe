@@ -1,0 +1,26 @@
+<div class="order-detail-container">
+  <h2>Chi tiết đơn hàng </h2>
+
+  <div class="order-info">
+    <p><strong>Thời gian thanh toán:</strong> {{ order.paymentTime | date: 'dd/MM/yyyy HH:mm' }}</p>
+    <p><strong>Trạng thái:</strong> <span class="status">{{ order.status }}</span></p>
+  </div>
+
+  <div class="order-items">
+    <div class="order-item" *ngFor="let item of order.orderItems">
+
+      <div class="item-details">
+        <h3>{{ item.productName }}</h3>
+        <p>Màu: {{ item.color }} | Size: {{ item.size }}</p>
+        <p>Số lượng: {{ item.quantity }}</p>
+        <p>Giá: {{ item.price | currency:'VND' }}</p>
+        <p class="item-total">Tổng: {{ item.total | currency:'VND' }}</p>
+        <a [routerLink]="['/product', item.slug]" class="view-link" (click)="Close()">Xem sản phẩm</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="order-summary">
+    <h3>Tổng tiền: <span>{{ order.total | currency:'VND' }}</span></h3>
+  </div>
+</div>

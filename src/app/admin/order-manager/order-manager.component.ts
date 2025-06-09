@@ -6,6 +6,10 @@ import {EditStatusOrderComponent} from '../edit-status-order/edit-status-order.c
 import { Order } from '../../shared/models/order.model';
 import {UserService} from '../../services/user.service';
 import {forkJoin} from 'rxjs';
+import {log} from '@angular-devkit/build-angular/src/builders/ssr-dev-server';
+import {Product} from '../../shared/models/product.model';
+import {ProductDetailComponent} from '../product-detail/product-detail.component';
+import {OrderDetailComponent} from '../order-detail/order-detail.component';
 
 @Component({
   selector: 'app-order-manager',
@@ -41,11 +45,17 @@ export class OrderManagerComponent implements OnInit {
 
         const userObservables = uniqueUserIds.map(userId =>
           this.userService.getById(userId)
+
         );
 
         forkJoin(userObservables).subscribe(users => {
-          users.forEach(user => {
-            this.userMap[user.id] = user.lastName;
+          users.forEach((userResponse, index) => {
+            const userId = uniqueUserIds[index]; // Lấy id từ mảng ban đầu
+            const userData = userResponse.data;
+
+            if (userData && userData.lastName) {
+              this.userMap[userId] = userData.lastName + " " +  userData.firstName;
+            }
           });
         });
       },
@@ -54,7 +64,19 @@ export class OrderManagerComponent implements OnInit {
       }
     });
   }
+  openOrderDetail(order: Order) {
+    const dialogRef = this.dialog.open(OrderDetailComponent, {
+      data: { order },
+      width: '50vw',
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      this.loadOrders();
 
+    });
+  }
+  getTotalQuantity(order: Order): number {
+    return order.orderItems.reduce((sum, item) => sum + item.quantity, 0);
+  }
 
   updateStatus(order : Order) {
    const pop =  this.dialog.open(EditStatusOrderComponent, {

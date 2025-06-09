@@ -1,35 +1,36 @@
-<div class="card mx-auto" style=' width: 50vw ; height: 80vw'>
-  <div class="card-body">
-    <h2 class="card-title text-center mb-4">Thông tin người dùng</h2>
+<div class="container mt-5">
+  <div class=" p-4 rounded">
+    <h4 class="card-title text-center mb-4">Thông tin người dùng</h4>
+    <form>
+      <div class="mb-3">
+        <label class="form-label">Họ</label>
+        <input type="text" class="form-control" [value]="user?.firstName" readonly>
+      </div>
 
-    <div class="row mb-3" *ngIf="user">
-      <label class="col-sm-4 fw-bold">Họ:</label>
-      <div class="col-sm-8">{{ user.firstName }}</div>
-    </div>
+      <div class="mb-3">
+        <label class="form-label">Tên</label>
+        <input type="text" class="form-control" [value]="user?.lastName" readonly>
+      </div>
 
-    <div class="row mb-3" *ngIf="user">
-      <label class="col-sm-4 fw-bold">Tên:</label>
-      <div class="col-sm-8">{{ user.lastName }}</div>
-    </div>
+      <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-control" [value]="user?.email" readonly>
+      </div>
 
-    <div class="row mb-3" *ngIf="user">
-      <label class="col-sm-4 fw-bold">Email:</label>
-      <div class="col-sm-8">{{ user.email }}</div>
-    </div>
+      <div class="mb-3">
+        <label class="form-label">Địa chỉ</label>
+        <input type="text" class="form-control" [value]="user?.address" readonly>
+      </div>
 
-    <div class="row mb-3" *ngIf="user">
-      <label class="col-sm-4 fw-bold">Địa chỉ:</label>
-      <div class="col-sm-8">{{ user.address }}</div>
-    </div>
+      <div class="mb-3">
+        <label class="form-label">Số điện thoại</label>
+        <input type="text" class="form-control" [value]="user?.phoneNumber" readonly>
+      </div>
 
-    <div class="row mb-3" *ngIf="user">
-      <label class="col-sm-4 fw-bold">Số điện thoại:</label>
-      <div class="col-sm-8">{{ user.phoneNumber }}</div>
-    </div>
-
-    <div class="row mb-3" *ngIf="user">
-      <label class="col-sm-4 fw-bold">Ngày sinh:</label>
-      <div class="col-sm-8">{{ user.birthday | date:'dd/MM/yyyy' }}</div>
-    </div>
+      <div class="mb-3">
+        <label class="form-label">Ngày sinh</label>
+        <input type="text" class="form-control" [value]="user?.birthday | date:'dd/MM/yyyy'" readonly>
+      </div>
+    </form>
   </div>
 </div>
