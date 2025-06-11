@@ -20,7 +20,7 @@ export class UserProfileComponent implements OnInit {
   successMessage = '';
   errorMessage = '';
   isEditMode = false;
-  private dateFormatPipe = new DateFormatPipe();
+  dateFormatPipe = new DateFormatPipe();
 
   constructor(
     private userService: UserService,
@@ -30,7 +30,6 @@ export class UserProfileComponent implements OnInit {
   ngOnInit(): void {
     this.initializeForm();
     this.loadUserData();
-    this.setupDateFormatting();
     this.disableForm();
   }
 
@@ -54,6 +53,37 @@ export class UserProfileComponent implements OnInit {
     });
   }
 
+  private dateValidator(): (control: AbstractControl) => ValidationErrors | null {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const value = control.value;
+      if (!value) return null;
+
+      const date = new Date(value);
+      if (isNaN(date.getTime())) {
+        return { invalidDate: true };
+      }
+
+      const today = new Date();
+      let age = today.getFullYear() - date.getFullYear();
+      const monthDiff = today.getMonth() - date.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate())) {
+        age--;
+      }
+
+      if (age < 10) {
+        return { tooYoung: true };
+      }
+      if (age > 100) {
+        return { tooOld: true };
+      }
+      if (date > today) {
+        return { futureDate: true };
+      }
+
+      return null;
+    };
+  }
+
   private disableForm(): void {
     Object.keys(this.userForm.controls).forEach(key => {
       this.userForm.get(key)?.disable();
@@ -72,53 +102,8 @@ export class UserProfileComponent implements OnInit {
       this.enableForm();
     } else {
       this.disableForm();
-      this.loadUserData(); // Reload data to reset form
+      this.loadUserData();
     }
-  }
-
-  private dateValidator(): ValidationErrors | null {
-    return (control: AbstractControl): ValidationErrors | null => {
-      if (!control.value) {
-        return null;
-      }
-
-      const birthday = new Date(control.value);
-      const today = new Date();
-      
-      if (isNaN(birthday.getTime())) {
-        return { invalidDate: true };
-      }
-
-      let age = today.getFullYear() - birthday.getFullYear();
-      const monthDiff = today.getMonth() - birthday.getMonth();
-      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthday.getDate())) {
-        age--;
-      }
-
-      if (age < 10) {
-        return { tooYoung: true };
-      }
-      if (age > 100) {
-        return { tooOld: true };
-      }
-      if (birthday > today) {
-        return { futureDate: true };
-      }
-
-      return null;
-    };
-  }
-
-  private setupDateFormatting(): void {
-    this.userForm.get('birthday')?.valueChanges.subscribe(value => {
-      if (value && typeof value === 'string' && !value.includes('/')) {
-        const date = new Date(value);
-        if (!isNaN(date.getTime())) {
-          const formattedDate = this.dateFormatPipe.transform(date);
-          this.userForm.get('birthday')?.setValue(formattedDate, { emitEvent: false });
-        }
-      }
-    });
   }
 
   private loadUserData(): void {
@@ -130,7 +115,7 @@ export class UserProfileComponent implements OnInit {
         phoneNumber: this.user.phoneNumber,
         email: this.user.email,
         address: this.user.address,
-        birthday: this.dateFormatPipe.transform(this.user.birthday)
+        birthday: this.dateFormatPipe.transform(this.user.birthday, 'input')
       });
     });
   }
@@ -184,17 +169,14 @@ export class UserProfileComponent implements OnInit {
       this.errorMessage = 'Vui lòng điền đầy đủ thông tin và sửa các lỗi.';
       return;
     }
-
+  
     this.loading = true;
     this.errorMessage = '';
     this.successMessage = '';
-
+  
     const userData = this.userForm.value;
-    if (userData.birthday) {
-      const [day, month, year] = userData.birthday.split('/');
-      userData.birthday = new Date(year, month - 1, day);
-    }
-
+    userData.birthday = new Date(userData.birthday);
+  
     this.userService.updateUserInfo(userData).subscribe({
       next: (response) => {
         this.successMessage = 'Cập nhật thông tin thành công!';
@@ -207,5 +189,9 @@ export class UserProfileComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  getMaxDate(): string {
+    return this.dateFormatPipe.transform(new Date(), 'input');
   }
 }

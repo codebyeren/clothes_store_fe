@@ -5,7 +5,7 @@ import { Pipe, PipeTransform } from '@angular/core';
   standalone: true
 })
 export class DateFormatPipe implements PipeTransform {
-  transform(value: string | Date): string {
+  transform(value: string | Date, format: 'input' | 'display' = 'display'): string {
     if (!value) return '';
 
     const date = new Date(value);
@@ -15,6 +15,9 @@ export class DateFormatPipe implements PipeTransform {
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const year = date.getFullYear();
 
-    return `${day}/${month}/${year}`;
+    if (format === 'input') {
+      return `${year}-${month}-${day}`;
+    }
+    return `${day}-${month}-${year}`;
   }
-} 
+}

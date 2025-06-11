@@ -54,7 +54,7 @@
 
             <div class="mb-3">
               <label class="form-label">Ngày sinh</label>
-              <input type="text" class="form-control" formControlName="birthday" [class.is-invalid]="isFieldInvalid('birthday')">
+              <input type="date" class="form-control" formControlName="birthday" [class.is-invalid]="isFieldInvalid('birthday')" [max]="getMaxDate()">
               <div class="invalid-feedback" *ngIf="isFieldInvalid('birthday')">
                 {{ getErrorMessage('birthday') }}
               </div>
