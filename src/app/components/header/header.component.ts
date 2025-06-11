@@ -1,7 +1,7 @@
-import { Component, OnDestroy } from '@angular/core';
-import { Router, RouterModule, RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Router, RouterModule, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { Subscription } from 'rxjs';
+import { Subscription, filter } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { CartDropdownComponent } from '../cart-dropdown/cart-dropdown.component';
 
@@ -12,14 +12,23 @@ import { CartDropdownComponent } from '../cart-dropdown/cart-dropdown.component'
   standalone: true,
   imports: [RouterLink, RouterLinkActive, CommonModule, CartDropdownComponent]
 })
-export class HeaderComponent implements OnDestroy {
+export class HeaderComponent implements OnDestroy, OnInit {
   isLoggedIn = false;
   showCartDropdown: boolean = false;
   private sub: Subscription;
+  private routerSub: Subscription = new Subscription();
 
   constructor(private authService: AuthService, private router: Router) {
     this.sub = this.authService.isLoggedIn$.subscribe(val => {
       this.isLoggedIn = val;
+    });
+  }
+
+  ngOnInit() {
+    this.routerSub = this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.showCartDropdown = false;
     });
   }
 
@@ -54,5 +63,8 @@ export class HeaderComponent implements OnDestroy {
 
   ngOnDestroy() {
     this.sub.unsubscribe();
+    if (this.routerSub) {
+      this.routerSub.unsubscribe();
+    }
   }
 }

@@ -60,14 +60,6 @@
               </div>
             </div>
 
-            <div *ngIf="errorMessage" class="alert alert-danger mt-3">
-              {{ errorMessage }}
-            </div>
-
-            <div *ngIf="successMessage" class="alert alert-success mt-3">
-              {{ successMessage }}
-            </div>
-
             <div class="d-flex justify-content-end mt-4">
               <button *ngIf="!isEditMode" type="button" class="btn btn-primary" (click)="toggleEditMode()">
                 <i class="fas fa-edit"></i> Chỉnh sửa

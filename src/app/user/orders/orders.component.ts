@@ -90,10 +90,10 @@ export class OrdersComponent implements OnInit {
     switch (status.toLowerCase()) {
       case 'pending':
         return 'status-pending';
-      case 'processing':
-        return 'status-processing';
-      case 'completed':
-        return 'status-completed';
+      case 'comfirmed':
+        return 'status-comfirmed';
+      case 'shipped':
+        return 'status-shipped';
       case 'cancelled':
         return 'status-cancelled';
       default:

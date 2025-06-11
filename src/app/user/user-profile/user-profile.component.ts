@@ -4,11 +4,12 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractContro
 import { UserService } from '../../services/user.service';
 import { UserSidebarComponent } from '../../components/user-sidebar/user-sidebar.component';
 import { DateFormatPipe } from '../../shared/pipes/date-format.pipe';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-user-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, UserSidebarComponent, DateFormatPipe],
+  imports: [CommonModule, ReactiveFormsModule, UserSidebarComponent],
   templateUrl: './user-profile.component.html',
   styleUrls: ['./user-profile.component.css']
 })
@@ -24,7 +25,8 @@ export class UserProfileComponent implements OnInit {
 
   constructor(
     private userService: UserService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private toastr: ToastrService
   ) { }
 
   ngOnInit(): void {
@@ -166,26 +168,24 @@ export class UserProfileComponent implements OnInit {
     this.submitted = true;
     
     if (this.userForm.invalid) {
-      this.errorMessage = 'Vui lòng điền đầy đủ thông tin và sửa các lỗi.';
+      this.toastr.error('Vui lòng điền đầy đủ thông tin và sửa các lỗi.', 'Lỗi');
       return;
     }
   
     this.loading = true;
-    this.errorMessage = '';
-    this.successMessage = '';
   
     const userData = this.userForm.value;
     userData.birthday = new Date(userData.birthday);
   
     this.userService.updateUserInfo(userData).subscribe({
       next: (response) => {
-        this.successMessage = 'Cập nhật thông tin thành công!';
+        this.toastr.success('Cập nhật thông tin thành công!', 'Thành công');
         this.loading = false;
         this.isEditMode = false;
         this.disableForm();
       },
       error: (error) => {
-        this.errorMessage = error.error?.message || 'Đã xảy ra lỗi khi cập nhật thông tin.';
+        this.toastr.error(error.error?.message || 'Đã xảy ra lỗi khi cập nhật thông tin.', 'Lỗi');
         this.loading = false;
       }
     });
