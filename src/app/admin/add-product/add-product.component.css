@@ -1,50 +1,102 @@
-/* Giới hạn chiều cao của popup */
-.mat-dialog-content {
-  max-height: 80vh;
+.form-add {
+  background-color: #fdfdfd;
+  border-radius: 10px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+.modal-body{
+  max-height: 80vw;
   overflow-y: auto;
-  padding-right: 8px;
+}
+h2, h4, h5 {
+  font-weight: 600;
+  color: #0d6efd;
 }
 
-div.mat-mdc-select-panel{
-  background-color: white !important;
+label.form-label {
+  font-weight: 500;
+  margin-bottom: 6px;
+}
 
+input.form-control,
+select.form-select,
+mat-select {
+  border-radius: 6px;
+  transition: box-shadow 0.2s ease;
+}
+
+input.form-control:focus,
+select.form-select:focus,
+mat-select:focus {
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
 }
 
 .img-thumbnail {
   border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  object-fit: cover;
+  border: 1px solid #dee2e6;
 }
-
-.full-width {
-  width: 100%;
-}
-
-h2.text-center {
-  margin-top: 0;
-  font-weight: 600;
-}
-
-
-.stock-details-section .card {
+.variant-list {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-bottom: 20px;
   border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 6px;
+}
+
+.variant-item {
+  padding: 12px;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 12px;
+}
+.mat-mdc-select-trigger{
   border-radius: 8px;
-  background: #fafafa;
+  border: 1px solid #dee2e6;
+
+}
+button.btn {
+  min-width: 120px;
 }
 
-
-.mb-3 {
-  margin-bottom: 1rem;
+button.btn-outline-primary,
+button.btn-outline-danger {
+  padding: 4px 12px;
+  font-size: 14px;
 }
 
-button {
-  margin-top: 0.5rem;
+.border {
+  border: 1px solid #dee2e6 !important;
 }
 
-.mat-dialog-content::-webkit-scrollbar {
-  width: 8px;
+.rounded {
+  border-radius: 10px !important;
 }
-.mat-dialog-content::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.2);
-  border-radius: 4px;
+
+.text-danger {
+  font-size: 14px;
+  margin-top: 4px;
+}
+select[multiple] {
+  height: auto;
+  min-height: 120px;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  outline: none;
+}
+
+select[multiple] option {
+  padding: 6px;
+}
+
+@media (max-width: 768px) {
+  .form-add {
+    padding: 16px;
+  }
+
+  button.btn {
+    width: 100%;
+    margin-top: 8px;
+  }
 }

@@ -23,6 +23,7 @@
     <div class="col-md-3">
       <label for="yearFilter" class="form-label">Chọn năm</label>
       <select id="yearFilter" class="form-select" [(ngModel)]="selectedYear" (change)="filterRevenueByYear()">
+        <option value="all">Tất cả năm</option>
         <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
       </select>
     </div>
@@ -32,7 +33,10 @@
     <div class="col">
       <div class="card shadow">
         <div class="card-body">
-          <h5 class="mb-3">Tổng Doanh Thu Năm {{ selectedYear }} : {{ totalIncomeByYear | number:'1.0-0' }} ₫</h5>
+          <h5 class="mb-3" *ngIf="selectedYear != 'all'">
+            Tổng Doanh Thu Năm {{ selectedYear }} : {{ totalIncomeByYear | number:'1.0-0' }} ₫
+          </h5>
+
           <canvas baseChart
                   [data]="revenueChartData"
                   [options]="revenueChartOptions"
@@ -42,6 +46,7 @@
       </div>
     </div>
   </div>
+
 
   <div class="container mt-4">
 
@@ -84,8 +89,6 @@
     </div>
 
   </div>
-
-
 </div>
 
 <div class="text-center mt-5" *ngIf="isLoading">

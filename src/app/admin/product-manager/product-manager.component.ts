@@ -117,8 +117,7 @@ export class ProductManagerComponent implements OnInit {
       const isEdit = confirm('Sản phẩm đã có giảm giá. Bạn có muốn chỉnh sửa giảm giá này không?');
       if (isEdit) {
        const dialogRef =  this.dialog.open(EditDiscountComponent, {
-          width: '50vw',
-          height: '80vh',
+          maxWidth: '50vw',
           data: { product, isEdit: true }
         });
         dialogRef.afterClosed().subscribe(result => {
@@ -131,8 +130,8 @@ export class ProductManagerComponent implements OnInit {
       const isAdd = confirm('Sản phẩm chưa có giảm giá. Bạn có muốn thêm mới không?');
       if (isAdd) {
         const dialogRef =this.dialog.open(AddDiscountComponent, {
-          width: '50vw',
-          height: '80vh',
+          maxWidth: '50vw',
+
           data: { product, isEdit: false }
         });
         dialogRef.afterClosed().subscribe(result => {
@@ -194,5 +193,13 @@ export class ProductManagerComponent implements OnInit {
       this.loadProducts();
     }
   }
+  getTotalStock(product: Product): number {
+    if (!product.stockDetails) return 0;
+    return product.stockDetails.reduce((total, variant) => {
+      const variantStock = variant.sizes?.reduce((sum, s) => sum + s.stock, 0) || 0;
+      return total + variantStock;
+    }, 0);
+  }
+
 
 }

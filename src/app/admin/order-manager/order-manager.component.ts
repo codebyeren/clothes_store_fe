@@ -81,7 +81,7 @@ export class OrderManagerComponent implements OnInit {
   updateStatus(order : Order) {
    const pop =  this.dialog.open(EditStatusOrderComponent, {
       width: '50vw',
-      height: '80vh',
+      maxHeight: '80vh',
       data : {order}
     });
     pop.afterClosed().subscribe(() => this.loadOrders());

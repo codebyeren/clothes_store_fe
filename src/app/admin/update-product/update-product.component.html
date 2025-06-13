@@ -1,97 +1,109 @@
-<form [formGroup]="productForm" (ngSubmit)="onSubmit()">
-  <mat-form-field appearance="fill" class="full-width">
-    <mat-label>Tên sản phẩm</mat-label>
-    <input matInput formControlName="productName" />
-  </mat-form-field>
+<div class="modal-body">
+  <h2 class="text-center text-primary mb-4">Cập nhật sản phẩm</h2>
 
-  <mat-form-field appearance="fill" class="full-width">
-    <mat-label>Giá</mat-label>
-    <input matInput type="number" formControlName="price" />
-  </mat-form-field>
+  <form [formGroup]="productForm" (ngSubmit)="onSubmit()" class="form-add">
 
-  <mat-form-field appearance="fill" class="full-width">
-    <mat-label>Trạng thái</mat-label>
-    <input matInput formControlName="status" />
-  </mat-form-field>
-
-  <!-- Parent Category -->
-  <mat-form-field appearance="fill" class="full-width">
-    <mat-label>Danh mục cha</mat-label>
-    <mat-select formControlName="parentCategoryId" (selectionChange)="onParentCategoryChange($event.value)">
-      <mat-option *ngFor="let parent of parentCategories" [value]="parent.id">
-        {{ parent.categoryName }}
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
-
-  <!-- Child Categories -->
-  <mat-form-field appearance="fill" class="full-width" *ngIf="childCategories.length > 0">
-    <mat-label>Danh mục con</mat-label>
-    <mat-select formControlName="childCategoryIds" multiple>
-      <mat-option *ngFor="let child of childCategories" [value]="child.id">
-        {{ child.categoryName }}
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
-
-
-  <div>
-    <label>Ảnh chính:</label>
-    <input type="file" (change)="onFileSelected($event, 'main')" />
-    <div *ngIf="imgMainPreview">
-      <img [src]="imgMainPreview" width="100" />
-    </div>
-  </div>
-
-
-  <div formArrayName="variants">
-    <div *ngFor="let variant of variants.controls; let i = index" [formGroupName]="i" class="variant-section">
-      <h4>Màu {{ i + 1 }}</h4>
-      <mat-form-field>
-        <mat-label>Màu</mat-label>
-        <input matInput formControlName="color" />
-      </mat-form-field>
-
-      <div>
-        <label>Ảnh màu:</label>
-        <input type="file" (change)="onFileSelected($event, 'variant', i)" />
-        <img *ngIf="imgPreviews[i]" [src]="imgPreviews[i]" width="100" />
-      </div>
-      <img
-        *ngIf="imgPreviews[i]"
-        [src]="imgPreviews[i]"
-        width="120"
-        alt="Ảnh biến thể mới"
-      />
-      <img
-        *ngIf="!imgPreviews[i] && variant.get('img')?.value"
-        [src]="getImageUrl(variant.get('img')?.value)"
-        width="120"
-        alt="Ảnh biến thể cũ"
-      />
-      <div formArrayName="sizes">
-        <div *ngFor="let size of getSizes(i).controls; let j = index" [formGroupName]="j">
-          <mat-form-field>
-            <mat-label>Size</mat-label>
-            <input matInput formControlName="size" />
-          </mat-form-field>
-
-          <mat-form-field>
-            <mat-label>Tồn kho</mat-label>
-            <input matInput type="number" formControlName="stock" />
-          </mat-form-field>
-
-          <button mat-button color="warn" (click)="removeSize(i, j)" type="button">Xoá size</button>
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Tên sản phẩm</label>
+        <input type="text" class="form-control" formControlName="productName" />
+        <div *ngIf="productForm.get('productName')?.invalid && productForm.get('productName')?.touched" class="text-danger">
+          Tên sản phẩm là bắt buộc
         </div>
-        <button mat-button color="primary" (click)="addSize(i)" type="button">Thêm size</button>
       </div>
 
-      <button mat-button color="warn" (click)="removeStock(i)" type="button">Xoá màu</button>
-    </div>
-  </div>
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Giá</label>
+        <input type="number" class="form-control" formControlName="price" />
+        <div *ngIf="productForm.get('price')?.invalid && productForm.get('price')?.touched" class="text-danger">
+          Giá phải lớn hơn hoặc bằng 0
+        </div>
+      </div>
 
-  <button mat-button color="primary" (click)="addStock()" type="button">Thêm màu</button>
-  <br /><br />
-  <button mat-raised-button color="primary" type="submit">Cập nhật</button>
-  <button mat-button (click)="onCancel()" type="button">Huỷ</button>
-</form>
+      <div class="col-md-12 mb-3">
+        <label class="form-label">Danh mục cha</label>
+        <select class="form-select" formControlName="parentCategoryId" (change)="onParentCategorySelect($event)">
+          <option value="" disabled selected>-- Chọn danh mục cha --</option>
+          <option *ngFor="let parent of parentCategories" [value]="parent.id">
+            {{ parent.categoryName }}
+          </option>
+        </select>
+      </div>
+
+      <div class="col-md-12 mb-3" *ngIf="childCategories.length > 0">
+        <label class="form-label">Danh mục con</label>
+        <mat-select formControlName="childCategoryIds" multiple>
+          <mat-option *ngFor="let child of childCategories" [value]="child.id">
+            {{ child.categoryName }}
+          </mat-option>
+        </mat-select>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Trạng thái</label>
+        <input type="text" class="form-control" formControlName="status" />
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Ảnh chính</label>
+        <input type="file" class="form-control" (change)="onFileSelected($event, 'main')" accept="image/*" />
+        <img *ngIf="imgMainPreview" [src]="imgMainPreview" class="img-thumbnail mt-2" width="120" alt="Ảnh chính mới" />
+      </div>
+    </div>
+
+    <!-- Biến thể -->
+    <div class="variant-list">
+      <div formArrayName="variants" class="mb-3">
+        <h4>Chi tiết tồn kho (Variants)</h4>
+        <button class="btn btn-primary mb-2" type="button" (click)="addStock()">Thêm biến thể</button>
+
+        <div *ngFor="let stock of variants.controls; let i = index" [formGroupName]="i" class="border p-3 mb-3 rounded">
+          <div class="mb-2">
+            <label class="form-label">Chọn màu sắc</label>
+            <select class="form-select" formControlName="color">
+              <option *ngFor="let c of colors" [value]="c.color">{{ c.color }}</option>
+            </select>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label">Ảnh biến thể</label>
+            <input type="file" class="form-control" (change)="onFileSelected($event, 'variant', i)" accept="image/*" />
+            <div *ngIf="imgPreviews[i]">
+              <img [src]="imgPreviews[i]" class="img-thumbnail mt-2" width="120" />
+            </div>
+            <div *ngIf="!imgPreviews[i] && stock.get('img')?.value">
+              <img [src]="getImageUrl(stock.get('img')?.value)" class="img-thumbnail mt-2" width="120" />
+            </div>
+          </div>
+
+          <button class="btn btn-outline-danger mb-2" type="button" (click)="removeStock(i)">Xóa biến thể</button>
+
+          <div formArrayName="sizes">
+            <h5>Kích cỡ</h5>
+            <button class="btn btn-outline-primary mb-2" type="button" (click)="addSize(i)">Thêm kích cỡ</button>
+
+            <div *ngFor="let sizeCtrl of getSizes(i).controls; let j = index" [formGroupName]="j" class="row g-2 align-items-center mb-2">
+              <div class="col">
+                <select class="form-select" formControlName="size">
+                  <option *ngFor="let s of sizes" [value]="s.size">{{ s.size }}</option>
+                </select>
+              </div>
+              <div class="col">
+                <input type="number" class="form-control" formControlName="stock" placeholder="Tồn kho" />
+              </div>
+              <div class="col-auto">
+                <button type="button" class="btn btn-danger" (click)="removeSize(i, j)">
+                  Xóa Size
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-success w-100" type="submit" [disabled]="productForm.invalid">
+      Cập nhật sản phẩm
+    </button>
+  </form>
+</div>

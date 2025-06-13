@@ -38,7 +38,7 @@
         <td>{{ product.productName }}</td>
         <td>{{ product.price }}₫</td>
         <td>
-          {{ product.stockDetails?.length ? product.stockDetails[0].sizes?.[0]?.stock || 0 : 0 }}
+          {{  getTotalStock(product)  }}
         </td>
         <td>
           <img class="product-image" [src]="getImageUrl(product.img)" width="70" height="auto">

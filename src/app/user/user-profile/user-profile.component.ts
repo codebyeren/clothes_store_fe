@@ -40,11 +40,11 @@ export class UserProfileComponent implements OnInit {
       firstName: ['', [Validators.required]],
       lastName: ['', [Validators.required]],
       phoneNumber: ['', [
-        Validators.required, 
+        Validators.required,
         Validators.pattern(/^[0-9]{10}$/)
       ]],
       email: ['', [
-        Validators.required, 
+        Validators.required,
         Validators.email
       ]],
       address: ['', [Validators.required]],
@@ -166,17 +166,17 @@ export class UserProfileComponent implements OnInit {
 
   saveUserInfo(): void {
     this.submitted = true;
-    
+
     if (this.userForm.invalid) {
       this.toastr.error('Vui lòng điền đầy đủ thông tin và sửa các lỗi.', 'Lỗi');
       return;
     }
-  
+
     this.loading = true;
-  
+
     const userData = this.userForm.value;
     userData.birthday = new Date(userData.birthday);
-  
+
     this.userService.updateUserInfo(userData).subscribe({
       next: (response) => {
         this.toastr.success('Cập nhật thông tin thành công!', 'Thành công');

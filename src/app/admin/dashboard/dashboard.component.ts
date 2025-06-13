@@ -24,8 +24,9 @@ export class DashboardComponent implements OnInit {
   totalOrder: number = 0;
   isLoading = true;
   totalIncomeByYear: number = 0;
+  totalOrderByYear: number = 0;
 
-  selectedYear: number = new Date().getFullYear();
+  selectedYear: string | number = 'all';
   availableYears: number[] = [];
 
   topProductsByCategory: { category: string; products: any[] }[] = [];
@@ -74,7 +75,9 @@ export class DashboardComponent implements OnInit {
           years.add(year);
         });
         this.availableYears = Array.from(years).sort((a, b) => b - a);
-        this.selectedYear = this.availableYears[0];
+
+
+        this.selectedYear = 'all';
 
         if (this.topProductsByCategory.length > 0) {
           this.selectedCategory = this.topProductsByCategory[0];
@@ -91,35 +94,63 @@ export class DashboardComponent implements OnInit {
   }
 
   filterRevenueByYear(): void {
-    const monthlyRevenue = new Array(12).fill(0);
+    if (this.selectedYear === 'all') {
 
-    this.originalRevenueChart.forEach(item => {
-      const date = new Date(item.date);
-      const year = date.getFullYear();
+      const revenueByYearMap = new Map<number, number>();
 
-      if (year === this.selectedYear) {
-        const monthIndex = date.getMonth();
-        monthlyRevenue[monthIndex] += item.total;
-      }
-    });
+      this.originalRevenueChart.forEach(item => {
+        const year = new Date(item.date).getFullYear();
+        revenueByYearMap.set(year, (revenueByYearMap.get(year) || 0) + item.total);
+      });
 
-    this.revenueChartData = {
-      labels: [
-        'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
-        'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
-      ],
-      datasets: [
-        {
-          label: 'Doanh thu',
-          data: monthlyRevenue,
-          backgroundColor: '#4e73df'
+      const sortedYears = Array.from(revenueByYearMap.keys()).sort((a, b) => a - b);
+      const revenues = sortedYears.map(year => revenueByYearMap.get(year) || 0);
+
+      this.revenueChartData = {
+        labels: sortedYears.map(year => year.toString()),
+        datasets: [
+          {
+            label: 'Doanh thu',
+            data: revenues,
+            backgroundColor: '#4e73df'
+          }
+        ]
+      };
+
+      this.totalIncomeByYear = revenues.reduce((sum, val) => sum + val, 0);
+
+    } else {
+      // Lọc theo tháng của năm chọn
+      const monthlyRevenue = new Array(12).fill(0);
+
+      this.originalRevenueChart.forEach(item => {
+        const date = new Date(item.date);
+        const year = date.getFullYear();
+
+        if (year === +this.selectedYear) {
+          const monthIndex = date.getMonth();
+          monthlyRevenue[monthIndex] += item.total;
         }
-      ]
-    };
+      });
 
-    this.totalIncomeByYear = monthlyRevenue.reduce((sum, value) => sum + value, 0);
+      this.revenueChartData = {
+        labels: [
+          'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
+          'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
+        ],
+        datasets: [
+          {
+            label: 'Doanh thu',
+            data: monthlyRevenue,
+            backgroundColor: '#4e73df'
+          }
+        ]
+      };
+
+      this.totalIncomeByYear = monthlyRevenue.reduce((sum, value) => sum + value, 0);
+      this.totalOrderByYear
+    }
   }
-
 
   selectCategory(category: { category: string; products: any[] }) {
     this.selectedCategory = category;

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, ViewEncapsulation} from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,7 +7,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
-
 import { CategoryService } from '../../services/category.service';
 import { ProductService } from '../../services/product.service';
 import { Category, Color, SizeAdmin } from '../../shared/models/product.model';
@@ -29,7 +28,8 @@ import { MatDialogContent, MatDialogRef } from '@angular/material/dialog';
     MatDialogContent
   ],
   templateUrl: './add-product.component.html',
-  styleUrls: ['./add-product.component.css']
+  styleUrls: ['./add-product.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 export class AddProductComponent implements OnInit {
   productForm: FormGroup;
@@ -67,7 +67,6 @@ export class AddProductComponent implements OnInit {
     this.loadCategories();
     this.loadSizes();
     this.loadColors();
-
     this.productForm.get('parentCategoryId')?.valueChanges.subscribe(parentId => {
       this.childCategories = this.categories.filter(c => c.parentId === parentId);
       this.productForm.get('childCategoryIds')?.setValue([]);
@@ -78,11 +77,11 @@ export class AddProductComponent implements OnInit {
     this.categoryService.getAllCategories().subscribe(data => {
       this.categories = data;
       this.parentCategories = data.filter(c => !c.parentId);
-
       const currentParentId = this.productForm.get('parentCategoryId')?.value;
       this.childCategories = currentParentId ? data.filter(c => c.parentId === currentParentId) : [];
     });
   }
+
 
   loadSizes(): void {
     this.sizeService.getAllSize().subscribe(data => this.sizes = data);
@@ -172,56 +171,38 @@ export class AddProductComponent implements OnInit {
 
     try {
       const uploadedImages: { [key: string]: string } = {};
-
-      const filesToUpload: File[] = [];
-      const fileMap: { [fileName: string]: { type: string; index?: number } } = {};
+      const formData = new FormData();
 
       if (this.imgMainFile) {
-        filesToUpload.push(this.imgMainFile);
-        fileMap[this.imgMainFile.name] = { type: 'imgMain' };
+        const timestamp = Date.now();
+        const name = this.imgMainFile.name.split('.').slice(0, -1).join('.');
+        const newName = `${name}_${timestamp}.webp`;
+        const webpFile = await this.convertToWebp(this.imgMainFile, newName);
+        formData.append('files', webpFile); // Tên trường 'files' khớp với API
+        uploadedImages[this.imgMainFile.name] = newName;
       }
 
-      this.variantImgFiles.forEach((file, index) => {
+      for (let index = 0; index < this.variantImgFiles.length; index++) {
+        const file = this.variantImgFiles[index];
         if (file) {
-          filesToUpload.push(file);
-          fileMap[file.name] = { type: 'variant', index };
+          const timestamp = Date.now();
+          const name = file.name.split('.').slice(0, -1).join('.');
+          const newName = `${name}_${timestamp}.webp`;
+          const webpFile = await this.convertToWebp(file, newName);
+          formData.append('files', webpFile); // Tên trường 'files' khớp với API
+          uploadedImages[file.name] = newName;
         }
-      });
-
-      if (filesToUpload.length > 0) {
-        const renamedFiles: File[] = await Promise.all(
-          filesToUpload.map(file =>
-            new Promise<File>((resolve) => {
-              const reader = new FileReader();
-              reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                  const canvas = document.createElement('canvas');
-                  canvas.width = img.width;
-                  canvas.height = img.height;
-                  const ctx = canvas.getContext('2d');
-                  ctx?.drawImage(img, 0, 0);
-                  canvas.toBlob(blob => {
-                    if (!blob) return;
-                    const timestamp = Date.now();
-                    const name = file.name.split('.').slice(0, -1).join('.');
-                    const newName = `${name}_${timestamp}.webp`;
-                    const newFile = new File([blob], newName, { type: 'image/webp' });
-                    uploadedImages[file.name] = newName;
-                    resolve(newFile);
-                  }, 'image/webp', 0.9);
-                };
-                img.src = e.target?.result as string;
-              };
-              reader.readAsDataURL(file);
-            })
-          )
-        );
-
-        await this.productService.uploadFiles(renamedFiles).toPromise();
       }
 
-      // Set values in form after upload
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}: ${value instanceof File ? value.name : value}`);
+      }
+
+      if (formData.has('files')) {
+        const uploadResponse = await this.productService.uploadFiles(formData).toPromise();
+        console.log('Upload response:', uploadResponse);
+      }
+
       if (this.imgMainFile) {
         const fileName = uploadedImages[this.imgMainFile.name].split('.webp')[0];
         this.productForm.get('imgMain')?.setValue(fileName);
@@ -251,12 +232,42 @@ export class AddProductComponent implements OnInit {
         },
         error: (err) => {
           console.error('Lỗi khi tạo sản phẩm:', err);
+          alert('Đã xảy ra lỗi khi tạo sản phẩm!');
         }
       });
     } catch (error) {
-      console.error('Lỗi xử lý ảnh:', error);
-      alert('Đã xảy ra lỗi khi xử lý ảnh!');
+      console.error('Lỗi xử lý ảnh hoặc gửi yêu cầu:', error);
+      alert('Đã xảy ra lỗi khi xử lý ảnh hoặc gửi yêu cầu!');
     }
+  }
+
+  private async convertToWebp(file: File, newName: string): Promise<File> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) return reject(new Error('Không thể tạo canvas context'));
+          ctx.drawImage(img, 0, 0);
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) return reject(new Error('Không thể chuyển đổi file sang WebP'));
+              resolve(new File([blob], newName, { type: 'image/webp' }));
+            },
+            'image/webp',
+            0.9
+          );
+        };
+        img.onerror = () => reject(new Error('Không thể tải ảnh'));
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = () => reject(new Error('Không thể đọc file'));
+      reader.readAsDataURL(file);
+    });
   }
 
   hasDuplicateColors(): boolean {
@@ -275,8 +286,18 @@ export class AddProductComponent implements OnInit {
     return `/img/${img}.webp`;
   }
 
-  onParentCategoryChange(parentId: number): void {
+  onParentCategoryChange(event: Event): void {
+    const selectElement = event.target as HTMLSelectElement;
+    const parentId = +selectElement.value;
     this.childCategories = this.categories.filter(c => c.parentId === parentId);
     this.productForm.get('childCategoryIds')?.setValue([]);
   }
+  onParentCategorySelect(event: Event): void {
+    const selectElement = event.target as HTMLSelectElement;
+    const selectedParentId = +selectElement.value;
+    this.productForm.get('parentCategoryId')?.setValue(selectedParentId);
+    this.childCategories = this.categories.filter(c => c.parentId === selectedParentId);
+    this.productForm.get('childCategoryIds')?.setValue([]);
+  }
+
 }

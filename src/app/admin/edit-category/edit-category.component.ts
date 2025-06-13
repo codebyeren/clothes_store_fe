@@ -35,6 +35,10 @@ export class EditCategoryComponent implements OnInit {
       categoryName: [this.data.category.categoryName, [Validators.required, Validators.minLength(2)]],
       parentId: [this.data.category.parentId]
     });
+    const parentIds = [1, 2, 3, 4];
+    if (parentIds.includes(this.data.category.id)) {
+      this.form.get('parentId')?.disable();
+    }
   }
 
 

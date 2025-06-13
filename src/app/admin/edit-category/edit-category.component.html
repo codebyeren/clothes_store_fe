@@ -8,9 +8,9 @@
 
   <div class="mb-3">
     <label>Danh mục cha</label>
-    <select class="form-select" formControlName="parentId">
-      <option [value]="null">-- Chọn danh mục cha --</option>
-      <option *ngFor="let opt of parentOptions" [value]="opt.id">{{ opt.name }}</option>
+    <select class="form-select" formControlName="parentId" >
+      <option [value]="null" >-- Chọn danh mục cha --</option>
+      <option *ngFor="let opt of parentOptions" [value]="opt.id"> {{ opt.name }}</option>
     </select>
   </div>
 

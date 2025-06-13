@@ -23,7 +23,7 @@
         <td>{{ user.phoneNumber }}</td>
         <td>{{ user.birthday | date: 'dd/MM/yyyy' }}</td>
         <td class="m-2">
-          <button  (click)="openUserDetail(user)" class="btn btn-sm btn-danger m-1" >Chi Tiết</button>
+          <button  (click)="openUserDetail(user)" class="btn btn-sm btn-primary m-1" >Chi Tiết</button>
           <button (click)="deleteUser(user.id)" class="btn btn-danger btn-sm m-1" [disabled]="user.firstName == 'Admin'">Xoá</button>
 
         </td>

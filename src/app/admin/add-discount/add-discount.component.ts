@@ -12,7 +12,8 @@ import { Discount } from '../../shared/models/discount.model';
     ReactiveFormsModule,
     NgIf
   ],
-  templateUrl: './add-discount.component.html'
+  templateUrl: './add-discount.component.html',
+  styleUrls: ['./add-discount.component.css'],
 })
 export class AddDiscountComponent implements OnInit {
   form!: FormGroup;
