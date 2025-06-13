@@ -104,7 +104,7 @@ export class UserProfileComponent implements OnInit {
       this.enableForm();
     } else {
       this.disableForm();
-      this.loadUserData();
+      this.loadUserData(); // Reload data to reset form
     }
   }
 
