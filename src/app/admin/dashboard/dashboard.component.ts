@@ -71,10 +71,13 @@ export class DashboardComponent implements OnInit {
 
         const years = new Set<number>();
         this.originalRevenueChart.forEach(item => {
-          const year = new Date(item.date).getFullYear();
-          years.add(year);
+          const [day, month, year] = item.date.split('/');
+          const dateObj = new Date(Number(year), Number(month) - 1, Number(day));
+          const yearValue = dateObj.getFullYear();
+          years.add(yearValue);
         });
         this.availableYears = Array.from(years).sort((a, b) => b - a);
+
 
 
         this.selectedYear = 'all';
@@ -92,6 +95,7 @@ export class DashboardComponent implements OnInit {
       }
     });
   }
+
 
   filterRevenueByYear(): void {
     if (this.selectedYear === 'all') {

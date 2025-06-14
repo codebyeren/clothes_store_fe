@@ -74,6 +74,7 @@
           <div class="mb-2">
             <label class="form-label">Ảnh biến thể</label>
             <input type="file" class="form-control" (change)="onFileSelected($event, 'variant', i)" accept="image/*" />
+            <img *ngIf="variantImgPreviews[i]" [src]="variantImgPreviews[i]" class="img-thumbnail mt-2" width="120" alt="Ảnh phụ mới" />
           </div>
 
           <button class="btn btn-outline-danger mb-2" type="button" (click)="removeStock(i)">Xóa biến thể</button>

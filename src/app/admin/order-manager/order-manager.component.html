@@ -19,7 +19,7 @@
         <td>{{ i + 1 }}</td>
         <td>{{ userMap[order.userId]  }}</td>
         <td>{{ order.paymentTime | date:'dd/MM/yyyy HH:mm:ss' }}</td>
-        <td>{{ order.status === 'Cancelled' ? 0 : (order.total | currency:'VND') }}</td>
+        <td>{{order.total | currency:'VND' }}</td>
 
         <td>{{ getTotalQuantity(order) }}</td>
 

@@ -104,6 +104,7 @@ export class ProductManagerComponent implements OnInit {
   openAddProduct() {
     const dialogRef =  this.dialog.open(AddProductComponent, {
       width: '50vw',
+      maxHeight : '80vw'
     });
 
     dialogRef.afterClosed().subscribe(result => {
