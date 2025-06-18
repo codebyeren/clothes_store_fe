@@ -9,7 +9,7 @@ import { ApiResponse } from '../shared/models/api-response.model';
   providedIn: 'root'
 })
 export class CategoryService {
-  private baseUrl = 'http://localhost:8080/api/categories';
+  private baseUrl = 'https://clothing-store-api-2-krg7.onrender.com/api/categories';
 
   constructor(private http: HttpClient) {}
 
