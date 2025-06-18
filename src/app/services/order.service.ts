@@ -5,12 +5,8 @@ import { AuthService } from './auth.service';
 import { environment } from '../../environments/environment';
 import { Order, OrderItem, OrderResponse, CreateOrderRequest } from '../shared/models/order.model';
 import { map, catchError } from 'rxjs/operators';
+import { ApiResponse } from '../shared/models/api-response.model';
 
-interface ResponseObject<T> {
-  code: number;
-  message: string;
-  data: T;
-}
 export interface OrderUpdateDto{
   id : number
   status : string
@@ -19,7 +15,7 @@ export interface OrderUpdateDto{
   providedIn: 'root'
 })
 export class OrderService {
-  private apiUrl = `http://localhost:8080/api/orders`;
+  private apiUrl = `${environment.apiUrl}/orders`;
 
   constructor(
     private http: HttpClient,
@@ -43,7 +39,7 @@ export class OrderService {
     return this.http.put<OrderResponse<any>>(`${this.apiUrl}`, body);
   }
   getAllOrder(): Observable<Order[]> {
-    return this.http.get<ResponseObject<Order[]>>(this.apiUrl).pipe(
+    return this.http.get<ApiResponse<Order[]>>(this.apiUrl).pipe(
       map(res => {
         if (res && Array.isArray(res.data)) {
           return res.data;
@@ -57,8 +53,8 @@ export class OrderService {
         return of([]);
       })
     );
-  }  updateStatus( status: OrderUpdateDto): Observable<ResponseObject<any>> {
+  }  updateStatus( status: OrderUpdateDto): Observable<ApiResponse<any>> {
 
-    return this.http.put<ResponseObject<any>>(`${this.apiUrl}`,status );
+    return this.http.put<ApiResponse<any>>(`${this.apiUrl}`,status );
   }
 }

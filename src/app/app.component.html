@@ -9,3 +9,6 @@
 <!-- Footer -->
 <app-footer *ngIf="showHeaderFooter"></app-footer>
 
+<!-- Chat Bubble for User Support -->
+<app-chat-bubble *ngIf="showHeaderFooter && isUserLoggedIn"></app-chat-bubble>
+

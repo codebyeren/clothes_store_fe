@@ -3,13 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { SizeAdmin} from '../shared/models/product.model';
 import { map, catchError } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 import { ApiResponse } from '../shared/models/api-response.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SizeService {
-  private baseUrl = 'http://localhost:8080/api/sizes';
+  private baseUrl = `${environment.apiUrl}/sizes`;
 
   constructor(private http: HttpClient) {}
 

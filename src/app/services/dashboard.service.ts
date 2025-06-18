@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
-import {Product, StockDetail} from '../shared/models/product.model';
+import {  map } from 'rxjs/operators';
+import { Product } from '../shared/models/product.model';
+import { environment } from '../../environments/environment';
+import { Observable } from 'rxjs';
 
 export interface DashboardDataRaw {
   totalIncome: number;
@@ -21,10 +23,9 @@ export interface DashboardData {
   providedIn: 'root'
 })
 export class DashboardService {
-  private baseUrl = 'http://localhost:8080/api/admin/dashboard';
+  private baseUrl = `${environment.apiUrl}/admin/dashboard`;
 
   constructor(private http: HttpClient) {}
-
 
   private mapApiProductToProduct(item: any): Product {
     return {
@@ -61,5 +62,4 @@ export class DashboardService {
       })
     );
   }
-
 }

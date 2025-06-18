@@ -56,17 +56,6 @@ export class TokenService {
     storage.removeItem('refreshTokenExp');
   }
 
-  getCurrentUserId(): number | null {
-    try {
-      const token = this.getAccessToken();
-      if (!token) return null;
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.sub;
-    } catch {
-      return null;
-    }
-  }
-
   getUsername(): string | null {
     try {
       const token = this.getAccessToken();

@@ -90,8 +90,8 @@ export class OrdersComponent implements OnInit {
     switch (status.toLowerCase()) {
       case 'pending':
         return 'status-pending';
-      case 'comfirmed':
-        return 'status-comfirmed';
+      case 'confirmed':
+        return 'status-confirmed';
       case 'shipped':
         return 'status-shipped';
       case 'cancelled':
@@ -111,4 +111,4 @@ export class OrdersComponent implements OnInit {
       minute: '2-digit'
     });
   }
-} 
+}

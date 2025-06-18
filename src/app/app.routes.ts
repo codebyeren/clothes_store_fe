@@ -110,6 +110,10 @@ export const routes: Routes = [
         loadComponent: () => import('./admin/user-manager/user-manager.component').then(m => m.UserManagerComponent)
       },
       {
+        path: 'chat',
+        loadComponent: () => import('./admin/chat/chat.component').then(m => m.AdminChatComponent)
+      },
+      {
         path: 'dash',
         loadComponent: () => import('./admin/dashboard/dashboard.component').then(m => m.DashboardComponent)
       },

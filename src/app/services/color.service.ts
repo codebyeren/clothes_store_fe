@@ -4,12 +4,13 @@ import { Observable, of } from 'rxjs';
 import { Color } from '../shared/models/product.model';
 import { map, catchError } from 'rxjs/operators';
 import { ApiResponse } from '../shared/models/api-response.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ColorService {
-  private baseUrl = 'http://localhost:8080/api/colors';
+  private baseUrl = `${environment.apiUrl}/colors`;
 
   constructor(private http: HttpClient) {}
 

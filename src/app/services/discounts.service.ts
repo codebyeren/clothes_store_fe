@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import {Observable, of} from 'rxjs';
-import {catchError, map} from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 import { Discount } from '../shared/models/discount.model';
 import { ApiResponse } from '../shared/models/api-response.model';
 
@@ -9,15 +10,15 @@ import { ApiResponse } from '../shared/models/api-response.model';
   providedIn: 'root'
 })
 export class DiscountService {
-  private apiUrl = 'http://localhost:8080/api/discounts';
+  private apiUrl = `${environment.apiUrl}/discounts`;
 
   constructor(private http: HttpClient) {}
-
 
   createDiscount(discount: Partial<Discount>): Observable<Discount> {
     return this.http.post<{ code: number, message: string, data: Discount }>(this.apiUrl, discount)
       .pipe(map(res => res.data));
   }
+
   getALlDisCount(): Observable<Discount[]> {
     return this.http.get<ApiResponse<Discount[]>>(this.apiUrl).pipe(
       map(res => {
@@ -34,9 +35,9 @@ export class DiscountService {
       })
     );
   }
+
   updateDiscount(id: number, discount: Partial<Discount>): Observable<Discount> {
     return this.http.put<{ code: number, message: string, data: Discount }>(`${this.apiUrl}/${id}`, discount)
       .pipe(map(res => res.data));
   }
-
 }

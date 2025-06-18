@@ -21,10 +21,10 @@ import { ApiResponse } from '../shared/models/api-response.model';
   providedIn: 'root'
 })
 export class ProductService {
-  private baseUrl = 'http://localhost:8080/api/product';
-  private searchUrl = 'http://localhost:8080/api/product/search';
-  private detailUrl = 'http://localhost:8080/api/product/detail';
-  private adminUrl ="http://localhost:8080/api/admin/upload"
+  private baseUrl = `${environment.apiUrl}/product`;
+  private searchUrl = `${environment.apiUrl}/product/search`;
+  private detailUrl = `${environment.apiUrl}/product/detail`;
+  private adminUrl = `${environment.apiUrl}/admin/upload`;
   private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}

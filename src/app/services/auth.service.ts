@@ -198,8 +198,4 @@ export class AuthService {
   isLoggedIn(): boolean {
     return this.tokenService.isAccessTokenValid();
   }
-
-  getCurrentUserId(): number | null {
-    return this.tokenService.getCurrentUserId();
-  }
 }

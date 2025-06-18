@@ -1,0 +1,72 @@
+<div class="chat-container">
+  <div class="chat-header">
+    <h3>Admin Chat - Customer Support</h3>
+    <div class="connection-status" [class.connected]="isConnected">
+      <span class="status-dot"></span>
+      {{ isConnected ? 'Connected' : 'Disconnected' }}
+    </div>
+  </div>
+
+  <div class="chat-content">
+    <!-- Customer List Sidebar -->
+    <div class="user-list">
+      <h4>Customers</h4>
+      <div class="user-item" 
+           *ngFor="let user of usersWithChats" 
+           [class.active]="selectedUser?.id === user.id"
+           (click)="selectUser(user)">
+        <div class="user-avatar">
+          {{ user.username.charAt(0) }}
+        </div>
+        <div class="user-info">
+          <div class="user-name">{{ getUserDisplayName(user) }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat Messages Area -->
+    <div class="chat-main">
+      <div class="chat-messages" *ngIf="selectedUser">
+        <div class="chat-header-info">
+          <h4>{{ getUserDisplayName(selectedUser) }}</h4>
+        </div>
+        
+        <div class="messages-container">
+          <div class="message" 
+               *ngFor="let message of messages" 
+               [class.own-message]="isOwnMessage(message)">
+            <div class="message-content">
+              <div class="message-text">{{ message.content }}</div>
+              <div class="message-time">{{ formatTime(message.timestamp!) }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="message-input-container">
+          <textarea 
+            [(ngModel)]="newMessage" 
+            (keypress)="onKeyPress($event)"
+            placeholder="Type your message..."
+            class="message-input"
+            rows="3">
+          </textarea>
+          <button 
+            (click)="sendMessage()" 
+            [disabled]="!newMessage.trim() || !isConnected"
+            class="send-button">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- No Customer Selected State -->
+      <div class="no-chat-selected" *ngIf="!selectedUser">
+        <div class="empty-state">
+          <i class="fas fa-headset"></i>
+          <h4>Select a customer to start support chat</h4>
+          <p>Choose a customer from the list to begin providing support</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

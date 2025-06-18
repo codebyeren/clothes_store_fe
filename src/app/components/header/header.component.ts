@@ -43,6 +43,7 @@ export class HeaderComponent implements OnDestroy, OnInit {
     this.router.navigate(['/user/profile']);
   }
 
+
   onFavoritesClick() {
     this.router.navigate(['/user/favorites']);
   }
