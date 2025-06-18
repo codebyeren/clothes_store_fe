@@ -21,10 +21,10 @@ import { ApiResponse } from '../shared/models/api-response.model';
   providedIn: 'root'
 })
 export class ProductService {
-  private baseUrl = 'http://localhost:8080/api/product';
-  private searchUrl = 'http://localhost:8080/api/product/search';
-  private detailUrl = 'http://localhost:8080/api/product/detail';
-  private adminUrl ="http://localhost:8080/api/admin/upload"
+  private baseUrl = 'https://clothing-store-api-7ieq.onrender.com/api/product';
+  private searchUrl = 'https://clothing-store-api-7ieq.onrender.com/api/product/search';
+  private detailUrl = 'https://clothing-store-api-7ieq.onrender.com/api/product/detail';
+  private adminUrl ="https://clothing-store-api-7ieq.onrender.com/api/admin/upload"
   private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}

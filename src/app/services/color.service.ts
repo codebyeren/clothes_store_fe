@@ -9,7 +9,7 @@ import { ApiResponse } from '../shared/models/api-response.model';
   providedIn: 'root'
 })
 export class ColorService {
-  private baseUrl = 'http://localhost:8080/api/colors';
+  private baseUrl = 'https://clothing-store-api-7ieq.onrender.com//colors';
 
   constructor(private http: HttpClient) {}
 

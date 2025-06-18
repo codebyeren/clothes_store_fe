@@ -7,8 +7,8 @@ import { User } from '../shared/models/product.model';
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = 'http://localhost:8080/api/auth/user';
-    private  apiAdminUrl = 'http://localhost:8080/api/auth/users'
+  private apiUrl = 'https://clothing-store-api-7ieq.onrender.com/api/auth/user';
+    private  apiAdminUrl = 'https://clothing-store-api-7ieq.onrender.com/api/auth/users'
 
   constructor(private http: HttpClient) { }
 

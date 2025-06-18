@@ -21,7 +21,7 @@ export interface DashboardData {
   providedIn: 'root'
 })
 export class DashboardService {
-  private baseUrl = 'http://localhost:8080/api/admin/dashboard';
+  private baseUrl = 'https://clothing-store-api-7ieq.onrender.com/api/admin/dashboard';
 
   constructor(private http: HttpClient) {}
 

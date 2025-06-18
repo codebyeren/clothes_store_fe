@@ -9,7 +9,7 @@ import { ApiResponse } from '../shared/models/api-response.model';
   providedIn: 'root'
 })
 export class SizeService {
-  private baseUrl = 'http://localhost:8080/api/sizes';
+  private baseUrl = 'https://clothing-store-api-7ieq.onrender.com/api/sizes';
 
   constructor(private http: HttpClient) {}
 

@@ -9,7 +9,7 @@ import { ApiResponse } from '../shared/models/api-response.model';
   providedIn: 'root'
 })
 export class DiscountService {
-  private apiUrl = 'http://localhost:8080/api/discounts';
+  private apiUrl = 'https://clothing-store-api-7ieq.onrender.com/api/discounts';
 
   constructor(private http: HttpClient) {}
 

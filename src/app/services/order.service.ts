@@ -19,7 +19,7 @@ export interface OrderUpdateDto{
   providedIn: 'root'
 })
 export class OrderService {
-  private apiUrl = `http://localhost:8080/api/orders`;
+  private apiUrl = `https://clothing-store-api-7ieq.onrender.com/api/orders`;
 
   constructor(
     private http: HttpClient,
