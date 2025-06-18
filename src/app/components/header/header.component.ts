@@ -1,7 +1,7 @@
-import { Component, OnDestroy } from '@angular/core';
-import { Router, RouterModule, RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Router, RouterModule, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { Subscription } from 'rxjs';
+import { Subscription, filter } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { CartDropdownComponent } from '../cart-dropdown/cart-dropdown.component';
 
@@ -12,10 +12,11 @@ import { CartDropdownComponent } from '../cart-dropdown/cart-dropdown.component'
   standalone: true,
   imports: [RouterLink, RouterLinkActive, CommonModule, CartDropdownComponent]
 })
-export class HeaderComponent implements OnDestroy {
+export class HeaderComponent implements OnDestroy, OnInit {
   isLoggedIn = false;
   showCartDropdown: boolean = false;
   private sub: Subscription;
+  private routerSub: Subscription = new Subscription();
 
   constructor(private authService: AuthService, private router: Router) {
     this.sub = this.authService.isLoggedIn$.subscribe(val => {
@@ -23,14 +24,32 @@ export class HeaderComponent implements OnDestroy {
     });
   }
 
+  ngOnInit() {
+    this.routerSub = this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.showCartDropdown = false;
+    });
+  }
+
   logout() {
     this.authService.logout();
     this.isLoggedIn = false;
+    this.showCartDropdown = false;
     this.router.navigate(['/auth/login']);
   }
 
   onAccountClick() {
-    this.router.navigate(['/profile']);
+    this.router.navigate(['/user/profile']);
+  }
+
+
+  onFavoritesClick() {
+    this.router.navigate(['/user/favorites']);
+  }
+
+  onOrdersClick() {
+    this.router.navigate(['/user/orders']);
   }
 
   onSearch(productName: string) {
@@ -41,10 +60,12 @@ export class HeaderComponent implements OnDestroy {
 
   toggleCartDropdown() {
     this.showCartDropdown = !this.showCartDropdown;
-    console.log('toggleCartDropdown called. showCartDropdown is now:', this.showCartDropdown);
   }
 
   ngOnDestroy() {
     this.sub.unsubscribe();
+    if (this.routerSub) {
+      this.routerSub.unsubscribe();
+    }
   }
 }

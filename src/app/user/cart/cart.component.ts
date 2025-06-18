@@ -1,11 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
-import { CartService, CartItemDTO } from '../../services/cart.service';
+import { RouterModule, Router } from '@angular/router';
+import { CartService } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
 import { ProductService } from '../../services/product.service';
 import { Subscription } from 'rxjs';
+import { OrderService } from '../../services/order.service';
+import { CartItemDTO } from '../../shared/models/cart.model';
 
 @Component({
   selector: 'app-cart',
@@ -17,14 +19,16 @@ import { Subscription } from 'rxjs';
 export class CartComponent implements OnInit, OnDestroy {
   cartItems: CartItemDTO[] = [];
   private cartSubscription: Subscription;
+  total: number = 0;
 
   constructor(
     private cartService: CartService,
-    private authService: AuthService,
-    private productService: ProductService
+    private orderService: OrderService,
+    private router: Router
   ) {
     this.cartSubscription = this.cartService.getCartItems().subscribe(items => {
       this.cartItems = [...items]; // Create new array to trigger change detection
+      this.calculateTotal();
     });
   }
 
@@ -83,5 +87,39 @@ export class CartComponent implements OnInit, OnDestroy {
     const discount = item.discountPercent || 0;
     const discountedPrice = price * (1 - discount / 100);
     return discountedPrice * item.quantity;
+  }
+
+  calculateTotal(): void {
+    this.total = this.cartItems.reduce((sum, item) => {
+      const price = parseFloat(item.price);
+      const discount = item.discountPercent || 0;
+      const discountedPrice = price * (1 - discount / 100);
+      return sum + (discountedPrice * item.quantity);
+    }, 0);
+  }
+
+  createOrder(): void {
+    const orderItems = this.cartItems.map(item => ({
+      productId: item.productId,
+      color: item.color,
+      size: item.size,
+      quantity: item.quantity,
+      discount: item.discountPercent
+    }));
+
+    this.orderService.createOrder({ orderItems }).subscribe({
+      next: (response) => {
+        if (response.code === 200) {
+          // Clear cart after successful order
+          this.cartService.clearCart();
+          // Redirect to orders page
+          this.router.navigate(['/user/orders']);
+        }
+      },
+      error: (error) => {
+        console.error('Error creating order:', error);
+        alert('Có lỗi xảy ra khi tạo đơn hàng. Vui lòng thử lại.');
+      }
+    });
   }
 }

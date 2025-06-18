@@ -1,0 +1,55 @@
+<div class="container-fluid mt-4">
+  <h3 class="mb-4">Quản Lý Danh Mục</h3>
+
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped text-center align-middle">
+      <thead class="table-dark">
+      <tr>
+        <th>STT</th>
+        <th>Tên</th>
+        <th>Slug</th>
+        <th>Danh Mục Cha</th>
+        <th>Hành Động</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let categy of paginatedCategories; let i = index">
+        <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
+        <td>{{ categy.categoryName }}</td>
+        <td>{{ categy.slug }}</td>
+        <td>{{ getParentCategoryName(categy.parentId) }}</td>
+        <td>
+          <button (click)="openUpdateCate(categy)" class="btn btn-primary">Sửa</button>
+          <button (click)="deleteCate(categy.id)" class="btn btn-danger btn-sm m-1">Xoá</button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="text-end mb-3">
+    <button (click)="openAddCate()" class="btn btn-primary">Thêm Danh Mục</button>
+  </div>
+
+  <div class="mt-3 d-flex justify-content-center">
+    <ul class="pagination">
+      <li class="page-item" [class.disabled]="currentPage === 1">
+        <button class="page-link" (click)="changePage(currentPage - 1)">Trước</button>
+      </li>
+
+      <li
+        class="page-item"
+        *ngFor="let page of [].constructor(totalPages); let i = index"
+        [class.active]="currentPage === i + 1"
+      >
+        <button class="page-link" (click)="changePage(i + 1)">{{ i + 1 }}</button>
+      </li>
+
+      <li class="page-item" [class.disabled]="currentPage === totalPages">
+        <button class="page-link" (click)="changePage(currentPage + 1)">Tiếp</button>
+      </li>
+    </ul>
+  </div>
+
+
+
+</div>

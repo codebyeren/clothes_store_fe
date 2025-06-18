@@ -1,0 +1,43 @@
+<div class="container-fluid mt-4 pb-4">
+  <h3 class="mb-4">Quản Lý Đơn Hàng</h3>
+
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped align-middle text-center">
+      <thead class="table-dark">
+      <tr>
+        <th>STT</th>
+        <th>Người Dùng</th>
+        <th>Thời Gian</th>
+        <th>Tổng Tiền</th>
+        <th>Số lượng sản phẩm</th>
+        <th>Trạng Thái</th>
+        <th style="max-width: 200px;">Hành động</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let order of orders; let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ userMap[order.userId]  }}</td>
+        <td>{{ order.paymentTime | date:'dd/MM/yyyy HH:mm:ss' }}</td>
+        <td>{{order.total | currency:'VND' }}</td>
+
+        <td>{{ getTotalQuantity(order) }}</td>
+
+        <td>
+
+              {{ order.status }}
+        </td>
+        <td>
+          <button class="btn btn-sm btn-primary me-2" (click)="openOrderDetail(order)">Chi Tiết </button>
+          <button class="btn btn-sm btn-primary me-2" [disabled]="order.status == 'Cancelled' || order.status == 'Confirmed'" (click)="updateStatus(order)">
+            Cập nhật trạng thái
+          </button>
+        </td>
+      </tr>
+      <tr *ngIf="orders.length === 0">
+        <td colspan="6">Không có đơn hàng nào.</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,40 +1,81 @@
-<div class="container">
-  <div class="sidebar">
-    <h3>{{user.firstName}} {{user.lastName}}</h3>
-    <ul>
-      <li>Thông tin tài khoản</li>
-      <li>Lịch sử đơn hàng</li>
-      <li>Sản phẩm yêu thích</li>
-      <li>Mã Ưu Đãi</li>
-      <li>Đăng Xuất</li>
-    </ul>
-  </div>
-  <div class="profile-form">
-    <h2>TÀI KHOẢN CỦA TÔI</h2>
-    <div class="form-group">
-      <label for="firstName">Họ Tên</label>
-      <input type="text" id="firstName" [(ngModel)]="user.firstName" class="form-control">
+<div class="container mt-4 mb-4">
+  <div class="row g-4">
+    <div class="col-md-3">
+      <app-user-sidebar></app-user-sidebar>
     </div>
-    <div class="form-group">
-      <label for="lastName">Họ Tên</label>
-      <input type="text" id="lastName" [(ngModel)]="user.lastName" class="form-control">
+    <div class="col-md-9">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Thông tin cá nhân</h5>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="userForm" (ngSubmit)="saveUserInfo()">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Họ</label>
+                <input type="text" class="form-control" formControlName="firstName" [class.is-invalid]="isFieldInvalid('firstName')">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('firstName')">
+                  {{ getErrorMessage('firstName') }}
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Tên</label>
+                <input type="text" class="form-control" formControlName="lastName" [class.is-invalid]="isFieldInvalid('lastName')">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('lastName')">
+                  {{ getErrorMessage('lastName') }}
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Số điện thoại</label>
+                <input type="tel" class="form-control" formControlName="phoneNumber" [class.is-invalid]="isFieldInvalid('phoneNumber')">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('phoneNumber')">
+                  {{ getErrorMessage('phoneNumber') }}
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" formControlName="email" [class.is-invalid]="isFieldInvalid('email')">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('email')">
+                  {{ getErrorMessage('email') }}
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Địa chỉ</label>
+              <input type="text" class="form-control" formControlName="address" [class.is-invalid]="isFieldInvalid('address')">
+              <div class="invalid-feedback" *ngIf="isFieldInvalid('address')">
+                {{ getErrorMessage('address') }}
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Ngày sinh</label>
+              <input type="date" class="form-control" formControlName="birthday" [class.is-invalid]="isFieldInvalid('birthday')" [max]="getMaxDate()">
+              <div class="invalid-feedback" *ngIf="isFieldInvalid('birthday')">
+                {{ getErrorMessage('birthday') }}
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-end mt-4">
+              <button *ngIf="!isEditMode" type="button" class="btn btn-primary" (click)="toggleEditMode()">
+                <i class="fas fa-edit"></i> Chỉnh sửa
+              </button>
+              <div *ngIf="isEditMode" class="d-flex gap-2">
+                <button type="button" class="btn btn-secondary" (click)="toggleEditMode()">
+                  <i class="fas fa-times"></i> Hủy
+                </button>
+                <button type="button" class="btn btn-success" (click)="saveUserInfo()" [disabled]="loading">
+                  <i class="fas fa-save"></i> Lưu thay đổi
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
-    <div class="form-group">
-      <label for="phoneNumber">Số Điện Thoại</label>
-      <input type="text" id="phoneNumber" [(ngModel)]="user.phoneNumber" class="form-control">
-    </div>
-    <div class="form-group">
-      <label for="email">Email</label>
-      <input type="email" id="email" [(ngModel)]="user.email" disabled class="form-control">
-    </div>
-    <div class="form-group">
-      <label for="address">Địa Chỉ</label>
-      <input type="text" id="address" [(ngModel)]="user.address" class="form-control">
-    </div>
-    <div class="form-group">
-      <label for="birthday">Sinh Nhật</label>
-      <input type="datetime" id="birthday" [(ngModel)]="user.birthday" class="form-control">
-    </div>
-    <button (click)="saveUserInfo()" class="btn btn-primary">Lưu</button>
   </div>
 </div>

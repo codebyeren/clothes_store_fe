@@ -1,0 +1,36 @@
+<div class="container mt-5">
+  <div class=" p-4 rounded">
+    <h4 class="card-title text-center mb-4">Thông tin người dùng</h4>
+    <form>
+      <div class="mb-3">
+        <label class="form-label">Họ</label>
+        <input type="text" class="form-control" [value]="user?.firstName" readonly>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Tên</label>
+        <input type="text" class="form-control" [value]="user?.lastName" readonly>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-control" [value]="user?.email" readonly>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Địa chỉ</label>
+        <input type="text" class="form-control" [value]="user?.address" readonly>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Số điện thoại</label>
+        <input type="text" class="form-control" [value]="user?.phoneNumber" readonly>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Ngày sinh</label>
+        <input type="text" class="form-control" [value]="user?.birthday | date:'dd/MM/yyyy'" readonly>
+      </div>
+    </form>
+  </div>
+</div>

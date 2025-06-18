@@ -1,9 +1,12 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Product, getColorValue } from '../../shared/models/product.model';
 import { DiscountPricePipe } from '../../shared/pipes/discount-price.pipe';
 import { FavoriteService } from '../../services/favorite.service';
+import { FavoriteResponse } from '../../shared/models/favorite.model';
+import { ToastrService } from 'ngx-toastr';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-product-box',
@@ -12,12 +15,23 @@ import { FavoriteService } from '../../services/favorite.service';
   templateUrl: './product-box.component.html',
   styleUrls: ['./product-box.component.css']
 })
-export class ProductBoxComponent {
+export class ProductBoxComponent implements OnInit {
   @Input() product!: Product;
   getColorValue = getColorValue;
   hoveredColorIndex: number | null = null;
+  isLoggedIn = false;
 
-  constructor(private favoriteService: FavoriteService) {}
+  constructor(
+    private favoriteService: FavoriteService,
+    private toastr: ToastrService,
+    private authService: AuthService
+  ) {}
+
+  ngOnInit() {
+    this.authService.isLoggedIn$.subscribe(isLoggedIn => {
+      this.isLoggedIn = isLoggedIn;
+    });
+  }
 
   getImageUrl(img: string): string {
     return `/img/${img}.webp`;
@@ -43,31 +57,30 @@ export class ProductBoxComponent {
     return this.getImageUrl(this.product.img);
   }
 
-  onToggleFavorite() {
+  toggleFavorite(): void {
+    if (!this.isLoggedIn) {
+      this.toastr.warning('Vui lòng đăng nhập để thêm vào danh sách yêu thích');
+      return;
+    }
+
     if (this.product.isFavorite) {
-      // Remove from favorites
-      this.favoriteService.removeFavorite(1, this.product.id).subscribe({
-        next: (response) => {
-          console.log('Remove favorite response:', response);
-          if (response.statusCode === 200) {
-            this.product.isFavorite = false;
-          }
+      this.favoriteService.removeFromFavorites(this.product.id).subscribe({
+        next: (response: FavoriteResponse<any>) => {
+          this.toastr.success('Đã xóa khỏi danh sách yêu thích');
+          this.product.isFavorite = false;
         },
-        error: (error) => {
-          console.error('Error removing favorite:', error);
+        error: (error: any) => {
+          this.toastr.error('Không thể xóa khỏi danh sách yêu thích');
         }
       });
     } else {
-      // Add to favorites
-      this.favoriteService.addFavorite(1, this.product.id).subscribe({
-        next: (response) => {
-          console.log('Add favorite response:', response);
-           if (response.statusCode === 200) {
-            this.product.isFavorite = true;
-          }
+      this.favoriteService.addToFavorites(this.product.id).subscribe({
+        next: (response: FavoriteResponse<any>) => {
+          this.toastr.success('Đã thêm vào danh sách yêu thích');
+          this.product.isFavorite = true;
         },
-        error: (error) => {
-          console.error('Error adding favorite:', error);
+        error: (error: any) => {
+          this.toastr.error('Không thể thêm vào danh sách yêu thích');
         }
       });
     }

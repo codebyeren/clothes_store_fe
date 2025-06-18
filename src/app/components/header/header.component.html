@@ -26,11 +26,17 @@
         <button title="Tài khoản" (click)="onAccountClick()">
           <i class="fa fa-user"></i>
         </button>
-        <button title="Đăng xuất" (click)="logout()">
-          <i class="fa fa-sign-out"></i>
+        <button title="Yêu thích" (click)="onFavoritesClick()">
+          <i class="fa fa-heart"></i>
+        </button>
+        <button title="Đơn hàng" (click)="onOrdersClick()">
+          <i class="fa fa-list"></i>
         </button>
         <button title="Giỏ hàng" (click)="toggleCartDropdown()">
           <i class="fa fa-shopping-cart"></i>
+        </button>
+        <button title="Đăng xuất" (click)="logout()">
+          <i class="fa fa-sign-out"></i>
         </button>
       </div>
     </ng-container>

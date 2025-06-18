@@ -1,0 +1,37 @@
+<div class="container-fluid mt-4">
+  <h3 class="mb-4">Quản Lý Người Dùng</h3>
+
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped align-middle text-center">
+      <thead class="table-dark">
+      <tr>
+        <th>STT</th>
+        <th>Tên Người Dùng</th>
+        <th>Địa Chỉ</th>
+        <th>Email</th>
+        <th>Số Điện Thoại</th>
+        <th>Sinh Nhật</th>
+        <th style="max-width: 200px;">Hành động</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let user of users; let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ user.lastName }}</td>
+        <td>{{ user.address }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.phoneNumber }}</td>
+        <td>{{ user.birthday | date: 'dd/MM/yyyy' }}</td>
+        <td class="m-2">
+          <button  (click)="openUserDetail(user)" class="btn btn-sm btn-primary m-1" >Chi Tiết</button>
+          <button (click)="deleteUser(user.id)" class="btn btn-danger btn-sm m-1" [disabled]="user.firstName == 'Admin'">Xoá</button>
+
+        </td>
+      </tr>
+      <tr *ngIf="users.length === 0">
+        <td colspan="7" class="text-center">Không có người dùng nào.</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

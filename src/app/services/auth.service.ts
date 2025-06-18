@@ -1,17 +1,21 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, of, throwError, BehaviorSubject } from 'rxjs';
+import { Observable, of, throwError, BehaviorSubject, Subject, tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { SessionService } from './session.service';
+import { TokenService } from './token.service';
+import { ToastrService } from 'ngx-toastr';
+import { AuthTokensDTO, AuthResponse } from '../shared/models/auth.model';
+import { ApiResponse } from '../shared/models/api-response.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private apiUrl = environment.apiUrl;
-  private loggedIn$ = new BehaviorSubject<boolean>(this.isAccessTokenValid());
+  private loggedIn$: BehaviorSubject<boolean>;
   get isLoggedIn$() {
     return this.loggedIn$.asObservable();
   }
@@ -19,161 +23,133 @@ export class AuthService {
     this.loggedIn$.next(value);
   }
 
+  private _logoutInitiated = new Subject<void>();
+  logoutInitiated$ = this._logoutInitiated.asObservable();
+
   constructor(
     private router: Router,
     private http: HttpClient,
-    private sessionService: SessionService
-  ) {}
+    private sessionService: SessionService,
+    private tokenService: TokenService,
+    private toastr: ToastrService
+  ) {
+    const initialLoggedIn = this.tokenService.isAccessTokenValid();
+    this.loggedIn$ = new BehaviorSubject<boolean>(initialLoggedIn);
 
-  getTokenExp(token: string): number {
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.exp * 1000;
-    } catch {
-      return Date.now() + 15 * 60 * 1000;
+    if (!initialLoggedIn && this.tokenService.isRefreshTokenValid()) {
+      this.refreshToken().subscribe({
+        next: (newToken) => {
+          if (newToken) {
+          } else {
+          }
+        },
+        error: (error) => {
+        }
+      });
+    } else if (!initialLoggedIn && !this.tokenService.isRefreshTokenValid()) {
+      this.tokenService.clearTokens();
+      this.setLoggedIn(false);
     }
   }
 
-  login(username: string, password: string, remember: boolean = false): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/auth/login`, { username, password })
+  login(username: string, password: string, remember: boolean = false): Observable<AuthResponse<AuthTokensDTO>> {
+    return this.http.post<AuthResponse<AuthTokensDTO>>(`${this.apiUrl}/auth/login`, { username, password })
       .pipe(
         map(response => {
           if (response && response.data && response.data.accessToken) {
-            this.saveTokens({
+            this.tokenService.saveTokens({
               accessToken: response.data.accessToken,
               refreshToken: response.data.refreshToken,
-              accessTokenExp: this.getTokenExp(response.data.accessToken),
-              refreshTokenExp: this.getTokenExp(response.data.refreshToken),
+              accessTokenExp: this.tokenService.getTokenExp(response.data.accessToken),
+              refreshTokenExp: this.tokenService.getTokenExp(response.data.refreshToken),
               remember: remember
             });
             const storage = remember ? localStorage : sessionStorage;
             storage.setItem('currentUser', JSON.stringify({ username }));
             this.setLoggedIn(true);
+            this.toastr.success('Đăng nhập thành công');
           }
           return response;
         }),
-        catchError(error => throwError(() => error.error))
+        catchError(error => {
+          return throwError(() => error.error);
+        })
       );
   }
 
   logout(): void {
-    const refreshToken = localStorage.getItem('refreshToken');
+    this._logoutInitiated.next();
+
+    const refreshToken = this.tokenService.getRefreshToken();
     if (refreshToken) {
       this.http.post<any>(`${this.apiUrl}/auth/logout`, { refreshToken })
         .pipe(
           catchError(error => {
-            console.error('Logout error:', error);
             return of(null);
           })
         )
         .subscribe(() => {
-          this.clearLocalStorage();
+          this.tokenService.clearTokens();
           this.setLoggedIn(false);
           this.router.navigate(['/auth/login']);
+          this.toastr.success('Đăng xuất thành công');
         });
     } else {
-      this.clearLocalStorage();
+      this.tokenService.clearTokens();
       this.setLoggedIn(false);
       this.router.navigate(['/auth/login']);
+      this.toastr.success('Đăng xuất thành công');
     }
-  }
-
-  private clearStorage(storage: Storage): void {
-    storage.removeItem('accessToken');
-    storage.removeItem('accessTokenExp');
-    storage.removeItem('refreshToken');
-    storage.removeItem('refreshTokenExp');
-    storage.removeItem('currentUser');
-  }
-
-  private clearLocalStorage(): void {
-    this.clearStorage(localStorage);
-    this.clearStorage(sessionStorage);
-  }
-
-  isAccessTokenValid(): boolean {
-    const token = sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken');
-    const exp = parseInt(sessionStorage.getItem('accessTokenExp') || localStorage.getItem('accessTokenExp') || '0', 10);
-    return !!token && Date.now() < exp;
-  }
-
-  isRefreshTokenValid(): boolean {
-    const token = sessionStorage.getItem('refreshToken') || localStorage.getItem('refreshToken');
-    const exp = parseInt(sessionStorage.getItem('refreshTokenExp') || localStorage.getItem('refreshTokenExp') || '0', 10);
-    return !!token && Date.now() < exp;
   }
 
   refreshToken(): Observable<string | null> {
-    if (!this.isRefreshTokenValid()) {
-      this.logout();
-      return of(null);
-    }
-    const currentRefreshToken = sessionStorage.getItem('refreshToken') || localStorage.getItem('refreshToken');
+    const currentRefreshToken = this.tokenService.getRefreshToken();
 
-    if (!currentRefreshToken) {
+    if (!currentRefreshToken || !this.tokenService.isRefreshTokenValid()) {
       this.logout();
       return of(null);
     }
 
-    return this.http.post<any>(`${this.apiUrl}/auth/refresh-token`, { refreshToken: currentRefreshToken })
+    return this.http.post<ApiResponse<{ accessToken: string }>>(`${this.apiUrl}/auth/refresh`, { refreshToken: currentRefreshToken })
       .pipe(
         map(response => {
-          if (response && response.accessToken) {
-            this.saveTokens({
-              accessToken: response.accessToken,
-              refreshToken: response.refreshToken,
-              accessTokenExp: response.accessTokenExp || (Date.now() + 60 * 60 * 1000),
-              refreshTokenExp: response.refreshTokenExp || (Date.now() + 7 * 24 * 60 * 60 * 1000),
+          if (response && response.code === 200 && response.data && response.data.accessToken) {
+
+            const existingRefreshToken = this.tokenService.getRefreshToken();
+            const existingRefreshTokenExp = parseInt(sessionStorage.getItem('refreshTokenExp') || localStorage.getItem('refreshTokenExp') || '0', 10);
+            const rememberMe = localStorage.getItem('refreshToken') !== null;
+
+            this.tokenService.saveTokens({
+              accessToken: response.data.accessToken,
+              refreshToken: existingRefreshToken || '',
+              accessTokenExp: this.tokenService.getTokenExp(response.data.accessToken),
+              refreshTokenExp: existingRefreshTokenExp,
+              remember: rememberMe
             });
-            return response.accessToken;
+
+            this.toastr.success('Phiên đăng nhập đã được gia hạn');
+            return response.data.accessToken;
+          } else {
+            this.logout();
+            return null;
           }
-          return null;
         }),
-        catchError(() => {
+        catchError((error) => {
           this.logout();
           return of(null);
         })
       );
   }
 
-  getAccessToken(): string | null {
-    return sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken');
-  }
-
-  // refreshTokenIfNeeded(): Observable<boolean> {
-  //   if (this.isAccessTokenValid()) {
-  //     return of(true);
-  //   }
-  //   return new Observable<boolean>((observer) => {
-  //     this.refreshToken().subscribe((newToken) => {
-  //       if (newToken) {
-  //         observer.next(true);
-  //       } else {
-  //         observer.next(false);
-  //       }
-  //       observer.complete();
-  //     });
-  //   });
-  // }
-
-  private saveTokens(data: {
-    accessToken: string;
-    refreshToken: string;
-    accessTokenExp: number;
-    refreshTokenExp: number;
-    remember?: boolean;
-  }): void {
-    const storage = data.remember ? localStorage : sessionStorage;
-    storage.setItem('accessToken', data.accessToken);
-    storage.setItem('refreshToken', data.refreshToken);
-    storage.setItem('accessTokenExp', data.accessTokenExp.toString());
-    storage.setItem('refreshTokenExp', data.refreshTokenExp.toString());
-  }
-
-  register(data: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/auth/register`, data)
+  register(data: any): Observable<AuthResponse<any>> {
+    return this.http.post<AuthResponse<any>>(`${this.apiUrl}/auth/register`, data)
       .pipe(
-        map(response => response),
+        map(response => {
+          if (response.code === 200) {
+            this.toastr.success('Đăng ký thành công');
+          }
+          return response;
+        }),
         catchError(error => throwError(() => error.error))
       );
   }
@@ -220,19 +196,6 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    return this.isAccessTokenValid();
-  }
-
-  getCurrentUserId(): number | null {
-    const userStr = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
-    if (userStr) {
-      try {
-        const user = JSON.parse(userStr);
-        return user.id;
-      } catch (e) {
-        return null;
-      }
-    }
-    return null;
+    return this.tokenService.isAccessTokenValid();
   }
 }

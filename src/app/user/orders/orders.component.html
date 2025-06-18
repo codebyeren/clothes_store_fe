@@ -1,0 +1,63 @@
+<div class="container">
+  <app-user-sidebar [firstName]="user.firstName" [lastName]="user.lastName"></app-user-sidebar>
+
+  <div class="orders-content">
+    <div class="content-wrapper">
+      <h2>LỊCH SỬ ĐƠN HÀNG</h2>
+
+      <div class="orders-list" *ngIf="orders.length > 0; else noOrders">
+        <div class="order-card" *ngFor="let order of orders">
+          <div class="order-header">
+            <div class="order-info">
+              <span class="order-id">Đơn hàng </span>
+              <span class="order-date">{{formatDate(order.paymentTime)}}</span>
+            </div>
+            <div class="order-status">
+              <span [class]="getStatusClass(order.status)">{{order.status}}</span>
+            </div>
+          </div>
+
+          <div class="order-items">
+            <div class="order-item" *ngFor="let item of order.orderItems">
+              <div class="item-image">
+                <img [src]="'/img/' + item.img + '.webp'" [alt]="item.productName">
+              </div>
+              <div class="item-details">
+                <h3 class="item-name">
+                  <a [routerLink]="['/product', item.slug]">{{item.productName}}</a>
+                </h3>
+                <div class="item-specs">
+                  <span class="color">Màu: {{item.color}}</span>
+                  <span class="size">Size: {{item.size}}</span>
+                  <span class="quantity">Số lượng: {{item.quantity}}</span>
+                </div>
+                <div class="item-price">
+                  <span class="price">{{item.price | currency:'VND'}}</span>
+                  <span class="total">Tổng: {{item.total | currency:'VND'}}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="order-footer">
+            <div class="order-total">
+              Tổng tiền: <span>{{order.total | currency:'VND'}}</span>
+            </div>
+            <button *ngIf="order.status.toLowerCase() === 'pending'"
+                    class="cancel-button"
+                    (click)="cancelOrder(order)"
+                    [disabled]="loading">
+              Hủy đơn hàng
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #noOrders>
+        <div class="no-orders">
+          <p>Bạn chưa có đơn hàng nào.</p>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</div>

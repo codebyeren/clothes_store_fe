@@ -1,6 +1,5 @@
-
 <!-- Header -->
-<app-header></app-header>
+<app-header *ngIf="showHeaderFooter"></app-header>
 
 <!-- Main Content -->
 <main>
@@ -8,5 +7,8 @@
 </main>
 
 <!-- Footer -->
-<app-footer></app-footer>
+<app-footer *ngIf="showHeaderFooter"></app-footer>
+
+<!-- Chat Bubble for User Support -->
+<app-chat-bubble *ngIf="showHeaderFooter && isUserLoggedIn"></app-chat-bubble>
 

@@ -1,0 +1,19 @@
+<div class="container">
+  <app-user-sidebar [firstName]="user.firstName" [lastName]="user.lastName"></app-user-sidebar>
+  
+  <div class="favorites-content">
+    <div class="content-wrapper">
+      <h2>SẢN PHẨM YÊU THÍCH</h2>
+      
+      <div class="favorites-grid" *ngIf="favorites.length > 0; else noFavorites">
+        <app-product-box *ngFor="let product of favorites" [product]="product"></app-product-box>
+      </div>
+
+      <ng-template #noFavorites>
+        <div class="no-favorites">
+          <p>Bạn chưa có sản phẩm yêu thích nào.</p>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</div> 

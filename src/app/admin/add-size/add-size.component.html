@@ -1,0 +1,13 @@
+<div class="card p-3 mb-4">
+  <h5>Thêm Màu Mới</h5>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="mb-3">
+      <label for="size" class="form-label">Tên Size</label>
+      <input id="size" type="text" class="form-control" formControlName="size" />
+      <div *ngIf="form.controls.size.invalid && form.controls.size" class="text-danger">
+      </div>
+    </div>
+    <button type="submit" class="btn btn-success" [disabled]="form.invalid">Thêm</button>
+    <button type="button" class="btn btn-secondary ms-2" (click)="cancel.emit()">Huỷ</button>
+  </form>
+</div>

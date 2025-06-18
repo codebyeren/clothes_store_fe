@@ -1,0 +1,19 @@
+<h4>Chỉnh Sửa Danh Mục</h4>
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+  <div class="mb-3">
+    <label>Tên danh mục</label>
+    <input class="form-control" formControlName="categoryName" />
+  </div>
+
+  <div class="mb-3">
+    <label>Danh mục cha</label>
+    <select class="form-select" formControlName="parentId" >
+      <option [value]="null" >-- Chọn danh mục cha --</option>
+      <option *ngFor="let opt of parentOptions" [value]="opt.id"> {{ opt.name }}</option>
+    </select>
+  </div>
+
+  <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Lưu</button>
+  <button type="button" class="btn btn-secondary ms-2" (click)="onCancel()">Huỷ</button>
+</form>

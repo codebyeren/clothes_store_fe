@@ -1,0 +1,141 @@
+/* Container tổng */
+.container-fluid {
+  background-color: #f8f9fa; /* Màu nền sáng nhẹ */
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #343a40; /* Màu chữ tối */
+}
+
+/* Card chung */
+.card {
+  border-radius: 12px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+}
+
+/* Tiêu đề trong card */
+.card-body h5 {
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.5rem;
+}
+
+/* Tổng doanh thu và đơn hàng */
+.text-primary {
+  color: #0d6efd !important; /* Xanh dương tươi */
+}
+
+.text-success {
+  color: #198754 !important; /* Xanh lá tươi */
+}
+
+h3 {
+  font-weight: 700;
+  font-size: 2rem;
+  color: #212529;
+}
+
+/* Select box */
+.form-select {
+  border-radius: 8px;
+  border: 1.5px solid #ced4da;
+  padding: 0.4rem 0.75rem;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.form-select:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 8px rgba(13, 110, 253, 0.3);
+  outline: none;
+}
+
+/* Nút chọn danh mục */
+.btn {
+  border-radius: 20px;
+  padding: 0.5rem 1.2rem;
+  font-weight: 500;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.btn-primary {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #0b5ed7;
+  border-color: #0b5ed7;
+  color: white;
+}
+
+.btn-outline-primary {
+  background-color: transparent;
+  border-color: #0d6efd;
+  color: #0d6efd;
+}
+
+.btn-outline-primary:hover {
+  background-color: #0d6efd;
+  color: white;
+}
+
+/* Card header cho danh mục */
+.card-header.bg-primary {
+  background: linear-gradient(90deg, #0d6efd, #3a8dff);
+  border-radius: 12px 12px 0 0;
+  font-weight: 600;
+}
+
+/* Card sản phẩm */
+.card h6.card-title {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.card-text.text-primary {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #0d6efd !important;
+}
+
+.text-muted {
+  font-style: italic;
+  font-size: 0.85rem;
+  color: #6c757d !important;
+}
+
+/* Ảnh sản phẩm */
+.card-img-top {
+  border-radius: 12px 12px 0 0;
+  height: 180px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.card-img-top:hover {
+  transform: scale(1.05);
+}
+
+/* Spinner */
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  h3 {
+    font-size: 1.5rem;
+  }
+  .card-img-top {
+    height: 150px;
+  }
+}

@@ -1,4 +1,5 @@
 /* You can add global styles to this file, and also import other style files */
+@import 'ngx-toastr/toastr';
 
 :root {
   --primary-color: #fff;
@@ -12,6 +13,10 @@
   --button-bg-hover: #f0f0f0;
   --button-border: var(--border-color);
   --button-text: var(--text-color);
+  --mat-select-panel-background-color: white;
+  --mat-sys-surface-container: white;
+
+
 }
 
 .password-toggle {

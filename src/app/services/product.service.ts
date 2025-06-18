@@ -3,48 +3,34 @@ import { Observable } from 'rxjs';
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { 
-  Product, 
-  ProductCategory, 
-  ProductResponse, 
-  ProductSearchResult, 
-  ProductDetailResponse 
+import {
+  Product,
+  ProductCategory,
+  ProductResponse,
+  ProductSearchResult,
+  ProductDetailResponse,
+  ProductVariantDTO,
+  ProductCreateUpdateDTO,
+  ProductDetailDTO,
+  StockDetailDTO,
+  SizeDTO
 } from '../shared/models/product.model';
-
-export interface ProductDetailDTO {
-  id: number;
-  slug: string;
-  name: string;
-  description: string;
-  price: number;
-  discountPercent: number;
-  imageUrl: string;
-  stockDetails: StockDetailDTO[];
-}
-
-export interface StockDetailDTO {
-  color: string;
-  sizes: SizeDTO[];
-}
-
-export interface SizeDTO {
-  size: string;
-  quantity: number;
-}
+import { ApiResponse } from '../shared/models/api-response.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductService {
-  private baseUrl = 'http://localhost:8080/api/product';
-  private searchUrl = 'http://localhost:8080/api/product/search';
-  private detailUrl = 'http://localhost:8080/api/product/detail';
+  private baseUrl = `${environment.apiUrl}/product`;
+  private searchUrl = `${environment.apiUrl}/product/search`;
+  private detailUrl = `${environment.apiUrl}/product/detail`;
+  private adminUrl = `${environment.apiUrl}/admin/upload`;
   private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
-  getHomeProducts(): Observable<ProductCategory[]> {
-    return this.http.get<ProductResponse>(this.baseUrl).pipe(
+  getHomeProducts(): Observable<any> {
+    return this.http.get<any>(this.baseUrl).pipe(
       map(res => {
         const data = res.data;
         return Object.keys(data).map(categoryName => ({
@@ -53,6 +39,12 @@ export class ProductService {
         }));
       })
     );
+  }
+
+  uploadFiles(files: FormData): Observable<any> {
+    const formData = new FormData();
+    files.forEach(file => formData.append('files', file));
+    return this.http.post(this.adminUrl, formData);
   }
 
   getProductsByCategory(slug: string): Observable<ProductCategory[]> {
@@ -68,11 +60,11 @@ export class ProductService {
   }
 
   searchProducts(productName: string): Observable<ProductSearchResult> {
-    const params = new HttpParams()
-      .set('productName', productName.trim());
+    const params = new HttpParams().set('productName', productName.trim());
     const headers = new HttpHeaders()
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
+
     return this.http.get<any>(`${this.searchUrl}`, { headers, params }).pipe(
       map(response => {
         const productsRaw = response.data?.products;
@@ -85,6 +77,8 @@ export class ProductService {
       })
     );
   }
+
+
 
   private mapApiProductToProduct(apiProduct: any): Product {
     return {
@@ -107,21 +101,11 @@ export class ProductService {
     };
   }
 
-  getProductById(slug: string): Observable<ProductDetailResponse> {
-    return this.http.get<ProductDetailResponse>(`${this.detailUrl}/${slug}`).pipe(
-      map(response => ({
-        code: response.code,
-        message: response.message,
-        data: {
-          productDetails: this.mapApiProductToProduct(response.data.productDetails),
-          relatedProducts: response.data.relatedProducts.map((product: any) => 
-            this.mapApiProductToProduct(product)
-          )
-        }
-      }))
-    );
-  }
-
+  /**
+   * Fetches product details by slug.
+   * @param slug The product slug.
+   * @returns Observable of ProductDetailResponse.
+   */
   getProductDetail(slug: string): Observable<ProductDetailResponse> {
     return this.http.get<ProductDetailResponse>(`${this.detailUrl}/${slug}`).pipe(
       map(response => ({
@@ -129,7 +113,7 @@ export class ProductService {
         message: response.message,
         data: {
           productDetails: this.mapApiProductToProduct(response.data.productDetails),
-          relatedProducts: response.data.relatedProducts.map((product: any) => 
+          relatedProducts: response.data.relatedProducts.map((product: any) =>
             this.mapApiProductToProduct(product)
           )
         }
@@ -140,8 +124,14 @@ export class ProductService {
   getProducts(): Observable<ProductDetailDTO[]> {
     return this.http.get<ProductDetailDTO[]>(`${this.apiUrl}/products`);
   }
+  addProduct(product: ProductCreateUpdateDTO): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/product`, product);
+  }
+  deleteProduct(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/product/${id}`);
+  }
 
-  getProductBySlug(slug: string): Observable<ProductDetailDTO> {
-    return this.http.get<ProductDetailDTO>(`${this.detailUrl}/${slug}`);
+  updateProduct(id: number, product: ProductCreateUpdateDTO): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/product/${id}`, product);
   }
 }
