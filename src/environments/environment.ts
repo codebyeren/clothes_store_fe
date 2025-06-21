@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://github.com/codebyeren/clothes_store_fe.git/api'
+  apiUrl: 'https://clothing-store-api-26.onrender.com/api'
 };
 //v
