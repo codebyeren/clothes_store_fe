@@ -2,7 +2,7 @@
 
 ## Tổng quan
 
-Hệ thống chat đã được cải thiện để theo dõi chính xác tin nhắn chưa đọc và tự động cập nhật số lượng khi có tin nhắn mới qua WebSocket.
+Hệ thống chat đã được cải thiện để theo dõi chính xác tin nhắn chưa đọc và tự động cập nhật số lượng khi có tin nhắn mới qua WebSocket. Tất cả User ID được sử dụng dưới dạng number để đảm bảo tính nhất quán.
 
 ## Tính năng chính
 
@@ -26,6 +26,11 @@ Hệ thống chat đã được cải thiện để theo dõi chính xác tin nh
 - **Khôi phục trạng thái**: Tự động khôi phục trạng thái khi refresh trang
 - **Per-user storage**: Mỗi user có storage riêng biệt
 
+### 5. Admin Chat Support
+- **Multi-user management**: Admin có thể chat với nhiều users cùng lúc
+- **Independent message tracking**: Mỗi user có tin nhắn và trạng thái riêng biệt
+- **Real-time unread count**: Hiển thị số tin nhắn chưa đọc cho từng user
+
 ## Cách hoạt động
 
 ### 1. Khi nhận tin nhắn mới qua WebSocket
@@ -33,8 +38,9 @@ Hệ thống chat đã được cải thiện để theo dõi chính xác tin nh
 // Trong ChatService
 this.stompClient.subscribe(`/topic/${this.currentUserId}`, (message: any) => {
   const chatMessage: ChatMessageDTO = JSON.parse(message.body);
-  chatMessage.isRead = false; // Đánh dấu chưa đọc
+  chatMessage.isRead = this.isChatOpen; // Đánh dấu chưa đọc nếu chat đang đóng
   this.newMessageSubject.next(chatMessage);
+  this.addMessageToHistory(chatMessage);
   this.updateUnreadCount(); // Cập nhật số lượng
   this.saveUnreadCount(); // Lưu vào localStorage
 });
@@ -45,7 +51,7 @@ this.stompClient.subscribe(`/topic/${this.currentUserId}`, (message: any) => {
 private updateUnreadCount(): void {
   const messages = this.historySubject.value;
   const unreadCount = messages.filter(message => 
-    message.sender.id.toString() !== this.currentUserId && 
+    message.sender.id !== this.currentUserId && // So sánh number với number
     !message.isRead
   ).length;
   this.unreadCountSubject.next(unreadCount);
@@ -98,11 +104,17 @@ export interface ChatMessageDTO {
   timestamp?: Date;
   isRead?: boolean; // Trạng thái đọc
 }
+
+export interface UserDTO {
+  id: number; // User ID dưới dạng number
+  username: string;
+}
 ```
 
 ### LocalStorage Keys
 - `chat_read_status_${userId}`: Lưu trạng thái đọc của từng tin nhắn
 - `chat_unread_count_${userId}`: Lưu số tin nhắn chưa đọc
+- `admin_chat_read_status_${adminId}_${userId}`: Lưu trạng thái đọc cho admin chat
 
 ## Các Observable trong ChatService
 
@@ -110,6 +122,37 @@ export interface ChatMessageDTO {
 - `newMessage$`: Tin nhắn mới nhận được
 - `connected$`: Trạng thái kết nối WebSocket
 - `unreadCount$`: Số tin nhắn chưa đọc
+
+## Admin Chat Features
+
+### Multi-user Management
+```typescript
+// Quản lý tin nhắn cho từng user
+userMessages: { [key: number]: ChatMessageDTO[] } = {};
+userUnreadCounts: { [key: number]: number } = {};
+
+// Load tin nhắn cho tất cả users
+private loadAllUserChats(): void {
+  this.usersWithChats.forEach(user => {
+    this.chatService.getChatHistory(this.currentUser!.id, user.id).subscribe({
+      next: (messages) => {
+        const savedReadStatus = this.getSavedReadStatus(user.id);
+        const updatedMessages = messages.map(message => ({
+          ...message,
+          isRead: savedReadStatus[message.id!] || message.sender.id === this.currentUser?.id
+        }));
+        this.userMessages[user.id] = updatedMessages;
+        this.updateUnreadCount(user.id);
+      }
+    });
+  });
+}
+```
+
+### Independent Message Tracking
+- Mỗi user có cache tin nhắn riêng biệt
+- Trạng thái đọc được lưu riêng cho từng user
+- Không xung đột với chat bubble
 
 ## Responsive Design
 
@@ -123,4 +166,11 @@ export interface ChatMessageDTO {
 - **Slide-in animation**: Chat window khi mở
 - **Highlight animation**: Tin nhắn chưa đọc mới
 - **Blink animation**: Unread dot
-- **Hover effects**: Các button và interactive elements 
+- **Hover effects**: Các button và interactive elements
+
+## Data Type Consistency
+
+Tất cả User ID được sử dụng dưới dạng `number` để đảm bảo:
+- So sánh chính xác: `message.sender.id !== this.currentUserId`
+- Không có type conversion không cần thiết
+- Tính nhất quán trong toàn bộ hệ thống 

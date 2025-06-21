@@ -15,7 +15,7 @@ export class ChatService {
   private newMessageSubject = new Subject<ChatMessageDTO>();
   private connectedSubject = new BehaviorSubject<boolean>(false);
   private unreadCountSubject = new BehaviorSubject<number>(0);
-  private currentUserId: string | null = null;
+  private currentUserId: number | null = null;
   private isChatOpen: boolean = false;
 
   public history$ = this.historySubject.asObservable();
@@ -26,7 +26,7 @@ export class ChatService {
   constructor(private http: HttpClient) {}
 
   connect(userId: number): void {
-    this.currentUserId = userId.toString();
+    this.currentUserId = userId;
     console.log('Connecting to WebSocket with userId:', userId);
     this.stompClient = Stomp.over(() => new SockJS(`${environment.wsUrl}/ws`));
     this.stompClient.connect({}, (frame: any) => {
@@ -60,17 +60,17 @@ export class ChatService {
     }
   }
 
-  getChatHistory(userId: string | number, otherId: string | number): Observable<ChatMessageDTO[]> {
+  getChatHistory(userId: number, otherId: number): Observable<ChatMessageDTO[]> {
     const url = `${environment.apiUrl}/chat/history`;
     const params = { 
-      userId: userId.toString(), 
-      otherId: otherId.toString() 
+      userId: userId, 
+      otherId: otherId 
     };
     console.log('Loading chat history:', url, params);
     return this.http.get<ChatMessageDTO[]>(url, { params });
   }
 
-  loadChatHistory(userId: string | number, otherId: string | number): void {
+  loadChatHistory(userId: number, otherId: number): void {
     this.getChatHistory(userId, otherId).subscribe({
       next: (messages) => {
         console.log('Chat history loaded:', messages);
@@ -123,7 +123,7 @@ export class ChatService {
 
     const messages = this.historySubject.value;
     const unreadCount = messages.filter(message => 
-      message.sender.id.toString() !== this.currentUserId && 
+      message.sender.id !== this.currentUserId && 
       !message.isRead
     ).length;
 
