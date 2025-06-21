@@ -7,8 +7,8 @@ import { User } from '../shared/models/product.model';
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = 'https://clothing-store-api-2-krg7.onrender.com/api/auth/user';
-    private  apiAdminUrl = 'https://clothing-store-api-2-krg7.onrender.com/api/auth/users'
+  private apiUrl = 'https://clothing-store-api-26.onrender.com/api/auth/user';
+    private  apiAdminUrl = 'https://clothing-store-api-26.onrender.com/api/auth/users'
 
   constructor(private http: HttpClient) { }
 
