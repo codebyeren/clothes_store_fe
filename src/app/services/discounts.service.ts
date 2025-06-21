@@ -9,7 +9,7 @@ import { ApiResponse } from '../shared/models/api-response.model';
   providedIn: 'root'
 })
 export class DiscountService {
-  private apiUrl = 'https://clothing-store-api-2-krg7.onrender.com/api/discounts';
+  private apiUrl = 'https://clothing-store-api-26.onrender.com/api/discounts';
 
   constructor(private http: HttpClient) {}
 
