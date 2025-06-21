@@ -4,6 +4,7 @@ export interface ChatMessage {
   receiver: User;
   content: string;
   timestamp?: Date;
+  isRead?: boolean;
 }
 
 export interface User {
@@ -17,6 +18,7 @@ export interface ChatMessageDTO {
   receiver: UserDTO;
   content: string;
   timestamp?: Date;
+  isRead?: boolean;
 }
 
 export interface UserDTO {

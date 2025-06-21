@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-register',
@@ -26,7 +27,8 @@ export class RegisterComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private toastr: ToastrService
   ) {
     this.initializeForm();
   }
@@ -198,8 +200,8 @@ export class RegisterComponent {
     });
 
     if (this.registerForm.invalid) {
-      // Show error message
-      this.errorMessage = 'Vui lòng điền đầy đủ thông tin và sửa các lỗi.';
+      // Show error message using toastr
+      this.toastr.error('Vui lòng điền đầy đủ thông tin và sửa các lỗi.', 'Lỗi');
       return;
     }
 
@@ -216,12 +218,16 @@ export class RegisterComponent {
     this.authService.register(userData).subscribe({
       next: (res) => {
         this.successMessage = 'Đăng ký thành công!';
+        this.toastr.success('Đăng ký thành công!', 'Thành công');
         setTimeout(() => {
           this.router.navigate(['/auth/login']);
         }, 1500);
       },
       error: (err) => {
-        this.errorMessage = err.error?.message || 'Đăng ký thất bại. Vui lòng thử lại!';
+        // Display database error message using toastr
+        const errorMessage = err.error?.message || err.message || 'Đăng ký thất bại. Vui lòng thử lại!';
+        this.toastr.error(errorMessage, 'Lỗi đăng ký');
+        this.errorMessage = errorMessage;
         this.loading = false;
       },
       complete: () => {

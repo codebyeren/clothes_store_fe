@@ -99,11 +99,28 @@
 
 .user-info {
   flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .user-name {
   font-weight: 500;
   margin-bottom: 2px;
+}
+
+.unread-badge {
+  background: #ff4757;
+  color: white;
+  border-radius: 50%;
+  min-width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 0 4px;
 }
 
 .user-role {
@@ -156,6 +173,13 @@
   color: #495057;
 }
 
+.unread-indicator {
+  font-size: 12px;
+  opacity: 0.7;
+  color: #ff4757;
+  font-weight: normal;
+}
+
 .user-role-badge {
   background: #3498db;
   color: white;
@@ -176,10 +200,20 @@
 .message {
   margin-bottom: 15px;
   display: flex;
+  transition: all 0.3s ease;
 }
 
 .message.own-message {
   justify-content: flex-end;
+}
+
+.message.unread-message {
+  animation: highlightUnread 0.5s ease;
+}
+
+@keyframes highlightUnread {
+  0% { background: rgba(255, 71, 87, 0.1); }
+  100% { background: transparent; }
 }
 
 .message-content {
@@ -206,6 +240,32 @@
   font-size: 0.75rem;
   opacity: 0.7;
   text-align: right;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+}
+
+.read-status {
+  display: flex;
+  align-items: center;
+}
+
+.read-status i {
+  font-size: 10px;
+}
+
+.unread-dot {
+  width: 6px;
+  height: 6px;
+  background: #ff4757;
+  border-radius: 50%;
+  animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0.3; }
 }
 
 .message-input-container {

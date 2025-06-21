@@ -14,11 +14,14 @@ export class ChatService {
   private historySubject = new BehaviorSubject<ChatMessageDTO[]>([]);
   private newMessageSubject = new Subject<ChatMessageDTO>();
   private connectedSubject = new BehaviorSubject<boolean>(false);
+  private unreadCountSubject = new BehaviorSubject<number>(0);
   private currentUserId: string | null = null;
+  private isChatOpen: boolean = false;
 
   public history$ = this.historySubject.asObservable();
   public newMessage$ = this.newMessageSubject.asObservable();
   public connected$ = this.connectedSubject.asObservable();
+  public unreadCount$ = this.unreadCountSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
@@ -31,7 +34,11 @@ export class ChatService {
       this.connectedSubject.next(true);
       this.stompClient.subscribe(`/topic/${this.currentUserId}`, (message: any) => {
         const chatMessage: ChatMessageDTO = JSON.parse(message.body);
-        this.newMessageSubject.next(chatMessage); // emit single message
+        chatMessage.isRead = this.isChatOpen;
+        this.newMessageSubject.next(chatMessage);
+        this.addMessageToHistory(chatMessage);
+        this.updateUnreadCount();
+        this.saveUnreadCount();
       });
     }, (error: any) => {
       console.error('WebSocket connection error:', error);
@@ -67,7 +74,24 @@ export class ChatService {
     this.getChatHistory(userId, otherId).subscribe({
       next: (messages) => {
         console.log('Chat history loaded:', messages);
-        this.historySubject.next(messages); // emit full history
+        
+        if (this.isChatOpen) {
+          const updatedMessages = messages.map(message => ({
+            ...message,
+            isRead: true
+          }));
+          this.historySubject.next(updatedMessages);
+          this.saveReadStatus(updatedMessages);
+        } else {
+          const savedReadStatus = this.getSavedReadStatus();
+          const updatedMessages = messages.map(message => ({
+            ...message,
+            isRead: savedReadStatus[message.id!] || false
+          }));
+          this.historySubject.next(updatedMessages);
+        }
+        
+        this.updateUnreadCount();
       },
       error: (error) => {
         console.error('Error loading chat history:', error);
@@ -75,11 +99,87 @@ export class ChatService {
     });
   }
 
+  markMessagesAsRead(): void {
+    const currentMessages = this.historySubject.value;
+    const updatedMessages = currentMessages.map(message => ({
+      ...message,
+      isRead: true
+    }));
+    this.historySubject.next(updatedMessages);
+    this.updateUnreadCount();
+    this.saveReadStatus(updatedMessages);
+  }
+
+  setChatOpen(isOpen: boolean): void {
+    this.isChatOpen = isOpen;
+    if (isOpen) {
+      this.markMessagesAsRead();
+    }
+    this.updateUnreadCount();
+  }
+
+  private updateUnreadCount(): void {
+    if (!this.currentUserId) return;
+
+    const messages = this.historySubject.value;
+    const unreadCount = messages.filter(message => 
+      message.sender.id.toString() !== this.currentUserId && 
+      !message.isRead
+    ).length;
+
+    this.unreadCountSubject.next(unreadCount);
+  }
+
+  private saveReadStatus(messages: ChatMessageDTO[]): void {
+    if (!this.currentUserId) return;
+    
+    const readStatus: { [key: number]: boolean } = {};
+    messages.forEach(message => {
+      if (message.id) {
+        readStatus[message.id] = message.isRead || false;
+      }
+    });
+    
+    localStorage.setItem(`chat_read_status_${this.currentUserId}`, JSON.stringify(readStatus));
+  }
+
+  private getSavedReadStatus(): { [key: number]: boolean } {
+    if (!this.currentUserId) return {};
+    
+    const saved = localStorage.getItem(`chat_read_status_${this.currentUserId}`);
+    return saved ? JSON.parse(saved) : {};
+  }
+
+  private saveUnreadCount(): void {
+    if (!this.currentUserId) return;
+    
+    const currentCount = this.unreadCountSubject.value;
+    localStorage.setItem(`chat_unread_count_${this.currentUserId}`, currentCount.toString());
+  }
+
+  getStoredUnreadCount(): number {
+    if (!this.currentUserId) return 0;
+    
+    const saved = localStorage.getItem(`chat_unread_count_${this.currentUserId}`);
+    return saved ? parseInt(saved, 10) : 0;
+  }
+
   clearMessages(): void {
     this.historySubject.next([]);
+    this.unreadCountSubject.next(0);
+    if (this.currentUserId) {
+      localStorage.removeItem(`chat_read_status_${this.currentUserId}`);
+      localStorage.removeItem(`chat_unread_count_${this.currentUserId}`);
+    }
   }
 
   isConnected(): boolean {
     return this.stompClient && this.stompClient.connected;
+  }
+
+  private addMessageToHistory(message: ChatMessageDTO): void {
+    const currentMessages = this.historySubject.value;
+    const updatedMessages = [...currentMessages, message];
+    this.historySubject.next(updatedMessages);
   }
 } 

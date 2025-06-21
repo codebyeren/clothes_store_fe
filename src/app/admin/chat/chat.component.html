@@ -20,6 +20,9 @@
         </div>
         <div class="user-info">
           <div class="user-name">{{ getUserDisplayName(user) }}</div>
+          <div class="unread-badge" *ngIf="getUnreadCount(user.id) > 0">
+            {{ getUnreadCount(user.id) > 99 ? '99+' : getUnreadCount(user.id) }}
+          </div>
         </div>
       </div>
     </div>
@@ -29,15 +32,25 @@
       <div class="chat-messages" *ngIf="selectedUser">
         <div class="chat-header-info">
           <h4>{{ getUserDisplayName(selectedUser) }}</h4>
+          <span class="unread-indicator" *ngIf="getUnreadCount(selectedUser.id) > 0">
+            ({{ getUnreadCount(selectedUser.id) }} tin nhắn mới)
+          </span>
         </div>
         
         <div class="messages-container">
           <div class="message" 
                *ngFor="let message of messages" 
-               [class.own-message]="isOwnMessage(message)">
+               [class.own-message]="isOwnMessage(message)"
+               [class.unread-message]="!message.isRead && !isOwnMessage(message)">
             <div class="message-content">
               <div class="message-text">{{ message.content }}</div>
-              <div class="message-time">{{ formatTime(message.timestamp!) }}</div>
+              <div class="message-time">
+                {{ formatTime(message.timestamp!) }}
+                <span class="read-status" *ngIf="isOwnMessage(message)">
+                  <i class="fas" [class.fa-check]="message.isRead" [class.fa-check-double]="message.isRead"></i>
+                </span>
+                <span class="unread-dot" *ngIf="!message.isRead && !isOwnMessage(message)"></span>
+              </div>
             </div>
           </div>
         </div>
