@@ -150,7 +150,39 @@ export class AuthService {
           }
           return response;
         }),
-        catchError(error => throwError(() => error.error))
+        catchError(error => {
+          // Handle different types of database errors
+          let errorMessage = 'Đăng ký thất bại. Vui lòng thử lại!';
+          
+          if (error.error) {
+            // Check for specific database error messages
+            if (error.error.message) {
+              errorMessage = error.error.message;
+            } else if (error.error.error) {
+              errorMessage = error.error.error;
+            } else if (typeof error.error === 'string') {
+              errorMessage = error.error;
+            }
+            
+            // Handle common database constraint errors
+            if (error.error.code === 11000 || error.error.message?.includes('duplicate')) {
+              if (error.error.message?.includes('email')) {
+                errorMessage = 'Email đã được sử dụng. Vui lòng chọn email khác.';
+              } else if (error.error.message?.includes('username')) {
+                errorMessage = 'Tên đăng nhập đã tồn tại. Vui lòng chọn tên khác.';
+              } else if (error.error.message?.includes('phoneNumber')) {
+                errorMessage = 'Số điện thoại đã được sử dụng. Vui lòng chọn số khác.';
+              } else {
+                errorMessage = 'Thông tin đã tồn tại trong hệ thống. Vui lòng kiểm tra lại.';
+              }
+            }
+          }
+          
+          // Show error message using toastr
+          this.toastr.error(errorMessage, 'Lỗi đăng ký');
+          
+          return throwError(() => ({ error: { message: errorMessage } }));
+        })
       );
   }
 

@@ -1,187 +1,126 @@
-# Chat Feature Implementation
+# Hệ thống Chat với Theo dõi Tin nhắn Chưa đọc
 
-This document describes the chat feature implementation for the clothing store application.
+## Tổng quan
 
-## Overview
+Hệ thống chat đã được cải thiện để theo dõi chính xác tin nhắn chưa đọc và tự động cập nhật số lượng khi có tin nhắn mới qua WebSocket.
 
-The chat feature allows real-time communication between users and admin support staff using WebSocket technology with STOMP protocol.
+## Tính năng chính
 
-## Features
+### 1. Theo dõi trạng thái tin nhắn chưa đọc
+- **Trường `isRead`**: Mỗi tin nhắn có trạng thái `isRead` để xác định đã đọc hay chưa
+- **Tự động đánh dấu**: Tin nhắn mới nhận được tự động đánh dấu là chưa đọc
+- **Đánh dấu đã đọc**: Khi mở chat window, tất cả tin nhắn được đánh dấu là đã đọc
 
-### User Chat
-- Real-time messaging between users
-- User list with online status
-- Message history
-- Responsive design
-- Connection status indicator
+### 2. Hiển thị số tin nhắn chưa đọc
+- **Badge trên chat bubble**: Hiển thị số tin nhắn chưa đọc với animation pulse
+- **Giới hạn hiển thị**: Số lớn hơn 99 sẽ hiển thị "99+"
+- **Indicator trong header**: Hiển thị số tin nhắn mới trong header khi mở chat
 
-### Admin Chat
-- Customer support interface for admins
-- View all customers in the system
-- Real-time chat with customers
-- Professional support theme
-- Message history management
+### 3. Giao diện tin nhắn chưa đọc
+- **Animation highlight**: Tin nhắn chưa đọc có animation highlight khi xuất hiện
+- **Unread dot**: Dấu chấm đỏ nhấp nháy bên cạnh thời gian tin nhắn chưa đọc
+- **Read status**: Hiển thị icon check/check-double cho tin nhắn đã gửi
 
-## Technical Implementation
+### 4. Lưu trữ trạng thái
+- **localStorage**: Lưu trạng thái đọc và số tin nhắn chưa đọc vào localStorage
+- **Khôi phục trạng thái**: Tự động khôi phục trạng thái khi refresh trang
+- **Per-user storage**: Mỗi user có storage riêng biệt
 
-### Backend Requirements
-The chat feature requires the following backend components:
+## Cách hoạt động
 
-1. **WebSocket Configuration**
-```java
-@Configuration
-@EnableWebSocketMessageBroker
-public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
-    @Override
-    public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/topic");
-        config.setApplicationDestinationPrefixes("/app");
-    }
-
-    @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws")
-                .setAllowedOrigins("http://127.0.0.1:5500")
-                .withSockJS();
-    }
-}
-```
-
-2. **Chat Controller**
-```java
-@RequestMapping("api/chat")
-public class ChatController {
-    @GetMapping("/history")
-    public List<ChatMessageDTO> getHistory(@RequestParam Long userId, @RequestParam Long otherId) {
-        return chatService.getChatHistory(userId, otherId);
-    }
-}
-```
-
-3. **WebSocket Chat Controller**
-```java
-@Controller
-public class WebSocketChatController {
-    @MessageMapping("/chat.sendMessage")
-    public void sendMessage(@Payload ChatMessage message) {
-        chatService.sendMessage(message);
-    }
-}
-```
-
-### Frontend Components
-
-#### 1. Chat Service (`src/app/services/chat.service.ts`)
-- Manages WebSocket connections
-- Handles message sending and receiving
-- Provides chat history functionality
-- Connection status management
-
-#### 2. User Chat Component (`src/app/user/chat/`)
-- User interface for chatting with other users
-- Modern, responsive design
-- Real-time message updates
-- User selection interface
-
-#### 3. Admin Chat Component (`src/app/admin/chat/`)
-- Admin interface for customer support
-- Professional support theme
-- Customer list management
-- Support-focused UI
-
-#### 4. Chat Models (`src/app/shared/models/chat.model.ts`)
-- TypeScript interfaces for chat data
-- Message and user DTOs
-- Type safety for chat operations
-
-## Installation
-
-1. Install required dependencies:
-```bash
-npm install @stomp/stompjs sockjs-client
-```
-
-2. Update environment configuration:
+### 1. Khi nhận tin nhắn mới qua WebSocket
 ```typescript
-// src/environments/environment.ts
-export const environment = {
-  production: false,
-  apiUrl: 'http://localhost:8080/api',
-  wsUrl: 'http://localhost:8080'
-};
+// Trong ChatService
+this.stompClient.subscribe(`/topic/${this.currentUserId}`, (message: any) => {
+  const chatMessage: ChatMessageDTO = JSON.parse(message.body);
+  chatMessage.isRead = false; // Đánh dấu chưa đọc
+  this.newMessageSubject.next(chatMessage);
+  this.updateUnreadCount(); // Cập nhật số lượng
+  this.saveUnreadCount(); // Lưu vào localStorage
+});
 ```
 
-## Usage
+### 2. Tính toán số tin nhắn chưa đọc
+```typescript
+private updateUnreadCount(): void {
+  const messages = this.historySubject.value;
+  const unreadCount = messages.filter(message => 
+    message.sender.id.toString() !== this.currentUserId && 
+    !message.isRead
+  ).length;
+  this.unreadCountSubject.next(unreadCount);
+}
+```
 
-### For Users
-1. Log in to the application
-2. Click the chat icon in the header
-3. Select a user from the list to start chatting
-4. Type messages and press Enter to send
+### 3. Đánh dấu tin nhắn đã đọc
+```typescript
+markMessagesAsRead(): void {
+  const currentMessages = this.historySubject.value;
+  const updatedMessages = currentMessages.map(message => ({
+    ...message,
+    isRead: true
+  }));
+  this.historySubject.next(updatedMessages);
+  this.updateUnreadCount();
+  this.saveReadStatus(updatedMessages); // Lưu trạng thái
+}
+```
 
-### For Admins
-1. Log in as an admin user
-2. Navigate to Admin Panel > Customer Chat
-3. Select a customer from the list
-4. Provide customer support through the chat interface
+### 4. Lưu trữ vào localStorage
+```typescript
+// Lưu trạng thái đọc
+private saveReadStatus(messages: ChatMessageDTO[]): void {
+  const readStatus: { [key: number]: boolean } = {};
+  messages.forEach(message => {
+    if (message.id) {
+      readStatus[message.id] = message.isRead || false;
+    }
+  });
+  localStorage.setItem(`chat_read_status_${this.currentUserId}`, JSON.stringify(readStatus));
+}
 
-## Routes
+// Lưu số tin nhắn chưa đọc
+private saveUnreadCount(): void {
+  const currentCount = this.unreadCountSubject.value;
+  localStorage.setItem(`chat_unread_count_${this.currentUserId}`, currentCount.toString());
+}
+```
 
-- **User Chat**: `/user/chat` (requires authentication)
-- **Admin Chat**: `/admin/chat` (requires admin authentication)
+## Cấu trúc dữ liệu
 
-## Features
+### ChatMessageDTO
+```typescript
+export interface ChatMessageDTO {
+  id?: number;
+  sender: UserDTO;
+  receiver: UserDTO;
+  content: string;
+  timestamp?: Date;
+  isRead?: boolean; // Trạng thái đọc
+}
+```
 
-### Real-time Messaging
-- Instant message delivery
-- Connection status indicators
-- Automatic reconnection handling
+### LocalStorage Keys
+- `chat_read_status_${userId}`: Lưu trạng thái đọc của từng tin nhắn
+- `chat_unread_count_${userId}`: Lưu số tin nhắn chưa đọc
 
-### Message History
-- Load previous conversations
-- Persistent chat history
-- Timestamp display
+## Các Observable trong ChatService
 
-### User Management
-- User list with avatars
-- Role-based filtering
-- Online status indicators
+- `history$`: Danh sách tin nhắn
+- `newMessage$`: Tin nhắn mới nhận được
+- `connected$`: Trạng thái kết nối WebSocket
+- `unreadCount$`: Số tin nhắn chưa đọc
 
-### Responsive Design
-- Mobile-friendly interface
-- Adaptive layouts
-- Touch-friendly controls
+## Responsive Design
 
-## Security
+- **Desktop**: Chat window 350x500px
+- **Mobile**: Chat window 300x400px
+- **Badge**: Tự động điều chỉnh kích thước cho số lớn
 
-- Authentication required for chat access
-- Admin-only access to customer support
-- Secure WebSocket connections
-- Token-based authentication
+## Animation và Visual Effects
 
-## Troubleshooting
-
-### Connection Issues
-1. Check backend WebSocket configuration
-2. Verify CORS settings
-3. Ensure proper URL configuration
-
-### Message Not Sending
-1. Check WebSocket connection status
-2. Verify user authentication
-3. Check browser console for errors
-
-### User List Not Loading
-1. Verify API endpoints
-2. Check authentication tokens
-3. Ensure proper user service configuration
-
-## Future Enhancements
-
-- File sharing capabilities
-- Message read receipts
-- Typing indicators
-- Push notifications
-- Chat rooms/groups
-- Message search functionality
-- Chat export features 
+- **Pulse animation**: Badge tin nhắn chưa đọc
+- **Slide-in animation**: Chat window khi mở
+- **Highlight animation**: Tin nhắn chưa đọc mới
+- **Blink animation**: Unread dot
+- **Hover effects**: Các button và interactive elements 

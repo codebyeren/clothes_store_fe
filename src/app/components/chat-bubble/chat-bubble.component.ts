@@ -40,6 +40,10 @@ export class ChatBubbleComponent implements OnInit, OnDestroy {
           id: 1,
           username: 'Admin Support'
         };
+        
+        // Khôi phục số tin nhắn chưa đọc từ localStorage
+        this.unreadCount = this.chatService.getStoredUnreadCount();
+        
         this.chatService.connect(user.id);
         this.loadChatHistory();
       },
@@ -51,15 +55,14 @@ export class ChatBubbleComponent implements OnInit, OnDestroy {
     this.subscriptions.push(
       this.chatService.history$.subscribe(messages => {
         this.messages = messages;
-        this.updateUnreadCount();
         this.scrollToBottom();
       })
     );
 
     this.subscriptions.push(
       this.chatService.newMessage$.subscribe(message => {
-        this.messages = [...this.messages, message];
-        this.updateUnreadCount();
+        // Service đã xử lý việc thêm tin nhắn vào history
+        // Chỉ cần scroll xuống dưới
         this.scrollToBottom();
       })
     );
@@ -67,6 +70,13 @@ export class ChatBubbleComponent implements OnInit, OnDestroy {
     this.subscriptions.push(
       this.chatService.connected$.subscribe(connected => {
         this.isConnected = connected;
+      })
+    );
+
+    // Subscribe to unread count from service
+    this.subscriptions.push(
+      this.chatService.unreadCount$.subscribe(count => {
+        this.unreadCount = count;
       })
     );
   }
@@ -84,9 +94,15 @@ export class ChatBubbleComponent implements OnInit, OnDestroy {
 
   toggleChat(): void {
     this.isChatOpen = !this.isChatOpen;
+    
     if (this.isChatOpen) {
-      this.unreadCount = 0;
+      // Khi mở chat, đánh dấu tất cả tin nhắn đã đọc trước
+      this.chatService.setChatOpen(true);
+      // Sau đó load history để cập nhật UI
       this.loadChatHistory();
+    } else {
+      // Khi đóng chat
+      this.chatService.setChatOpen(false);
     }
   }
 
@@ -95,7 +111,8 @@ export class ChatBubbleComponent implements OnInit, OnDestroy {
       const message: ChatMessage = {
         sender: this.currentUser,
         receiver: this.adminUser,
-        content: this.newMessage.trim()
+        content: this.newMessage.trim(),
+        isRead: true // Tin nhắn gửi đi được đánh dấu là đã đọc
       };
       this.chatService.sendMessage(message);
       this.newMessage = '';
@@ -106,14 +123,6 @@ export class ChatBubbleComponent implements OnInit, OnDestroy {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       this.sendMessage();
-    }
-  }
-
-  private updateUnreadCount(): void {
-    if (!this.isChatOpen && this.messages.length > 0) {
-      this.unreadCount = this.messages.filter(msg => 
-        msg.sender.id !== this.currentUser?.id
-      ).length;
     }
   }
 

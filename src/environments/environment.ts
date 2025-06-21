@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:8080/api',
-  wsUrl: 'http://localhost:8080'
+  apiUrl: 'https://clothing-store-api-8-1h2a.onrender.com//api',
+  wsUrl: 'https://clothing-store-api-8-1h2a.onrender.com//'
 };

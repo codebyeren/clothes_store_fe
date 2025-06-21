@@ -2,7 +2,7 @@
   <!-- Chat Bubble Button -->
   <div class="chat-bubble-button" (click)="toggleChat()" *ngIf="!isChatOpen">
     <i class="fas fa-comments"></i>
-    <span class="unread-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+    <span class="unread-badge" *ngIf="unreadCount > 0">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
   </div>
 
   <!-- Chat Window -->
@@ -11,42 +11,50 @@
       <div class="chat-title">
         <i class="fas fa-headset"></i>
         <span>Hỗ trợ khách hàng</span>
+        <span class="unread-indicator" *ngIf="unreadCount > 0">({{ unreadCount }} tin nhắn mới)</span>
       </div>
       <button class="close-button" (click)="toggleChat()">
         <i class="fas fa-times"></i>
       </button>
     </div>
-
+    
+    <div class="connection-status" [class.connected]="isConnected">
+      <span class="status-dot"></span>
+      {{ isConnected ? 'Đã kết nối' : 'Đang kết nối...' }}
+    </div>
     <div class="chat-messages">
       <div class="message" 
-           *ngFor="let message of messages" 
-           [class.own-message]="isOwnMessage(message)">
+      *ngFor="let message of messages" 
+           [class.own-message]="isOwnMessage(message)"
+           [class.unread-message]="!message.isRead && !isOwnMessage(message)">
         <div class="message-content">
           <div class="message-text">{{ message.content }}</div>
-          <div class="message-time">{{ formatTime(message.timestamp!) }}</div>
+          <div class="message-time">
+            {{ formatTime(message.timestamp!) }}
+            <span class="read-status" *ngIf="isOwnMessage(message)">
+              <i class="fas" [class.fa-check]="message.isRead" [class.fa-check-double]="message.isRead"></i>
+            </span>
+            <span class="unread-dot" *ngIf="!message.isRead && !isOwnMessage(message)"></span>
+          </div>
         </div>
       </div>
     </div>
 
     <div class="chat-input">
       <textarea 
-        [(ngModel)]="newMessage" 
-        (keypress)="onKeyPress($event)"
-        placeholder="Nhập tin nhắn..."
-        class="message-input"
-        rows="2">
-      </textarea>
-      <button 
-        (click)="sendMessage()" 
-        [disabled]="!newMessage.trim() || !isConnected"
-        class="send-button">
-        <i class="fas fa-paper-plane"></i>
-      </button>
-    </div>
+      [(ngModel)]="newMessage" 
+      (keypress)="onKeyPress($event)"
+      placeholder="Nhập tin nhắn..."
+      class="message-input"
+      rows="2">
+    </textarea>
+    <button 
+    (click)="sendMessage()" 
+    [disabled]="!newMessage.trim() || !isConnected"
+    class="send-button">
+    <i class="fas fa-paper-plane"></i>
+  </button>
+</div>
 
-    <div class="connection-status" [class.connected]="isConnected">
-      <span class="status-dot"></span>
-      {{ isConnected ? 'Đã kết nối' : 'Đang kết nối...' }}
-    </div>
   </div>
 </div>
